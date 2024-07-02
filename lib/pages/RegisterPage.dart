@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 class RegisterPage extends StatefulWidget {
   @override
   _RegisterPageState createState() => _RegisterPageState();
@@ -13,14 +12,14 @@ class _RegisterPageState extends State<RegisterPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _nickNameController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _studentIdController = TextEditingController();
   final TextEditingController _schoolController = TextEditingController();
   final TextEditingController _departmentController = TextEditingController();
-
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +70,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 controller: _departmentController,
                 decoration: InputDecoration(labelText: '학과'),
               ),
-
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _register,
@@ -91,7 +89,8 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -106,7 +105,6 @@ class _RegisterPageState extends State<RegisterPage> {
         'department': _departmentController.text.trim(),
         'registeredAt': FieldValue.serverTimestamp(),
       });
-
 
       print('Registration successful: $userCredential');
     } catch (e) {
