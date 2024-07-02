@@ -1,9 +1,10 @@
-import 'package:amtt/pages/ProductRegisterPage.dart';
+
 import 'package:flutter/material.dart';
 
 import 'RegisterPage.dart';
 import 'LoginPage.dart';
 import 'UserEditPage.dart';
+import 'ProductRegisterPage.dart';
 
 class MainPage extends StatelessWidget {
   @override
@@ -50,7 +51,7 @@ class MainPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => Productregisterpage()),
+                        builder: (context) => ProductRegisterPage()),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
