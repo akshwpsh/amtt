@@ -1,10 +1,9 @@
+import 'package:amtt/pages/ProductRegisterPage.dart';
 import 'package:flutter/material.dart';
 
 import 'RegisterPage.dart';
 import 'LoginPage.dart';
 import 'UserEditPage.dart';
-
-
 
 class MainPage extends StatelessWidget {
   @override
@@ -42,6 +41,22 @@ class MainPage extends StatelessWidget {
                   context,
                   MaterialPageRoute(builder: (context) => UserEditPage()),
                 );
+              },
+            ),
+            ElevatedButton(
+              child: Text('상품을 등록하러 가보자잇'),
+              onPressed: () async {
+                if (await isUserLogin()) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Productregisterpage()),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("로그인하고와라잇")),
+                  );
+                }
               },
             ),
           ],
