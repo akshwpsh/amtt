@@ -80,12 +80,7 @@ class _Productregisterpage extends State<Productregisterpage> {
     if (await isUserLogin()) {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        QuerySnapshot querySnapshot =
-            await _firestore.collection('products').get();
-        int docCount = querySnapshot.size + 1;
-        String newDocID = '$docCount';
-
-        await _firestore.collection('products').doc(newDocID).set({
+        await _firestore.collection('products').add({
           'postname': _postnameController.text, // 게시글 제목
           'postnaeyong': _postnaeyongController.text, // 게시글 내용
           'productprice': _productpriceController.text, // 가격
