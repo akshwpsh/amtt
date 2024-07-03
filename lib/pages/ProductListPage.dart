@@ -43,7 +43,15 @@ class _ProductListPageState extends State<ProductListPage> {
               return Card(
                 child: ListTile(
                   leading: imageUrls.isNotEmpty
-                      ? Image.network(imageUrls[0], width: 50, height: 50, fit: BoxFit.cover)
+                      ? Image.network(
+                    imageUrls[0],
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Icon(Icons.error);
+                    },
+                  )
                       : null,
                   title: Text(postname),
                   subtitle: Text('by $userName\n$formattedDate'),
