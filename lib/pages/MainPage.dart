@@ -5,6 +5,8 @@ import 'RegisterPage.dart';
 import 'LoginPage.dart';
 import 'UserEditPage.dart';
 import 'ProductRegisterPage.dart';
+import 'ProductListPage.dart';
+
 
 class MainPage extends StatelessWidget {
   @override
@@ -58,6 +60,15 @@ class MainPage extends StatelessWidget {
                     SnackBar(content: Text("로그인하고와라잇")),
                   );
                 }
+              },
+            ),
+            ElevatedButton(
+              child: Text('상품 목록 보기'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProductListPage()),
+                );
               },
             ),
           ],
