@@ -1,3 +1,5 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -21,35 +23,40 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text('Login'),
       ),
       backgroundColor: Colors.white,
       body: Padding(
-        padding: EdgeInsets.all(34.0),
+        //전체 패딩
+        padding: EdgeInsets.all(0.1.sw),
         child: Column(
           children: [
 
-            SizedBox(height: 150),
+            //TODO : AppBar 지울 때 0.1.sh 로 변경!
+            SizedBox(height: 0.02.sh),
 
             TitleLogo(), //로고
 
-            SizedBox(height: 54), // 로고와 텍스트필드 사이의 간격 추가
+            SizedBox(height: 0.1.sh), // 로고와 텍스트필드 사이의 간격 추가
 
             Container(
-              width: 325,
+              width: 0.8.sw,
               child: Column (
                 children: [
                   //이메일 입력
                   RoundedTextField(labelText: '이메일', controller : _emailController, obscureText : false),
 
-                  SizedBox(height: 12), // 로고와 텍스트필드 사이의 간격 추가
+                  SizedBox(height: 0.01.sh), // 로고와 텍스트필드 사이의 간격 추가
 
                   //비밀번호 입력
                   RoundedTextField(labelText: '비밀번호', controller : _passwordController, obscureText : true),
 
-                  SizedBox(height: 20),
+                  SizedBox(height: 0.02.sh),
 
                   //로그인 버튼
                   BtnYesBG(btnText: '로그인', onPressed : _login),
@@ -57,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
 
-            SizedBox(height: 20),
+            SizedBox(height: 0.02.sh),
 
 
             //이이디/비밀번호 찾기 버튼
@@ -70,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
                   textAlign: TextAlign.center),
             ),
 
-            SizedBox(height: 14),
+            SizedBox(height: 0.01.sh),
 
             //회원가입 버튼
             TextButton(
@@ -85,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
                   textAlign: TextAlign.center),
             ),
 
-            SizedBox(height: 140),
+            SizedBox(height: 0.1.sh),
 
             BtnNoBG(btnText : '로그인 없이 계속하기', onPressed : () { print('로그인x 버튼 클릭'); }),
 

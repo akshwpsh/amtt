@@ -10,6 +10,7 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset : false, //가려지는 위젯 오류 제거
       appBar: AppBar(
         title: Text('Main Page'),
       ),
