@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 class RoundedTextField extends StatelessWidget {
   final String labelText; //labelText 내용 받는 변수
   final TextEditingController controller; //텍스트 컨트롤러
@@ -11,8 +13,7 @@ class RoundedTextField extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0.0), // 양옆 패딩
       child: Container(
-        width: 325,
-        height: 50,
+        height: 0.06.sh,
         decoration: BoxDecoration(
           color: Colors.grey[300], // 회색 배경색
           borderRadius: BorderRadius.circular(12.0), // 모서리 둥글게
