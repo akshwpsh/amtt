@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
+import 'ProductDetailPage.dart';
+
 class ProductListPage extends StatefulWidget {
   @override
   _ProductListPageState createState() => _ProductListPageState();
@@ -34,7 +36,7 @@ class _ProductListPageState extends State<ProductListPage> {
             itemBuilder: (context, index) {
               final doc = snapshot.data!.docs[index];
               final data = doc.data() as Map<String, dynamic>;
-              final String postname = data['postname'] ?? 'No title';
+              final String postname = data['postName'] ?? 'No title';
               final String userName = data['userName'] ?? 'Unknown';
               final Timestamp timestamp = data['timestamp'] ?? Timestamp.now();
               final String formattedDate = DateFormat('yyyy-MM-dd').format(timestamp.toDate());
@@ -57,7 +59,14 @@ class _ProductListPageState extends State<ProductListPage> {
                   subtitle: Text('by $userName\n$formattedDate'),
                   isThreeLine: true,
                   onTap: () {
-                    // 게시물 상세 페이지로 이동하는 코드 추가 가능
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProductDetailPage(
+                          postId: doc.id,
+                        ),
+                      ),
+                    );
                   },
                 ),
               );

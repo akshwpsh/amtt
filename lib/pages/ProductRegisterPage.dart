@@ -13,9 +13,9 @@ class ProductRegisterPage extends StatefulWidget {
 
 class _ProductRegisterState extends State<ProductRegisterPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final TextEditingController _postnameController = TextEditingController();
-  final TextEditingController _postnaeyongController = TextEditingController();
-  final TextEditingController _productpriceController = TextEditingController();
+  final TextEditingController _postNameController = TextEditingController();
+  final TextEditingController _postDescriptionController = TextEditingController();
+  final TextEditingController _productPriceController = TextEditingController();
   List<XFile?> _selectedImages = [];
   List<String?> _imageUrls = [];
   final _imagePicker = ImagePicker();
@@ -85,15 +85,15 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
           child: Column(
             children: [
               TextField(
-                controller: _postnameController,
+                controller: _postNameController,
                 decoration: InputDecoration(labelText: '게시글 제목'),
               ),
               TextField(
-                  controller: _postnaeyongController,
+                  controller: _postDescriptionController,
                   decoration: InputDecoration(labelText: '게시글 내용'),
                   maxLines: 10),
               TextField(
-                controller: _productpriceController,
+                controller: _productPriceController,
                 decoration: InputDecoration(labelText: '가격'),
               ),
               ElevatedButton(
@@ -139,12 +139,12 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
       if (user != null) {
         final imageUrls = await _uploadImagesToFirebase();
         await _firestore.collection('products').add({
-          'postname': _postnameController.text,
-          'postnaeyong': _postnaeyongController.text,
-          'productprice': _productpriceController.text,
+          'postName': _postNameController.text,
+          'postDescription': _postDescriptionController.text,
+          'productPrice': _productPriceController.text,
           'userId': user.uid,
           'userName': userName,
-          'userUniversity': userUniversity,
+          'University': userUniversity,
           'imageUrls': imageUrls,
           'timestamp': FieldValue.serverTimestamp(),
         });
@@ -159,9 +159,9 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
   }
 
   void _clearForm() {
-    _postnameController.clear();
-    _postnaeyongController.clear();
-    _productpriceController.clear();
+    _postNameController.clear();
+    _postDescriptionController.clear();
+    _productPriceController.clear();
     setState(() {
       _selectedImages = [];
       _imageUrls = [];
