@@ -26,6 +26,7 @@ class _LoginPageState extends State<LoginPage> {
 
 
     return Scaffold(
+      //키보드 올라올때 사이즈 에러 방지
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text('Login'),
