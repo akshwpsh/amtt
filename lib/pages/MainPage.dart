@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import 'RegisterPage.dart';
@@ -6,6 +5,7 @@ import 'LoginPage.dart';
 import 'UserEditPage.dart';
 import 'ProductRegisterPage.dart';
 import 'ProductListPage.dart';
+import 'WishListPage.dart';
 
 
 class MainPage extends StatelessWidget {
@@ -69,6 +69,15 @@ class MainPage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ProductListPage()),
+                );
+              },
+            ),
+            ElevatedButton(
+              child: Text('알림 키워드'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => WishlistPage()),
                 );
               },
             ),
