@@ -1,3 +1,5 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,6 +7,12 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
+
+//위젯 임포트
+import 'package:amtt/widgets/RoundedTextField.dart';
+import 'package:amtt/widgets/TitleLogo.dart';
+import 'package:amtt/widgets/BtnYesBG.dart';
+import 'package:amtt/widgets/BtnNoBG.dart';
 
 class ProductRegisterPage extends StatefulWidget {
   @override
@@ -76,11 +84,15 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Product Register'),
+        backgroundColor: Colors.white,
+        title: Text('게시글 등록'),
       ),
+
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        //전체 패딩
+        padding: EdgeInsets.all(0.1.sw),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -93,6 +105,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                   decoration: InputDecoration(labelText: '게시글 내용'),
                   maxLines: 10),
               TextField(
+                keyboardType: TextInputType.number,
                 controller: _productPriceController,
                 decoration: InputDecoration(labelText: '가격'),
               ),
@@ -126,6 +139,8 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                 onPressed: _productRegister,
                 child: Text('게시물 등록'),
               ),
+
+              BtnYesBG(btnText: '게시글 등록', onPressed: _productRegister),
             ],
           ),
         ),
