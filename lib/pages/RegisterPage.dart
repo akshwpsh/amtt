@@ -84,94 +84,94 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       //키보드 올라올때 사이즈 에러 방지
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
-        title: Text('회원가입'),
-        leading: _currentPage > 0
-            ? IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: _previousPage,
-        )
-            : null,
-      ),
-      bottomSheet: Container (
-        color: Colors.white,
-        child: SafeArea (
-          child: Padding (
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          title: Text('회원가입'),
+          leading: _currentPage > 0
+              ? IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: _previousPage,
+          )
+              : null,
+        ),
+        bottomSheet: Container (
+          color: Colors.white,
+          child: SafeArea (
             child: Padding (
-                padding: EdgeInsets.all(0.1.sw),
-                child: Container (
-                    height: 0.15.sh,
-                    child: Column (
-                      children: [
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: Padding (
+                  padding: EdgeInsets.all(0.1.sw),
+                  child: Container (
+                      height: 0.15.sh,
+                      child: Column (
+                        children: [
 
-                        Container(
-                          alignment: FractionalOffset.bottomRight,
-                          child: Text('${_currentPage + 1}/5'),
-                        ),
-                        Container(
-                          child: LinearProgressIndicator(
-                            value: (_currentPage + 1) / 5,
-                            backgroundColor: Color(0xFFDBDBDB),
-                            color: Color(0xFF4EBDBD),
+                          Container(
+                            alignment: FractionalOffset.bottomRight,
+                            child: Text('${_currentPage + 1}/5'),
                           ),
-                        ),
-                        SizedBox(height: 0.03.sh),
-                        //다음 버튼
+                          Container(
+                            child: LinearProgressIndicator(
+                              value: (_currentPage + 1) / 5,
+                              backgroundColor: Color(0xFFDBDBDB),
+                              color: Color(0xFF4EBDBD),
+                            ),
+                          ),
+                          SizedBox(height: 0.03.sh),
+                          //다음 버튼
 
-                        BtnYesBG(btnText: _currentPage < 4 ? '다음' : '등록', onPressed: _nextPage),
-                      ],
-                    )
-                )
+                          BtnYesBG(btnText: _currentPage < 4 ? '다음' : '등록', onPressed: _nextPage),
+                        ],
+                      )
+                  )
+              ),
             ),
           ),
         ),
-      ),
-      body: Padding (
-        padding: EdgeInsets.all(0.1.sw),
-        child: Column(
-          children: [
+        body: Padding (
+          padding: EdgeInsets.all(0.1.sw),
+          child: Column(
+            children: [
 
-            //회원가입 폼 - 페이지뷰
-            Expanded(
-                flex: 4,
-                child: Container(
-                  child: PageView(
-                    controller: _pageController,
-                    onPageChanged: (page) {
-                      setState(() {
-                        _currentPage = page;
-                      });
-                    },
+              //회원가입 폼 - 페이지뷰
+              Expanded(
+                  flex: 4,
+                  child: Container(
+                    child: PageView(
+                      controller: _pageController,
+                      onPageChanged: (page) {
+                        setState(() {
+                          _currentPage = page;
+                        });
+                      },
+                      children: [
+                        SignUpStep1(emailController: _emailController),
+                        SignUpStep2(passwordController: _passwordController, confirmPasswordController: _confirmPasswordController),
+                        SignUpStep3(nickNameController: _nickNameController),
+                        SignUpStep4(nameController: _nameController, phoneNumberController: _phoneNumberController),
+                        SignUpStep5(studentIdController: _studentIdController, schoolController: _schoolController, departmentController: _departmentController),
+                      ],
+                    ),
+                  )
+              ),
+
+              //하단 인디케이터와 버튼 모음
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 0.0, right: 0.0),
+                  child: Column(
                     children: [
-                      SignUpStep1(emailController: _emailController),
-                      SignUpStep2(passwordController: _passwordController, confirmPasswordController: _confirmPasswordController),
-                      SignUpStep3(nickNameController: _nickNameController),
-                      SignUpStep4(nameController: _nameController, phoneNumberController: _phoneNumberController),
-                      SignUpStep5(studentIdController: _studentIdController, schoolController: _schoolController, departmentController: _departmentController),
+
+
                     ],
                   ),
-                )
-            ),
-
-            //하단 인디케이터와 버튼 모음
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 0.0, right: 0.0),
-                child: Column(
-                  children: [
-
-
-                  ],
                 ),
               ),
-            ),
-          ],
-        ),
-      )
+            ],
+          ),
+        )
     );
   }
 }
