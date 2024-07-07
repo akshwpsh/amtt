@@ -22,7 +22,8 @@ class ProductRegisterPage extends StatefulWidget {
 class _ProductRegisterState extends State<ProductRegisterPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _postNameController = TextEditingController();
-  final TextEditingController _postDescriptionController = TextEditingController();
+  final TextEditingController _postDescriptionController =
+      TextEditingController();
   final TextEditingController _productPriceController = TextEditingController();
   List<XFile?> _selectedImages = [];
   List<String?> _imageUrls = [];
@@ -42,7 +43,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         DocumentSnapshot userData =
-        await _firestore.collection('users').doc(user.uid).get();
+            await _firestore.collection('users').doc(user.uid).get();
         setState(() {
           userName = userData['name'];
           userUniversity = userData['school'];
@@ -65,7 +66,8 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
     List<String> downloadUrls = [];
     for (var image in _selectedImages) {
       if (image != null) {
-        final storageRef = FirebaseStorage.instance.ref('product_images/${image.name}');
+        final storageRef =
+            FirebaseStorage.instance.ref('product_images/${image.name}');
         if (kIsWeb) {
           // Web 환경에서 Uint8List로 변환하여 업로드
           Uint8List imageBytes = await image.readAsBytes();
@@ -89,7 +91,6 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
         backgroundColor: Colors.white,
         title: Text('게시글 등록'),
       ),
-
       body: Padding(
         //전체 패딩
         padding: EdgeInsets.all(0.1.sw),
@@ -98,7 +99,14 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
             children: [
               TextField(
                 controller: _postNameController,
-                decoration: InputDecoration(labelText: '게시글 제목'),
+                cursorColor: Color(0xff4EBDBD),
+                decoration: InputDecoration(
+                  labelText: '게시글 제목',
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Color(0xff4EBDBD)), // 포커스된 상태에서의 밑줄 색상 변경
+                  ),
+                ),
               ),
               TextField(
                   controller: _postDescriptionController,
@@ -109,10 +117,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                 controller: _productPriceController,
                 decoration: InputDecoration(labelText: '가격'),
               ),
-              ElevatedButton(
-                onPressed: _selectImage,
-                child: Text('이미지 선택'),
-              ),
+              BtnNoBG(btnText: '이미지 등록', onPressed: _selectImage),
               if (_selectedImages.isNotEmpty)
                 Wrap(
                   spacing: 10,
@@ -120,18 +125,18 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                       .asMap()
                       .entries
                       .map((entry) => (kIsWeb)
-                      ? Image.network(
-                    _imageUrls[entry.key]!,
-                    height: 200,
-                    width: 200,
-                    fit: BoxFit.cover,
-                  )
-                      : Image.file(
-                    File(entry.value!.path),
-                    height: 200,
-                    width: 200,
-                    fit: BoxFit.cover,
-                  ))
+                          ? Image.network(
+                              _imageUrls[entry.key]!,
+                              height: 200,
+                              width: 200,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.file(
+                              File(entry.value!.path),
+                              height: 200,
+                              width: 200,
+                              fit: BoxFit.cover,
+                            ))
                       .toList(),
                 ),
               SizedBox(height: 20),
@@ -139,7 +144,6 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                 onPressed: _productRegister,
                 child: Text('게시물 등록'),
               ),
-
               BtnYesBG(btnText: '게시글 등록', onPressed: _productRegister),
             ],
           ),
