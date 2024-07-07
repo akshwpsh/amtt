@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       // Use builder only if you need to use library outside ScreenUtilInit context
-      builder: (_ , child) {
+      builder: (_, child) {
         return MaterialApp(
           title: 'Flutter Auth Demo',
           theme: ThemeData(
@@ -31,11 +31,5 @@ class MyApp extends StatelessWidget {
         );
       },
     );
-
-
   }
 }
-
-
-
-

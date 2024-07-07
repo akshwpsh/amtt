@@ -17,16 +17,29 @@ class ProductDetailPage extends StatelessWidget {
     return doc.data() as Map<String, dynamic>;
   }
 
-  Future<void> addZZimList(String postId) async {
+  Future<String> addZZimList(String postId) async {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
       throw FirebaseAuthException(code: 'ERROR_NO_USER', message: '로그인먼저');
     }
-    await FirebaseFirestore.instance.collection('wishlist').add({
-      'postId': postId,
-      'userID': user.uid,
-    });
+
+    //이미 찜되어있는 항목인지 확인하기위한 스냅샷
+    QuerySnapshot confirmQuery = await FirebaseFirestore.instance
+        .collection('wishlist')
+        .where('userID', isEqualTo: user.uid)
+        .where('postId', isEqualTo: postId)
+        .get();
+    if (confirmQuery.docs.isNotEmpty) {
+      await confirmQuery.docs.first.reference.delete();
+      return "찜해제";
+    } else {
+      await FirebaseFirestore.instance.collection('wishlist').add({
+        'postId': postId,
+        'userID': user.uid,
+      });
+      return "찜성공";
+    }
   }
 
   @override
@@ -105,9 +118,9 @@ class ProductDetailPage extends StatelessWidget {
                       ///오류발생 이유 확인하기위한 트라이문
                       ///나중에 로그인 확인 함수로 바꾸기 아니면 걍 냅둬도?
                       try {
-                        await addZZimList(postId);
+                        String result = await addZZimList(postId);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('찜했습니당')),
+                          SnackBar(content: Text(result)),
                         );
                       } catch (e) {
                         if (e is FirebaseAuthException &&
