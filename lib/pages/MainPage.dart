@@ -5,7 +5,7 @@ import 'LoginPage.dart';
 import 'UserEditPage.dart';
 import 'ProductRegisterPage.dart';
 import 'ProductListPage.dart';
-import 'WishListPage.dart';
+import 'KeywordsPage.dart';
 
 
 class MainPage extends StatelessWidget {
@@ -77,7 +77,7 @@ class MainPage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => WishlistPage()),
+                  MaterialPageRoute(builder: (context) => KeywordsPage()),
                 );
               },
             ),

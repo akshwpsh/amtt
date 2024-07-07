@@ -2,12 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class WishlistPage extends StatefulWidget {
+class KeywordsPage extends StatefulWidget {
   @override
-  _WishListPageState createState() => _WishListPageState();
+  _KeywordsPageState createState() => _KeywordsPageState();
 }
 
-class _WishListPageState extends State<WishlistPage> {
+class _KeywordsPageState extends State<KeywordsPage> {
   final TextEditingController _keywordController = TextEditingController();
   final User? user = FirebaseAuth.instance.currentUser;
 
