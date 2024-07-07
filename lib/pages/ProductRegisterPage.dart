@@ -91,63 +91,105 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
         backgroundColor: Colors.white,
         title: Text('게시글 등록'),
       ),
-      body: Padding(
-        //전체 패딩
-        padding: EdgeInsets.all(0.1.sw),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              TextField(
-                controller: _postNameController,
-                cursorColor: Color(0xff4EBDBD),
-                decoration: InputDecoration(
-                  labelText: '게시글 제목',
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide:
-                        BorderSide(color: Color(0xff4EBDBD)), // 포커스된 상태에서의 밑줄 색상 변경
+      body: Theme (
+        data: ThemeData (
+
+          inputDecorationTheme: InputDecorationTheme(
+            labelStyle: TextStyle(color: Colors.black), // 라벨 텍스트 색상 설정
+            focusedBorder: UnderlineInputBorder(
+              borderSide:
+              BorderSide(color: Color(0xff4EBDBD)), // 포커스된 상태에서의 밑줄 색상
+            ),
+
+          ),
+
+        ),
+        child: SingleChildScrollView (
+          child: Padding(
+            //전체 패딩
+            padding: EdgeInsets.all(0.1.sw),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _postNameController,
+                    cursorColor: Color(0xff4EBDBD),
+                    decoration: InputDecoration(
+                      labelText: '게시글 제목',
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Color(0xff4EBDBD)), // 포커스된 상태에서의 밑줄 색상 변경
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              TextField(
-                  controller: _postDescriptionController,
-                  decoration: InputDecoration(labelText: '게시글 내용'),
-                  maxLines: 10),
-              TextField(
-                keyboardType: TextInputType.number,
-                controller: _productPriceController,
-                decoration: InputDecoration(labelText: '가격'),
-              ),
-              BtnNoBG(btnText: '이미지 등록', onPressed: _selectImage),
-              if (_selectedImages.isNotEmpty)
-                Wrap(
-                  spacing: 10,
-                  children: _selectedImages
-                      .asMap()
-                      .entries
-                      .map((entry) => (kIsWeb)
-                          ? Image.network(
+
+                  SizedBox(height: 0.05.sh),
+
+                  TextField(
+                      controller: _postDescriptionController,
+                      decoration: InputDecoration(labelText: '게시글 내용', alignLabelWithHint: true),
+                      maxLines: 10),
+
+                  SizedBox(height: 0.05.sh),
+
+
+                  TextField(
+                    keyboardType: TextInputType.number,
+                    controller: _productPriceController,
+                    decoration: InputDecoration(labelText: '가격', suffixText: '원',),
+                  ),
+
+                  //가격 필드와 이미지 등록 버튼 사이의 간격
+                  SizedBox(height: 0.05.sh),
+
+                  BtnNoBG(btnText: '이미지 등록', onPressed: _selectImage),
+
+                  SizedBox(height: 0.03.sh),
+                  if (_selectedImages.isNotEmpty)
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: _selectedImages
+                            .asMap()
+                            .entries
+                            .map((entry) => Padding(
+                          padding: EdgeInsets.only( right: 10.0),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(0.03.sw),
+                            child: (kIsWeb)
+                                ? Image.network(
                               _imageUrls[entry.key]!,
-                              height: 200,
-                              width: 200,
+                              height: 0.2.sw,
+                              width: 0.2.sw,
                               fit: BoxFit.cover,
                             )
-                          : Image.file(
+                                : Image.file(
                               File(entry.value!.path),
-                              height: 200,
-                              width: 200,
+                              height: 0.2.sw,
+                              width: 0.2.sw,
                               fit: BoxFit.cover,
-                            ))
-                      .toList(),
-                ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _productRegister,
-                child: Text('게시물 등록'),
+                            ),
+                          ),
+                        ))
+                            .toList(),
+                      ),
+                    ),
+
+                  SizedBox(height: 0.05.sh),
+
+
+                ],
               ),
-              BtnYesBG(btnText: '게시글 등록', onPressed: _productRegister),
-            ],
+            ),
           ),
         ),
+      ),
+
+      //바닥에 등록 버튼 고정
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.all(0.1.sw),
+        child: BtnYesBG(btnText: '게시글 등록', onPressed: _productRegister),
+
       ),
     );
   }
