@@ -1,3 +1,5 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,6 +7,12 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
+
+//위젯 임포트
+import 'package:amtt/widgets/RoundedTextField.dart';
+import 'package:amtt/widgets/TitleLogo.dart';
+import 'package:amtt/widgets/BtnYesBG.dart';
+import 'package:amtt/widgets/BtnNoBG.dart';
 
 class ProductRegisterPage extends StatefulWidget {
   @override
@@ -14,7 +22,8 @@ class ProductRegisterPage extends StatefulWidget {
 class _ProductRegisterState extends State<ProductRegisterPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _postNameController = TextEditingController();
-  final TextEditingController _postDescriptionController = TextEditingController();
+  final TextEditingController _postDescriptionController =
+      TextEditingController();
   final TextEditingController _productPriceController = TextEditingController();
   List<XFile?> _selectedImages = [];
   List<String?> _imageUrls = [];
@@ -34,7 +43,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         DocumentSnapshot userData =
-        await _firestore.collection('users').doc(user.uid).get();
+            await _firestore.collection('users').doc(user.uid).get();
         setState(() {
           userName = userData['name'];
           userUniversity = userData['school'];
@@ -57,7 +66,8 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
     List<String> downloadUrls = [];
     for (var image in _selectedImages) {
       if (image != null) {
-        final storageRef = FirebaseStorage.instance.ref('product_images/${image.name}');
+        final storageRef =
+            FirebaseStorage.instance.ref('product_images/${image.name}');
         if (kIsWeb) {
           // Web 환경에서 Uint8List로 변환하여 업로드
           Uint8List imageBytes = await image.readAsBytes();
@@ -76,59 +86,110 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Product Register'),
+        backgroundColor: Colors.white,
+        title: Text('게시글 등록'),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              TextField(
-                controller: _postNameController,
-                decoration: InputDecoration(labelText: '게시글 제목'),
+      body: Theme (
+        data: ThemeData (
+
+          inputDecorationTheme: InputDecorationTheme(
+            labelStyle: TextStyle(color: Colors.black), // 라벨 텍스트 색상 설정
+            focusedBorder: UnderlineInputBorder(
+              borderSide:
+              BorderSide(color: Color(0xff4EBDBD)), // 포커스된 상태에서의 밑줄 색상
+            ),
+
+          ),
+
+        ),
+        child: SingleChildScrollView (
+          child: Padding(
+            //전체 패딩
+            padding: EdgeInsets.all(0.1.sw),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _postNameController,
+                    cursorColor: Color(0xff4EBDBD),
+                    decoration: InputDecoration(
+                      labelText: '게시글 제목',
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Color(0xff4EBDBD)), // 포커스된 상태에서의 밑줄 색상 변경
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: 0.05.sh),
+
+                  TextField(
+                      controller: _postDescriptionController,
+                      decoration: InputDecoration(labelText: '게시글 내용', alignLabelWithHint: true),
+                      maxLines: 10),
+
+                  SizedBox(height: 0.05.sh),
+
+
+                  TextField(
+                    keyboardType: TextInputType.number,
+                    controller: _productPriceController,
+                    decoration: InputDecoration(labelText: '가격', suffixText: '원',),
+                  ),
+
+                  //가격 필드와 이미지 등록 버튼 사이의 간격
+                  SizedBox(height: 0.05.sh),
+
+                  BtnNoBG(btnText: '이미지 등록', onPressed: _selectImage),
+
+                  SizedBox(height: 0.03.sh),
+                  if (_selectedImages.isNotEmpty)
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: _selectedImages
+                            .asMap()
+                            .entries
+                            .map((entry) => Padding(
+                          padding: EdgeInsets.only( right: 10.0),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(0.03.sw),
+                            child: (kIsWeb)
+                                ? Image.network(
+                              _imageUrls[entry.key]!,
+                              height: 0.2.sw,
+                              width: 0.2.sw,
+                              fit: BoxFit.cover,
+                            )
+                                : Image.file(
+                              File(entry.value!.path),
+                              height: 0.2.sw,
+                              width: 0.2.sw,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ))
+                            .toList(),
+                      ),
+                    ),
+
+                  SizedBox(height: 0.05.sh),
+
+
+                ],
               ),
-              TextField(
-                  controller: _postDescriptionController,
-                  decoration: InputDecoration(labelText: '게시글 내용'),
-                  maxLines: 10),
-              TextField(
-                controller: _productPriceController,
-                decoration: InputDecoration(labelText: '가격'),
-              ),
-              ElevatedButton(
-                onPressed: _selectImage,
-                child: Text('이미지 선택'),
-              ),
-              if (_selectedImages.isNotEmpty)
-                Wrap(
-                  spacing: 10,
-                  children: _selectedImages
-                      .asMap()
-                      .entries
-                      .map((entry) => (kIsWeb)
-                      ? Image.network(
-                    _imageUrls[entry.key]!,
-                    height: 200,
-                    width: 200,
-                    fit: BoxFit.cover,
-                  )
-                      : Image.file(
-                    File(entry.value!.path),
-                    height: 200,
-                    width: 200,
-                    fit: BoxFit.cover,
-                  ))
-                      .toList(),
-                ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _productRegister,
-                child: Text('게시물 등록'),
-              ),
-            ],
+            ),
           ),
         ),
+      ),
+
+      //바닥에 등록 버튼 고정
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.all(0.1.sw),
+        child: BtnYesBG(btnText: '게시글 등록', onPressed: _productRegister),
+
       ),
     );
   }

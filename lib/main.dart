@@ -21,21 +21,20 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       // Use builder only if you need to use library outside ScreenUtilInit context
-      builder: (_ , child) {
+      builder: (_, child) {
         return MaterialApp(
           title: 'Flutter Auth Demo',
           theme: ThemeData(
-            primarySwatch: Colors.blue,
+            primaryColor: Color(0xff4EBDBD),
+
+            //텍스트 필드 선택 되었을 때의 커서 색상 설정
+            textSelectionTheme: TextSelectionThemeData(
+              cursorColor: Color(0xff4EBDBD), // 커서 색상 설정선택 핸들 색상 설정
+            ),
           ),
           home: MainPage(),
         );
       },
     );
-
-
   }
 }
-
-
-
-
