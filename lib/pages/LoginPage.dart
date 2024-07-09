@@ -1,9 +1,8 @@
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'RegisterPage.dart';
+import '../Service/FirebaseService.dart';
 
 //위젯 임포트
 import 'package:amtt/widgets/RoundedTextField.dart';
@@ -112,6 +111,7 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text.trim(),
       );
       print('Login successful: $userCredential');
+      FirebaseService().saveMessageToken();
     } catch (e) {
       print('Login failed: $e');
     }
