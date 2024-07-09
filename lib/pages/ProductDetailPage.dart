@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
 class ProductDetailPage extends StatelessWidget {
@@ -9,8 +10,36 @@ class ProductDetailPage extends StatelessWidget {
 
   Future<Map<String, dynamic>> fetchPostDetails(String postId) async {
     // Firestore에서 해당 postId로 데이터를 가져오는 예시입니다.
-    DocumentSnapshot doc = await FirebaseFirestore.instance.collection('products').doc(postId).get();
+    DocumentSnapshot doc = await FirebaseFirestore.instance
+        .collection('products')
+        .doc(postId)
+        .get();
     return doc.data() as Map<String, dynamic>;
+  }
+
+  Future<String> addZZimList(String postId) async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      throw FirebaseAuthException(code: 'ERROR_NO_USER', message: '로그인먼저');
+    }
+
+    //이미 찜되어있는 항목인지 확인하기위한 스냅샷
+    QuerySnapshot confirmQuery = await FirebaseFirestore.instance
+        .collection('wishlist')
+        .where('userID', isEqualTo: user.uid)
+        .where('postId', isEqualTo: postId)
+        .get();
+    if (confirmQuery.docs.isNotEmpty) {
+      await confirmQuery.docs.first.reference.delete();
+      return "찜해제";
+    } else {
+      await FirebaseFirestore.instance.collection('wishlist').add({
+        'postId': postId,
+        'userID': user.uid,
+      });
+      return "찜성공";
+    }
   }
 
   @override
@@ -33,7 +62,8 @@ class ProductDetailPage extends StatelessWidget {
             String postName = data['postName'];
             String userName = data['userName'];
             Timestamp timestamp = data['timestamp'];
-            String formattedDate = DateFormat('yyyy-MM-dd').format(timestamp.toDate());
+            String formattedDate =
+                DateFormat('yyyy-MM-dd').format(timestamp.toDate());
             String price = data['productPrice'];
             String description = data['postDescription'];
             String university = data['University'];
@@ -69,7 +99,8 @@ class ProductDetailPage extends StatelessWidget {
                   SizedBox(height: 16.0),
                   Text(
                     postName,
-                    style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                    style:
+                        TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 8.0),
                   Text('by $userName'),
@@ -81,6 +112,32 @@ class ProductDetailPage extends StatelessWidget {
                   Text(description),
                   SizedBox(height: 16.0),
                   Text('University: $university'),
+                  SizedBox(height: 16.0),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      ///오류발생 이유 확인하기위한 트라이문
+                      ///나중에 로그인 확인 함수로 바꾸기 아니면 걍 냅둬도?
+                      try {
+                        String result = await addZZimList(postId);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(result)),
+                        );
+                      } catch (e) {
+                        if (e is FirebaseAuthException &&
+                            e.code == 'ERROR_NO_USER') {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('로그인먼저하세용')),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('찜실패 오류확인하기')),
+                          );
+                        }
+                      }
+                    },
+                    icon: Icon(Icons.favorite),
+                    label: Text('찜하기'),
+                  ),
                 ],
               ),
             );

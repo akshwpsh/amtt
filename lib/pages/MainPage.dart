@@ -6,13 +6,13 @@ import 'UserEditPage.dart';
 import 'ProductRegisterPage.dart';
 import 'ProductListPage.dart';
 import 'KeywordsPage.dart';
-
+import 'WishListPage.dart';
 
 class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset : false, //가려지는 위젯 오류 제거
+      resizeToAvoidBottomInset: false, //가려지는 위젯 오류 제거
       appBar: AppBar(
         title: Text('Main Page'),
       ),
@@ -79,6 +79,21 @@ class MainPage extends StatelessWidget {
                   context,
                   MaterialPageRoute(builder: (context) => KeywordsPage()),
                 );
+              },
+            ),
+            ElevatedButton(
+              child: Text('찜리스트'),
+              onPressed: () async {
+                if (await isUserLogin()) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => WishListPage()),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("로그인하고와라잇")),
+                  );
+                }
               },
             ),
           ],
