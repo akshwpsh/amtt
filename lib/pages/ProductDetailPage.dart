@@ -1,3 +1,4 @@
+import 'package:amtt/widgets/BtnYesBG.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:flutter/material.dart';
@@ -47,7 +48,9 @@ class ProductDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text('상세보기'),
       ),
       body: FutureBuilder<Map<String, dynamic>>(
@@ -113,9 +116,8 @@ class ProductDetailPage extends StatelessWidget {
                         ),
                       ),
 
-                    SizedBox(height: 0.01.sh),
+                    SizedBox(height: 0.02.sh),
 
-                    //판매자 정보 공간
                     const Divider(
                       height: 20,
                       thickness: 2,
@@ -124,6 +126,7 @@ class ProductDetailPage extends StatelessWidget {
                       color: Color(0xffdbdbdb),
                     ),
 
+                    //유저 정보 공간
                     Container(
                       height: 0.05.sh,
                       child: Row (
@@ -157,6 +160,7 @@ class ProductDetailPage extends StatelessWidget {
                       color: Color(0xffdbdbdb),
                     ),
 
+                    SizedBox(height: 0.02.sh),
 
                     //게시글 제목
                     Text(
@@ -170,7 +174,7 @@ class ProductDetailPage extends StatelessWidget {
                     //게시글 상태정보 나열(날짜, 뷰, 찜, 채팅)
                     Row(
                       children: [
-                        Text(formattedDate, style: TextStyle(color: Color(0xff767676)),),
+                        Text(formattedDate, style: TextStyle(fontSize: 17, color: Color(0xff767676)),),
                       ],
                     ),
 
@@ -178,7 +182,9 @@ class ProductDetailPage extends StatelessWidget {
 
                     Text('Price: $price'),
                     SizedBox(height: 0.01.sh),
-                    Text(description, style: TextStyle(color: Color(0xff767676)),),
+
+                    Text(description, style: TextStyle(fontSize: 17, color: Color(0xff767676)),),
+
                     SizedBox(height: 0.01.sh),
 
                     ElevatedButton.icon(
@@ -213,19 +219,30 @@ class ProductDetailPage extends StatelessWidget {
           }
         },
       ),
-      bottomNavigationBar: BottomAppBar(
-        child: Container(
-          color: Colors.yellow,
-          height: 50.0,
-          child: const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Text('This is Bottom'),
-                Icon(Icons.arrow_downward),
-              ]
+      bottomNavigationBar: Container (
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(color: Color(0xffdbdbdb), width: 1.0),
+            ),
           ),
+        child: BottomAppBar(
+            color: Colors.white,
+            padding: EdgeInsets.symmetric(horizontal: 0.1.sw),
+            child: Container (
+              child: Row (
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("가격위치", style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+                  Container(
+                    width: 0.3.sw,
+                    height: 0.05.sh,
+                    child: BtnYesBG(btnText: "채팅하기", onPressed: () => print("채팅누름"),),
+                  )
+                ],
+              ),
+            )
         ),
-      ),
+      )
     );
   }
 }
