@@ -83,31 +83,34 @@ class ProductDetailPage extends StatelessWidget {
                           color: Color(0xff767676),
                           borderRadius: BorderRadius.circular(12),
                         ),
-
                         child: SizedBox(
-                          height: 300,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
+                          height: 0.3.sh,
+
+                          //이미지 페이지를 넘기기 위한 위젯 - 이미지 슬라이드 하는 곳
+                          child: PageView.builder(
                             itemCount: imageUrls.length,
                             itemBuilder: (context, index) {
                               return Container(
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  child: Image.network(
-                                    imageUrls[index],
-                                    width: 200,
-                                    height: 200,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Icon(Icons.error);
-                                    },
+                                child: Center(
+                                  child: ClipRRect(
+                                    //이미지 둥근 모서리 값
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    child: Image.network(
+                                      imageUrls[index],
+                                      //이미지가 뒤 컨테이너에 꽉차게 크기 설정
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      fit: BoxFit.cover, //비율유지하면서 채우기
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Icon(Icons.error);
+                                      },
+                                    ),
                                   ),
                                 ),
                               );
                             },
                           ),
                         ),
-
                       ),
 
                     SizedBox(height: 0.01.sh),
