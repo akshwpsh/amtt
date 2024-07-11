@@ -13,7 +13,6 @@ class ProductDetailPage extends StatelessWidget {
 
   //로그인 여부 확인
   User? isLogin;
-  bool isZZim = false;
 
   Future<Map<String, dynamic>> fetchPostDetails(String postId) async {
     // Firestore에서 해당 postId로 데이터를 가져오는 예시입니다.
@@ -25,65 +24,7 @@ class ProductDetailPage extends StatelessWidget {
     //로그인 여부 설정
     isLogin = FirebaseAuth.instance.currentUser;
 
-    if(isLogin != null) {
-      //로그인이 되어있다면 현재 찜상태를 가져옴
-      isZZim = await ZZimState(postId);
-      //print("현재 찜 여부 " + statesdd.toString());
-      //print("현재 로그인 여부 " + isLogin.toString());
-
-    }
-
-
     return doc.data() as Map<String, dynamic>;
-  }
-
-  //현재 찜 상태 가져오는 코드
-  Future<bool> ZZimState(String postId) async {
-
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      throw FirebaseAuthException(code: 'ERROR_NO_USER', message: '로그인먼저');
-    }
-
-    //이미 찜되어있는 항목인지 확인하기위한 스냅샷
-    QuerySnapshot confirmQuery = await FirebaseFirestore.instance
-        .collection('wishlist')
-        .where('userID', isEqualTo: user.uid)
-        .where('postId', isEqualTo: postId)
-        .get();
-
-    return confirmQuery.docs.isNotEmpty;
-
-
-  }
-
-  //찜리스트에 추가 하는 코드
-  Future<String> addZZimList(String postId) async {
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      throw FirebaseAuthException(code: 'ERROR_NO_USER', message: '로그인먼저');
-    }
-
-    //이미 찜되어있는 항목인지 확인하기위한 스냅샷
-    QuerySnapshot confirmQuery = await FirebaseFirestore.instance
-        .collection('wishlist')
-        .where('userID', isEqualTo: user.uid)
-        .where('postId', isEqualTo: postId)
-        .get();
-    if (confirmQuery.docs.isNotEmpty) {
-      await confirmQuery.docs.first.reference.delete();
-      isZZim = false;
-      return "찜해제";
-    } else {
-      await FirebaseFirestore.instance.collection('wishlist').add({
-        'postId': postId,
-        'userID': user.uid,
-      });
-      isZZim = true;
-      return "찜성공";
-    }
   }
 
   @override
@@ -235,40 +176,19 @@ class ProductDetailPage extends StatelessWidget {
 
                       SizedBox(height: 0.01.sh),
 
-                      //로그인 여부 확인해서 버튼 보이게
+                      //로그인 여부에 따른 찜버튼 보이기
                       if(isLogin != null)
 
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            ///오류발생 이유 확인하기위한 트라이문
-                            ///나중에 로그인 확인 함수로 바꾸기 아니면 걍 냅둬도?
-                            try {
-                              String result = await addZZimList(postId);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(result)),
-                              );
-                            } catch (e) {
-                              if (e is FirebaseAuthException &&
-                                  e.code == 'ERROR_NO_USER') {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('로그인먼저하세용')),
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('찜실패 오류확인하기')),
-                                );
-                              }
-                            }
-                          },
-                          icon: Icon(Icons.favorite_border),
-                          label: Text(''),
-                        ),
+                        //찜버튼
+                        FavoriteButton(postId: postId),
 
 
                     ],
                   ),
                 ),
               ),
+
+              ///하단 앱바 (가격, 채팅버튼)
               bottomNavigationBar: Container(
                 decoration: BoxDecoration(
                   border: Border(
@@ -282,12 +202,15 @@ class ProductDetailPage extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          //가격 정보
                           Text('가격 : $price 원',
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold)),
                           Container(
                             width: 0.3.sw,
                             height: 0.05.sh,
+
+                            //채팅 버튼
                             child: BtnYesBG(
                               btnText: "채팅하기",
                               onPressed: () => print("채팅누름"),
@@ -303,4 +226,118 @@ class ProductDetailPage extends StatelessWidget {
   }
 }
 
+//찜버튼 stateful위젯 클래스
+class FavoriteButton extends StatefulWidget {
+  final String postId;
+
+  const FavoriteButton({Key? key, required this.postId}) : super(key: key);
+
+  @override
+  _FavoriteButtonState createState() => _FavoriteButtonState();
+}
+
+class _FavoriteButtonState extends State<FavoriteButton> {
+
+  //현재 찜 상태 나타내는 변수
+  bool isZZim = false;
+
+  //초기화
+  @override
+  void initState() {
+    super.initState();
+    FetchFavoriteStatus();
+  }
+
+  //찜 상태 가져오는 코드
+  Future<void> FetchFavoriteStatus() async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      throw FirebaseAuthException(code: 'ERROR_NO_USER', message: '로그인먼저');
+    }
+
+    //이미 찜되어있는 항목인지 확인하기위한 스냅샷
+    QuerySnapshot confirmQuery = await FirebaseFirestore.instance
+        .collection('wishlist')
+        .where('userID', isEqualTo: user.uid)
+        .where('postId', isEqualTo: widget.postId)
+        .get();
+
+    //찜 상태를 업데이트
+    setState(() {
+      isZZim = confirmQuery.docs.isNotEmpty;
+    });
+  }
+
+
+  //찜리스트에 추가 하는 코드
+  Future<String> addZZimList(String postId) async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      throw FirebaseAuthException(code: 'ERROR_NO_USER', message: '로그인먼저');
+    }
+
+    //이미 찜되어있는 항목인지 확인하기위한 스냅샷
+    QuerySnapshot confirmQuery = await FirebaseFirestore.instance
+        .collection('wishlist')
+        .where('userID', isEqualTo: user.uid)
+        .where('postId', isEqualTo: postId)
+        .get();
+    if (confirmQuery.docs.isNotEmpty) {
+      await confirmQuery.docs.first.reference.delete();
+      //상태 업데이트
+      setState(() {
+        isZZim = false;
+      });
+      return "찜해제";
+    } else {
+      await FirebaseFirestore.instance.collection('wishlist').add({
+        'postId': postId,
+        'userID': user.uid,
+      });
+      //상태 업데이트
+      setState(() {
+        isZZim = true;
+      });
+      return "찜성공";
+    }
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+
+    return IconButton(
+      onPressed: () async {
+        ///오류발생 이유 확인하기위한 트라이문
+        try {
+          String result = await addZZimList(widget.postId);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result)),
+          );
+        } catch (e) {
+          if (e is FirebaseAuthException &&
+              e.code == 'ERROR_NO_USER') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('로그인먼저하세용')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('찜실패 오류확인하기')),
+            );
+          }
+        }
+        setState(() {
+
+        });
+      },
+      color: Color(0xFF4EBDBD),
+      icon: Icon(
+        isZZim ? Icons.favorite : Icons.favorite_border,
+      ),
+    );
+  }
+}
 
