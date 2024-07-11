@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/android,macos,windows,web,flutter,dart,firebase,androidstudio
 # Edit at https://www.toptal.com/developers/gitignore?templates=android,macos,windows,web,flutter,dart,firebase,androidstudio
 
+assets/
+secret.json
 secret_key.json
 
 ### Android ###

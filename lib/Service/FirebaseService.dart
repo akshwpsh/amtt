@@ -68,6 +68,7 @@ class FirebaseService {
     final jsonCredentials =
     await rootBundle.loadString('assets/secret_key.json');
     final creds = auth.ServiceAccountCredentials.fromJson(jsonCredentials);
+    final fcmurl = await FirebaseService().getFCMUrl();
     final client = await auth.clientViaServiceAccount(
       creds,
       ['https://www.googleapis.com/auth/cloud-platform'],
@@ -88,8 +89,7 @@ class FirebaseService {
       },
     };
     final response = await client.post(
-      Uri.parse(
-          'https://fcm.googleapis.com/v1/projects/gusal-firebase-62eae/messages:send'),
+      Uri.parse(fcmurl),
       headers: {
         'content-type': 'application/json',
       },
@@ -103,6 +103,17 @@ class FirebaseService {
       print(
           '${response.statusCode} , ${response.reasonPhrase} , ${response.body}');
     }
+  }
+
+  Future<String> getFCMUrl() async {
+    final String response = await rootBundle.loadString('assets/app_secrets.json');
+    final data = await json.decode(response);
+    return data['fcm_url'];
+  }
+  Future<String> getVapidKey() async {
+    final String response = await rootBundle.loadString('assets/app_secrets.json');
+    final data = await json.decode(response);
+    return data['vapid_key'];
   }
 }
 
