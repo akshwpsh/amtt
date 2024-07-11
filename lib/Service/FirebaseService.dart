@@ -8,6 +8,15 @@ import 'package:googleapis_auth/auth_io.dart' as auth;
 
 class FirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  Future<void> addKeyword(String keyword) async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+    if (uid.isNotEmpty && keyword.isNotEmpty) {
+      await _firestore.collection('keywords').add({
+        'uid': uid,
+        'keyword': keyword,
+      });
+    }
+  }
 
   Future<void> saveMessageToken() async {
     String? token = await FirebaseMessaging.instance.getToken();
