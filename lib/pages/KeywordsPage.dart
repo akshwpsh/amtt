@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../Service/FirebaseService.dart';
 
 
 class KeywordsPage extends StatefulWidget {
@@ -14,10 +15,7 @@ class _KeywordsPageState extends State<KeywordsPage> {
 
   void _addKeyword() async {
     if (user != null && _keywordController.text.isNotEmpty) {
-      await FirebaseFirestore.instance.collection('keywords').add({
-        'uid': user!.uid,
-        'keyword': _keywordController.text,
-      });
+      FirebaseService().addKeyword(_keywordController.text);
       _keywordController.clear();
     }
   }
