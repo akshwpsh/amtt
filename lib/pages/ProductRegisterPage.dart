@@ -15,6 +15,10 @@ import 'package:amtt/widgets/BtnYesBG.dart';
 import 'package:amtt/widgets/BtnNoBG.dart';
 
 class ProductRegisterPage extends StatefulWidget {
+  final String? postId;
+
+  ProductRegisterPage({this.postId});
+
   @override
   _ProductRegisterState createState() => _ProductRegisterState();
 }
@@ -31,11 +35,15 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
 
   String? userName;
   String? userUniversity;
+  bool get isEditMode => widget.postId != null;
 
   @override
   void initState() {
     super.initState();
     _getUserData();
+    if (isEditMode) {
+      _loadProductData(widget.postId!);
+    }
   }
 
   Future<void> _getUserData() async {
@@ -50,6 +58,17 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
         });
       }
     }
+  }
+
+  Future<void> _loadProductData(String postId) async {
+    DocumentSnapshot productData =
+        await _firestore.collection('products').doc(postId).get();
+    setState(() {
+      _postNameController.text = productData['postName'];
+      _postDescriptionController.text = productData['postDescription'];
+      _productPriceController.text = productData['productPrice'];
+      _imageUrls = List<String>.from(productData['imageUrls']);
+    });
   }
 
   Future<void> _selectImage() async {
@@ -91,20 +110,17 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
         backgroundColor: Colors.white,
         title: Text('게시글 등록'),
       ),
-      body: Theme (
-        data: ThemeData (
-
+      body: Theme(
+        data: ThemeData(
           inputDecorationTheme: InputDecorationTheme(
             labelStyle: TextStyle(color: Colors.black), // 라벨 텍스트 색상 설정
             focusedBorder: UnderlineInputBorder(
               borderSide:
-              BorderSide(color: Color(0xff4EBDBD)), // 포커스된 상태에서의 밑줄 색상
+                  BorderSide(color: Color(0xff4EBDBD)), // 포커스된 상태에서의 밑줄 색상
             ),
-
           ),
-
         ),
-        child: SingleChildScrollView (
+        child: SingleChildScrollView(
           child: Padding(
             //전체 패딩
             padding: EdgeInsets.all(0.1.sw),
@@ -127,16 +143,19 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
 
                   TextField(
                       controller: _postDescriptionController,
-                      decoration: InputDecoration(labelText: '게시글 내용', alignLabelWithHint: true),
+                      decoration: InputDecoration(
+                          labelText: '게시글 내용', alignLabelWithHint: true),
                       maxLines: 10),
 
                   SizedBox(height: 0.05.sh),
 
-
                   TextField(
                     keyboardType: TextInputType.number,
                     controller: _productPriceController,
-                    decoration: InputDecoration(labelText: '가격', suffixText: '원',),
+                    decoration: InputDecoration(
+                      labelText: '가격',
+                      suffixText: '원',
+                    ),
                   ),
 
                   //가격 필드와 이미지 등록 버튼 사이의 간격
@@ -153,31 +172,30 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                             .asMap()
                             .entries
                             .map((entry) => Padding(
-                          padding: EdgeInsets.only( right: 10.0),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(0.03.sw),
-                            child: (kIsWeb)
-                                ? Image.network(
-                              _imageUrls[entry.key]!,
-                              height: 0.2.sw,
-                              width: 0.2.sw,
-                              fit: BoxFit.cover,
-                            )
-                                : Image.file(
-                              File(entry.value!.path),
-                              height: 0.2.sw,
-                              width: 0.2.sw,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ))
+                                  padding: EdgeInsets.only(right: 10.0),
+                                  child: ClipRRect(
+                                    borderRadius:
+                                        BorderRadius.circular(0.03.sw),
+                                    child: (kIsWeb)
+                                        ? Image.network(
+                                            _imageUrls[entry.key]!,
+                                            height: 0.2.sw,
+                                            width: 0.2.sw,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Image.file(
+                                            File(entry.value!.path),
+                                            height: 0.2.sw,
+                                            width: 0.2.sw,
+                                            fit: BoxFit.cover,
+                                          ),
+                                  ),
+                                ))
                             .toList(),
                       ),
                     ),
 
                   SizedBox(height: 0.05.sh),
-
-
                 ],
               ),
             ),
@@ -188,8 +206,9 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
       //바닥에 등록 버튼 고정
       bottomNavigationBar: Padding(
         padding: EdgeInsets.all(0.1.sw),
-        child: BtnYesBG(btnText: '게시글 등록', onPressed: _productRegister),
-
+        child: BtnYesBG(
+            btnText: isEditMode ? '게시글수정' : '게시글 등록',
+            onPressed: _productRegister),
       ),
     );
   }
@@ -199,18 +218,29 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         final imageUrls = await _uploadImagesToFirebase();
-        await _firestore.collection('products').add({
-          'postName': _postNameController.text,
-          'postDescription': _postDescriptionController.text,
-          'productPrice': _productPriceController.text,
-          'userId': user.uid,
-          'userName': userName,
-          'University': userUniversity,
-          'imageUrls': imageUrls,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('게시물 등록 성공')));
+        if (isEditMode) {
+          await _firestore.collection('products').doc(widget.postId).update({
+            'postName': _postNameController.text,
+            'postDescription': _postDescriptionController.text,
+            'productPrice': _productPriceController.text,
+            'imageUrls': imageUrls,
+          });
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('수정 완료')));
+        } else {
+          await _firestore.collection('products').add({
+            'postName': _postNameController.text,
+            'postDescription': _postDescriptionController.text,
+            'productPrice': _productPriceController.text,
+            'userId': user.uid,
+            'userName': userName,
+            'University': userUniversity,
+            'imageUrls': imageUrls,
+            'timestamp': FieldValue.serverTimestamp(),
+          });
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('게시물 등록 성공')));
+        }
         _clearForm();
       }
     } else {
