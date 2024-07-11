@@ -16,6 +16,10 @@ import 'package:amtt/widgets/BtnYesBG.dart';
 import 'package:amtt/widgets/BtnNoBG.dart';
 
 class ProductRegisterPage extends StatefulWidget {
+  final String? postId;
+
+  ProductRegisterPage({this.postId});
+
   @override
   _ProductRegisterState createState() => _ProductRegisterState();
 }
@@ -32,11 +36,15 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
 
   String? userName;
   String? userUniversity;
+  bool get isEditMode => widget.postId != null;
 
   @override
   void initState() {
     super.initState();
     _getUserData();
+    if (isEditMode) {
+      _loadProductData(widget.postId!);
+    }
   }
 
   Future<void> _getUserData() async {
@@ -51,6 +59,17 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
         });
       }
     }
+  }
+
+  Future<void> _loadProductData(String postId) async {
+    DocumentSnapshot productData =
+    await _firestore.collection('products').doc(postId).get();
+    setState(() {
+      _postNameController.text = productData['postName'];
+      _postDescriptionController.text = productData['postDescription'];
+      _productPriceController.text = productData['productPrice'];
+      _imageUrls = List<String>.from(productData['imageUrls']);
+    });
   }
 
   Future<void> _selectImage() async {
@@ -202,19 +221,30 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         final imageUrls = await _uploadImagesToFirebase();
-        DocumentReference doc =  await _firestore.collection('products').add({
-          'postName': _postNameController.text,
-          'postDescription': _postDescriptionController.text,
-          'productPrice': _productPriceController.text,
-          'userId': user.uid,
-          'userName': userName,
-          'University': userUniversity,
-          'imageUrls': imageUrls,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('게시물 등록 성공')));
-        FirebaseService().notifyUsersByTitle(_postNameController.text, doc.id);
+        if (isEditMode) {
+          await _firestore.collection('products').doc(widget.postId).update({
+            'postName': _postNameController.text,
+            'postDescription': _postDescriptionController.text,
+            'productPrice': _productPriceController.text,
+            'imageUrls': imageUrls,
+          });
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('수정 완료')));
+        } else {
+          DocumentReference doc =  await _firestore.collection('products').add({
+            'postName': _postNameController.text,
+            'postDescription': _postDescriptionController.text,
+            'productPrice': _productPriceController.text,
+            'userId': user.uid,
+            'userName': userName,
+            'University': userUniversity,
+            'imageUrls': imageUrls,
+            'timestamp': FieldValue.serverTimestamp(),
+          });
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('게시물 등록 성공')));
+          FirebaseService().notifyUsersByTitle(_postNameController.text, doc.id);
+        }
         _clearForm();
       }
     } else {

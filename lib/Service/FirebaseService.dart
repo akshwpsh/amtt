@@ -106,12 +106,12 @@ class FirebaseService {
   }
 
   Future<String> getFCMUrl() async {
-    final String response = await rootBundle.loadString('assets/app_secrets.json');
+    final String response = await rootBundle.loadString('assets/secret.json');
     final data = await json.decode(response);
     return data['fcm_url'];
   }
   Future<String> getVapidKey() async {
-    final String response = await rootBundle.loadString('assets/app_secrets.json');
+    final String response = await rootBundle.loadString('assets/secret.json');
     final data = await json.decode(response);
     return data['vapid_key'];
   }
