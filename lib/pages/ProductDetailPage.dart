@@ -1,3 +1,4 @@
+import 'package:amtt/pages/ProductRegisterPage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -190,7 +191,13 @@ class ProductDetailPage extends StatelessWidget {
                             children: [
                               ElevatedButton.icon(
                                 onPressed: () {
-                                  //게시물편집기능넣기
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ProductRegisterPage(postId: postId),
+                                    ),
+                                  );
                                 },
                                 icon: Icon(Icons.edit),
                                 label: Text('편집'),
