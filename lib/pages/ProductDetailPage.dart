@@ -1,3 +1,4 @@
+import 'package:amtt/pages/ProductRegisterPage.dart';
 import 'package:amtt/widgets/BtnYesBG.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -13,6 +14,7 @@ class ProductDetailPage extends StatelessWidget {
 
   //로그인 여부 확인
   User? isLogin;
+  User? user = FirebaseAuth.instance.currentUser;
 
   Future<Map<String, dynamic>> fetchPostDetails(String postId) async {
     // Firestore에서 해당 postId로 데이터를 가져오는 예시입니다.
@@ -25,6 +27,43 @@ class ProductDetailPage extends StatelessWidget {
     isLogin = FirebaseAuth.instance.currentUser;
 
     return doc.data() as Map<String, dynamic>;
+  }
+
+
+  Future<String> fetchUserAuth(String userId) async {
+    DocumentSnapshot userDoc =
+    await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    return userDoc['auth'];
+  }
+
+  Future<bool> canEdit(String userId, String postId) async {
+    String auth = await fetchUserAuth(userId);
+    if (auth == 'admin') {
+      return true;
+    }
+    DocumentSnapshot postDoc = await FirebaseFirestore.instance
+        .collection('products')
+        .doc(postId)
+        .get();
+    String postUserId = postDoc['userId'];
+    return userId == postUserId;
+  }
+
+  void deletePost(BuildContext context, String postId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('products')
+          .doc(postId)
+          .delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('게시물 삭제성공')),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('실패오류:$e')),
+      );
+    }
   }
 
   @override
@@ -176,11 +215,60 @@ class ProductDetailPage extends StatelessWidget {
 
                       SizedBox(height: 0.01.sh),
 
-                      //로그인 여부에 따른 찜버튼 보이기
+                      //로그인 여부에 따른 찜버튼 보이기 + 편집,삭제 버튼
                       if(isLogin != null)
 
-                        //찜버튼
-                        FavoriteButton(postId: postId),
+                        Row(
+                          children: [
+
+                            //찜버튼
+                            FavoriteButton(postId: postId),
+
+                            //사용자 체크해서 편집, 삭제 버튼 표시하는 코드
+                            FutureBuilder<bool>(
+                              future: canEdit(user!.uid, postId),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return CircularProgressIndicator();
+                                } else if (snapshot.hasError) {
+                                  return Text('Error: ${snapshot.error}');
+                                } else if (snapshot.hasData && snapshot.data!) {
+                                  return Row(
+                                    children: [
+                                      ElevatedButton.icon(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ProductRegisterPage(postId: postId),
+                                            ),
+                                          );
+                                        },
+                                        icon: Icon(Icons.edit),
+                                        label: Text('편집'),
+                                      ),
+                                      SizedBox(width: 8.0),
+                                      ElevatedButton.icon(
+                                        onPressed: () {
+                                          deletePost(context, postId);
+                                        },
+                                        icon: Icon(Icons.delete),
+                                        label: Text('삭제'),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  return Container();
+                                }
+                              },
+                            ),
+
+
+
+                          ],
+                        )
 
 
                     ],
