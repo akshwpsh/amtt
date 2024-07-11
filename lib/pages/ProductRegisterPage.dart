@@ -15,6 +15,12 @@ import 'package:amtt/widgets/TitleLogo.dart';
 import 'package:amtt/widgets/BtnYesBG.dart';
 import 'package:amtt/widgets/BtnNoBG.dart';
 
+//위젯 임포트
+import 'package:amtt/widgets/RoundedTextField.dart';
+import 'package:amtt/widgets/TitleLogo.dart';
+import 'package:amtt/widgets/BtnYesBG.dart';
+import 'package:amtt/widgets/BtnNoBG.dart';
+
 class ProductRegisterPage extends StatefulWidget {
   final String? postId;
 
@@ -151,10 +157,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                       controller: _postDescriptionController,
                       decoration: InputDecoration(labelText: '게시글 내용', alignLabelWithHint: true),
                       maxLines: 10),
-
                   SizedBox(height: 0.05.sh),
-
-
                   TextField(
                     keyboardType: TextInputType.number,
                     controller: _productPriceController,
@@ -198,8 +201,6 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                     ),
 
                   SizedBox(height: 0.05.sh),
-
-
                 ],
               ),
             ),
@@ -211,7 +212,6 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
       bottomNavigationBar: Padding(
         padding: EdgeInsets.all(0.1.sw),
         child: BtnYesBG(btnText: '게시글 등록', onPressed: _productRegister),
-
       ),
     );
   }

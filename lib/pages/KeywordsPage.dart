@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-
 class KeywordsPage extends StatefulWidget {
   @override
   _KeywordsPageState createState() => _KeywordsPageState();

@@ -89,8 +89,9 @@ class MyApp extends StatelessWidget {
           title: 'Flutter Auth Demo',
           theme: ThemeData(
             primaryColor: Color(0xff4EBDBD),
+            //텍스트 필드 선택 되었을 때의 커서 색상 설정
             textSelectionTheme: TextSelectionThemeData(
-              cursorColor: Color(0xff4EBDBD),
+              cursorColor: Color(0xff4EBDBD), // 커서 색상 설정선택 핸들 색상 설정
             ),
           ),
           home: MainPage(),
@@ -111,4 +112,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
