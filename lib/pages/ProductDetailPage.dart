@@ -1,3 +1,4 @@
+import 'package:amtt/pages/ProductRegisterPage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -42,8 +43,46 @@ class ProductDetailPage extends StatelessWidget {
     }
   }
 
+  Future<String> fetchUserAuth(String userId) async {
+    DocumentSnapshot userDoc =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    return userDoc['auth'];
+  }
+
+  Future<bool> canEdit(String userId, String postId) async {
+    String auth = await fetchUserAuth(userId);
+    if (auth == 'admin') {
+      return true;
+    }
+    DocumentSnapshot postDoc = await FirebaseFirestore.instance
+        .collection('products')
+        .doc(postId)
+        .get();
+    String postUserId = postDoc['userId'];
+    return userId == postUserId;
+  }
+
+  void deletePost(BuildContext context, String postId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('products')
+          .doc(postId)
+          .delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('게시물 삭제성공')),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('실패오류:$e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    User? user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Product Details'),
@@ -138,6 +177,46 @@ class ProductDetailPage extends StatelessWidget {
                     icon: Icon(Icons.favorite),
                     label: Text('찜하기'),
                   ),
+                  if (user != null)
+                    FutureBuilder<bool>(
+                      future: canEdit(user.uid, postId),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        } else if (snapshot.hasData && snapshot.data!) {
+                          return Row(
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ProductRegisterPage(postId: postId),
+                                    ),
+                                  );
+                                },
+                                icon: Icon(Icons.edit),
+                                label: Text('편집'),
+                              ),
+                              SizedBox(width: 8.0),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  deletePost(context, postId);
+                                },
+                                icon: Icon(Icons.delete),
+                                label: Text('삭제'),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return Container();
+                        }
+                      },
+                    ),
                 ],
               ),
             );

@@ -18,7 +18,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final PageController _pageController = PageController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _nickNameController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
@@ -35,7 +36,8 @@ class _RegisterPageState extends State<RegisterPage> {
       setState(() {
         _currentPage += 1;
       });
-      _pageController.nextPage(duration: Duration(milliseconds: 300), curve: Curves.ease);
+      _pageController.nextPage(
+          duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else {
       _register();
     }
@@ -47,7 +49,8 @@ class _RegisterPageState extends State<RegisterPage> {
       setState(() {
         _currentPage -= 1;
       });
-      _pageController.previousPage(duration: Duration(milliseconds: 300), curve: Curves.ease);
+      _pageController.previousPage(
+          duration: Duration(milliseconds: 300), curve: Curves.ease);
     }
   }
 
@@ -58,7 +61,8 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -72,6 +76,7 @@ class _RegisterPageState extends State<RegisterPage> {
         'school': _schoolController.text.trim(),
         'department': _departmentController.text.trim(),
         'registeredAt': FieldValue.serverTimestamp(),
+        'auth': 'user',
       });
 
       print('Registration successful: $userCredential');
@@ -83,7 +88,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //키보드 올라올때 사이즈 에러 방지
+        //키보드 올라올때 사이즈 에러 방지
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -91,23 +96,23 @@ class _RegisterPageState extends State<RegisterPage> {
           title: Text('회원가입'),
           leading: _currentPage > 0
               ? IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: _previousPage,
-          )
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: _previousPage,
+                )
               : null,
         ),
-        bottomSheet: Container (
+        bottomSheet: Container(
           color: Colors.white,
-          child: SafeArea (
-            child: Padding (
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: Padding (
+          child: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: Padding(
                   padding: EdgeInsets.all(0.1.sw),
-                  child: Container (
+                  child: Container(
                       height: 0.15.sh,
-                      child: Column (
+                      child: Column(
                         children: [
-
                           Container(
                             alignment: FractionalOffset.bottomRight,
                             child: Text('${_currentPage + 1}/5'),
@@ -122,19 +127,18 @@ class _RegisterPageState extends State<RegisterPage> {
                           SizedBox(height: 0.03.sh),
                           //다음 버튼
 
-                          BtnYesBG(btnText: _currentPage < 4 ? '다음' : '등록', onPressed: _nextPage),
+                          BtnYesBG(
+                              btnText: _currentPage < 4 ? '다음' : '등록',
+                              onPressed: _nextPage),
                         ],
-                      )
-                  )
-              ),
+                      ))),
             ),
           ),
         ),
-        body: Padding (
+        body: Padding(
           padding: EdgeInsets.all(0.1.sw),
           child: Column(
             children: [
-
               //회원가입 폼 - 페이지뷰
               Expanded(
                   flex: 4,
@@ -148,31 +152,34 @@ class _RegisterPageState extends State<RegisterPage> {
                       },
                       children: [
                         SignUpStep1(emailController: _emailController),
-                        SignUpStep2(passwordController: _passwordController, confirmPasswordController: _confirmPasswordController),
+                        SignUpStep2(
+                            passwordController: _passwordController,
+                            confirmPasswordController:
+                                _confirmPasswordController),
                         SignUpStep3(nickNameController: _nickNameController),
-                        SignUpStep4(nameController: _nameController, phoneNumberController: _phoneNumberController),
-                        SignUpStep5(studentIdController: _studentIdController, schoolController: _schoolController, departmentController: _departmentController),
+                        SignUpStep4(
+                            nameController: _nameController,
+                            phoneNumberController: _phoneNumberController),
+                        SignUpStep5(
+                            studentIdController: _studentIdController,
+                            schoolController: _schoolController,
+                            departmentController: _departmentController),
                       ],
                     ),
-                  )
-              ),
+                  )),
 
               //하단 인디케이터와 버튼 모음
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 0.0, right: 0.0),
                   child: Column(
-                    children: [
-
-
-                    ],
+                    children: [],
                   ),
                 ),
               ),
             ],
           ),
-        )
-    );
+        ));
   }
 }
 
@@ -208,7 +215,9 @@ class SignUpStep2 extends StatelessWidget {
   final TextEditingController passwordController;
   final TextEditingController confirmPasswordController;
 
-  SignUpStep2({required this.passwordController, required this.confirmPasswordController});
+  SignUpStep2(
+      {required this.passwordController,
+      required this.confirmPasswordController});
 
   @override
   Widget build(BuildContext context) {
@@ -275,7 +284,8 @@ class SignUpStep4 extends StatelessWidget {
   final TextEditingController nameController;
   final TextEditingController phoneNumberController;
 
-  SignUpStep4({required this.nameController, required this.phoneNumberController});
+  SignUpStep4(
+      {required this.nameController, required this.phoneNumberController});
 
   @override
   Widget build(BuildContext context) {
@@ -313,7 +323,10 @@ class SignUpStep5 extends StatelessWidget {
   final TextEditingController schoolController;
   final TextEditingController departmentController;
 
-  SignUpStep5({required this.studentIdController, required this.schoolController, required this.departmentController});
+  SignUpStep5(
+      {required this.studentIdController,
+      required this.schoolController,
+      required this.departmentController});
 
   @override
   Widget build(BuildContext context) {
