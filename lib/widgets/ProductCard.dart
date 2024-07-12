@@ -123,22 +123,26 @@ class ProductCard extends StatelessWidget {
                 ),
               ),
 
+              if(imageUrl.isNotEmpty && imageUrl != null)
+
               //이미지 공간
-              Container(
-                  width: 100,
-                  height: 100,
-                  child: Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        imageUrl,
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
+                Container(
+                    width: 100,
+                    height: 100,
+                    child: Center(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          imageUrl,
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        ),
                       ),
-                    ),
-                  )
-              )
+                    )
+                )
+
+
             ],
           ),
         ),
