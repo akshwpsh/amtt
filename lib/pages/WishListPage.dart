@@ -79,21 +79,33 @@ class _WishListPageState extends State<WishListPage> {
                 DateFormat('yyyy-MM-dd').format(timestamp.toDate());
                 final List<dynamic> imageUrls = data['imageUrls'] ?? [];
 
-                return Container(
-                  margin: EdgeInsets.only(bottom: 13),
-                  child: ProductCard(
-                    title: postname,
-                    price: price,
-                    date: formattedDate,
-                    imageUrl: imageUrls[0],
-                    userName: userName,
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => ProductDetailPage(
-                            postId: data['postId'],)));
-                    },
-                  ),
-                );
+                try{
+
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 13),
+                    child: ProductCard(
+                      title: postname,
+                      price: price,
+                      date: formattedDate,
+                      //이미지 경로가 없으면 비어있는 거 보냄
+                      imageUrl: imageUrls.firstOrNull ?? '',
+                      userName: userName,
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(
+                            builder: (context) => ProductDetailPage(
+                              postId: data['postId'],)));
+                      },
+                    ),
+                  );
+
+                }
+                catch (e, stackTrace)
+                {
+                  print("에러발생");
+                  print(stackTrace);
+                }
+
+
               },
             );
           },
