@@ -47,7 +47,9 @@ class _WishListPageState extends State<WishListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text('찜 리스트'),
       ),
       body: Padding(
