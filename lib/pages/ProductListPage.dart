@@ -69,9 +69,9 @@ class _ProductListPageState extends State<ProductListPage> {
             return Center(child: Text('검색하신 내용에 맞는 상품이없어용'));
           }
           return ListView.builder(
-            itemCount: snapshot.data!.docs.length,
+            itemCount: filteredDocs.length,
             itemBuilder: (context, index) {
-              final doc = snapshot.data!.docs[index];
+              final doc = filteredDocs[index];
               final data = doc.data() as Map<String, dynamic>;
               final String postname = data['postName'] ?? 'No title';
               final String userName = data['userName'] ?? 'Unknown';
