@@ -79,12 +79,20 @@ class _WishListPageState extends State<WishListPage> {
                 DateFormat('yyyy-MM-dd').format(timestamp.toDate());
                 final List<dynamic> imageUrls = data['imageUrls'] ?? [];
 
-
-                return ProductCard(
+                return Container(
+                  margin: EdgeInsets.only(bottom: 13),
+                  child: ProductCard(
                     title: postname,
                     price: price,
+                    date: formattedDate,
                     imageUrl: imageUrls[0],
-                    userName: userName
+                    userName: userName,
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => ProductDetailPage(
+                            postId: data['postId'],)));
+                    },
+                  ),
                 );
               },
             );
