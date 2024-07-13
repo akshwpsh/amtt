@@ -1,8 +1,12 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'ProductDetailPage.dart';
+
+//위젯 임포트
+import 'package:amtt/widgets/ProductCard.dart';
 
 class WishListPage extends StatefulWidget {
   @override
@@ -43,65 +47,70 @@ class _WishListPageState extends State<WishListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text('찜 리스트'),
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: fetchWishProducts(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No products found.'));
-          }
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 0.06.sw),
+        child: FutureBuilder<List<Map<String, dynamic>>>(
+          future: fetchWishProducts(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text('No products found.'));
+            }
 
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              final data = snapshot.data![index];
-              final String postname = data['postName'] ?? 'No title';
-              final String userName = data['userName'] ?? 'Unknown';
-              final Timestamp timestamp = data['timestamp'] ?? Timestamp.now();
-              final String formattedDate =
-                  DateFormat('yyyy-MM-dd').format(timestamp.toDate());
-              final List<dynamic> imageUrls = data['imageUrls'] ?? [];
+            return ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                final data = snapshot.data![index];
+                final String postname = data['postName'] ?? 'No title';
+                final String userName = data['userName'] ?? 'Unknown';
+                final String price = data['productPrice'] ?? '가격정보 없음';
+                final Timestamp timestamp = data['timestamp'] ?? Timestamp.now();
+                final String formattedDate =
+                DateFormat('yyyy-MM-dd').format(timestamp.toDate());
+                final List<dynamic> imageUrls = data['imageUrls'] ?? [];
 
-              return Card(
-                child: ListTile(
-                  leading: imageUrls.isNotEmpty
-                      ? Image.network(
-                          imageUrls[0],
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(Icons.error);
-                          },
-                        )
-                      : null,
-                  title: Text(postname),
-                  subtitle: Text('by $userName\n$formattedDate'),
-                  isThreeLine: true,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProductDetailPage(
-                          postId: data['postId'],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
-          );
-        },
-      ),
+                try{
+
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 13),
+                    child: ProductCard(
+                      title: postname,
+                      price: price,
+                      date: formattedDate,
+                      //이미지 경로가 없으면 비어있는 거 보냄
+                      imageUrl: imageUrls.firstOrNull ?? '',
+                      userName: userName,
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(
+                            builder: (context) => ProductDetailPage(
+                              postId: data['postId'],)));
+                      },
+                    ),
+                  );
+
+                }
+                catch (e, stackTrace)
+                {
+                  print("에러발생");
+                  print(stackTrace);
+                }
+
+
+              },
+            );
+          },
+        ),
+      )
     );
   }
 }

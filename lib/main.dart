@@ -84,29 +84,33 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (_, child) {
-        return MaterialApp(
-          navigatorKey: navigatorKey,
-          title: 'Flutter Auth Demo',
-          theme: ThemeData(
-            primaryColor: Color(0xff4EBDBD),
-            //텍스트 필드 선택 되었을 때의 커서 색상 설정
-            textSelectionTheme: TextSelectionThemeData(
-              cursorColor: Color(0xff4EBDBD), // 커서 색상 설정선택 핸들 색상 설정
+        return Padding(
+          //전체 패딩 적용 경우 생각해 추가한 패딩
+          padding: EdgeInsets.all(0.00.sw),
+          child: MaterialApp(
+            navigatorKey: navigatorKey,
+            title: 'Flutter Auth Demo',
+            theme: ThemeData(
+              primaryColor: Color(0xff4EBDBD),
+              //텍스트 필드 선택 되었을 때의 커서 색상 설정
+              textSelectionTheme: TextSelectionThemeData(
+                cursorColor: Color(0xff4EBDBD), // 커서 색상 설정선택 핸들 색상 설정
+              ),
             ),
+            home: MainPage(),
+            onGenerateRoute: (RouteSettings settings) {
+              if (settings.name == '/post') {
+                final id = settings.arguments as String;
+                return MaterialPageRoute(
+                  builder: (context) {
+                    return ProductDetailPage(postId: id);
+                  },
+                );
+              }
+              // 다른 라우트에 대한 처리가 필요하면 여기에 추가
+              return null; // 일치하는 라우트가 없을 경우 null 반환
+            },
           ),
-          home: MainPage(),
-          onGenerateRoute: (RouteSettings settings) {
-            if (settings.name == '/post') {
-              final id = settings.arguments as String;
-              return MaterialPageRoute(
-                builder: (context) {
-                  return ProductDetailPage(postId: id);
-                },
-              );
-            }
-            // 다른 라우트에 대한 처리가 필요하면 여기에 추가
-            return null; // 일치하는 라우트가 없을 경우 null 반환
-          },
         );
       },
     );
