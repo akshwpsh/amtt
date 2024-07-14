@@ -2,7 +2,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'RegisterPage.dart';
+
+import 'NavigatorPage.dart';
+import 'KeywordsPage.dart';
 import '../Service/FirebaseService.dart';
+
+
+
+
 
 //위젯 임포트
 import 'package:amtt/widgets/RoundedTextField.dart';
@@ -94,7 +101,13 @@ class _LoginPageState extends State<LoginPage> {
 
             SizedBox(height: 0.1.sh),
 
-            BtnNoBG(btnText : '로그인 없이 계속하기', onPressed : () { print('로그인x 버튼 클릭'); }),
+            BtnNoBG(btnText : '로그인 없이 계속하기', onPressed : () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NavigatorPage()),
+
+              );
+            }),
 
 
           ],
@@ -111,6 +124,11 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text.trim(),
       );
       print('Login successful: $userCredential');
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => NavigatorPage()),
+
+      );
       FirebaseService().saveMessageToken();
     } catch (e) {
       print('Login failed: $e');
