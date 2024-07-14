@@ -1,14 +1,17 @@
 import 'package:amtt/pages/ProductRegisterPage.dart';
 import 'package:amtt/widgets/BtnYesBG.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:amtt/Service/FirebaseService.dart';
+import 'ChatPage.dart';
+
 
 class ProductDetailPage extends StatelessWidget {
   final String postId;
+  late final String postUserId;
 
   ProductDetailPage({required this.postId});
 
@@ -46,6 +49,7 @@ class ProductDetailPage extends StatelessWidget {
         .doc(postId)
         .get();
     String postUserId = postDoc['userId'];
+    this.postUserId = postUserId;
     return userId == postUserId;
   }
 
@@ -301,7 +305,15 @@ class ProductDetailPage extends StatelessWidget {
                             //채팅 버튼
                             child: BtnYesBG(
                               btnText: "채팅하기",
-                              onPressed: () => print("채팅누름"),
+                              onPressed: () async {
+                                String chatId = await createChatRoom(postUserId, postId, postName);
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ChatPage(chatId),
+                                  ),
+                                );
+                              },
                             ),
                           )
                         ],

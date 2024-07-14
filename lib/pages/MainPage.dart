@@ -7,6 +7,7 @@ import 'ProductRegisterPage.dart';
 import 'ProductListPage.dart';
 import 'KeywordsPage.dart';
 import 'WishListPage.dart';
+import 'ChatRoomsPage.dart';
 
 class MainPage extends StatelessWidget {
   @override
@@ -88,6 +89,21 @@ class MainPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => WishListPage()),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("로그인하고와라잇")),
+                  );
+                }
+              },
+            ),
+            ElevatedButton(
+              child: Text('채팅방'),
+              onPressed: () async {
+                if (await isUserLogin()) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ChatRoomsPage()),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(

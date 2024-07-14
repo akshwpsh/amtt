@@ -67,6 +67,8 @@ class _RegisterPageState extends State<RegisterPage> {
         password: _passwordController.text.trim(),
       );
 
+      await userCredential.user!.updateDisplayName(_nickNameController.text.trim());
+
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'email': _emailController.text.trim(),
         'nickName': _nickNameController.text.trim(),

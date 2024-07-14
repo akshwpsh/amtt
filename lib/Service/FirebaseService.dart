@@ -108,6 +108,17 @@ class FirebaseService {
   }
 }
 
+Future<String> createChatRoom(String otherUserId,String productId, String roomName ) async {
+  String userId = FirebaseAuth.instance.currentUser!.uid;
+  DocumentReference docRef = await FirebaseFirestore.instance.collection('chat_rooms').add({
+    'name': roomName,
+    'last_updated': FieldValue.serverTimestamp(),
+    'members': [userId, otherUserId], // 현재 사용자 ID와 상대방의 ID 추가
+    'product_id': productId,
+  });
+  return docRef.id;
+}
+
 
 
 
