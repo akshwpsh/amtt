@@ -50,7 +50,7 @@ class _UserEditPageState extends State<UserPage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              SizedBox(height: 0.05.sh),
+              SizedBox(height: 0.02.sh),
 
               // 유저 프로필 공간
               Material(
