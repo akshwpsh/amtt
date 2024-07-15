@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'UserPage.dart';
 import 'ChatRoomsPage.dart';
 import 'ProductListPage.dart';
+import 'UserPage.dart';
 
 class NavigatorPage extends StatefulWidget {
 
