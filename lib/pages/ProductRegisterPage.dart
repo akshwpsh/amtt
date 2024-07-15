@@ -43,14 +43,35 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
   String? userName;
   String? userUniversity;
   String? _selectedCategory;
+  List<String> _categories = [];
   bool get isEditMode => widget.postId != null;
 
   @override
   void initState() {
     super.initState();
     _getUserData();
+    _fetchCategories();
     if (isEditMode) {
       _loadProductData(widget.postId!);
+    }
+  }
+   Future<void> _fetchCategories() async {
+    try {
+      DocumentSnapshot categoryDoc = await _firestore.collection('category').doc('categories').get();
+      Map<String, dynamic> data = categoryDoc.data() as Map<String, dynamic>;
+      List<String> categories = [];
+      data.forEach((key, value) {
+        categories.add(value);
+      });
+      setState(() {
+        _categories = categories;
+      });
+    } catch (e) {
+      print("Failed to fetch categories: $e");
+      // 오류가 발생하면 임시 카테고리들로 설정
+      setState(() {
+        _categories = ['전자제품', '책', '문구', '생활용품', '의류', '취미'];
+      });
     }
   }
 
@@ -112,7 +133,6 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
   }
 
   void _selectCategory() async {
-    final List<String> categories = ['전자제품', '책', '문구', '생활용품', '의류', '취미'];
     final selectedCategory = await showDialog<String>(
       context: context,
       builder: (context) {
@@ -120,7 +140,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
           title: Text('카테고리 선택'),
           content: SingleChildScrollView(
             child: ListBody(
-              children: categories.map((category) {
+              children: _categories.map((category) {
                 return ListTile(
                   title: Text(category),
                   onTap: () {

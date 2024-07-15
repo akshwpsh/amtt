@@ -14,9 +14,34 @@ class _ProductListPageState extends State<ProductListPage> {
   String? _searchText = '';
   String? _selectedCategory;
   TextEditingController _searchController = TextEditingController();
+  List<String> _categories = [];
 
+  @override
+  void initState() {
+    super.initState();
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    try {
+      DocumentSnapshot categoryDoc = await _firestore.collection('category').doc('categories').get();
+      Map<String, dynamic> data = categoryDoc.data() as Map<String, dynamic>;
+      List<String> categories = [];
+      data.forEach((key, value) {
+        categories.add(value);
+      });
+      setState(() {
+        _categories = categories;
+      });
+    } catch (e) {
+      print("Failed to fetch categories: $e");
+      // 오류가 발생하면 임시 카테고리로바꾸기
+      setState(() {
+        _categories = ['전자제품', '책', '문구', '생활용품', '의류', '취미'];
+      });
+    }
+  }
   void _selectCategory() async {
-    final List<String> categories = ['전자제품', '책', '문구', '생활용품', '의류', '취미'];
     final selectedCategory = await showDialog<String>(
       context: context,
       builder: (context) {
@@ -24,7 +49,7 @@ class _ProductListPageState extends State<ProductListPage> {
           title: Text('카테고리 선택'),
           content: SingleChildScrollView(
             child: ListBody(
-              children: categories.map((category) {
+              children: _categories.map((category) {
                 return ListTile(
                   title: Text(category),
                   onTap: () {
@@ -147,7 +172,8 @@ class _ProductListPageState extends State<ProductListPage> {
                         )
                       : null,
                   title: Text(postname),
-                  subtitle: Text('by $userName\n$formattedDate\n카테고리 : $category'),
+                  subtitle:
+                      Text('by $userName\n$formattedDate\n카테고리 : $category'),
                   isThreeLine: true,
                   onTap: () {
                     Navigator.push(
