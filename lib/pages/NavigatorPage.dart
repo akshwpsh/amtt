@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'UserEditPage.dart';
-import 'ChatPage.dart';
+import 'ChatRoomsPage.dart';
 import 'ProductListPage.dart';
 
 class NavigatorPage extends StatefulWidget {
@@ -18,7 +18,7 @@ class NavigatorState extends State<NavigatorPage> {
   // 네비게이션 바 페이지 위젯들 리스트
   final List<Widget> NavPage = [
     ProductListPage(),
-    ChatPage(),
+    ChatRoomsPage(),
     UserEditPage(),
   ];
 
