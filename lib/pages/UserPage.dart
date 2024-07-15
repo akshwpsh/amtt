@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,7 +10,6 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserEditPageState extends State<UserPage> {
-
   @override
   void initState() {
     super.initState();
@@ -21,9 +21,11 @@ class _UserEditPageState extends State<UserPage> {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
       // Firestore에서 사용자 데이터를 가져옵니다.
-      DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).get();
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .get();
       Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
-
     }
   }
 
@@ -40,72 +42,102 @@ class _UserEditPageState extends State<UserPage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-
               SizedBox(height: 0.05.sh),
 
               // 유저 프로필 공간
-              Container(
-                padding: EdgeInsets.all(10),
-                height: 100,
-                decoration: BoxDecoration(
+              Material(
+                color: Color(0xffF7F8F8), // 여기에 원하는 배경색을 설정
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  onTap: () => {},
+                  //클릭 이벤트
+                  highlightColor: Colors.grey.withOpacity(0.1),
+                  //길게 누를 때 색상
+                  splashColor: Colors.grey.withOpacity(0.2),
+                  //탭 했을 때 잉크 효과 색상
                   borderRadius: BorderRadius.circular(12),
-                  color: Color(0xffF7F8F8),
-                ),
-
-                child: Row(
-                  children: [
-
-                    //이미지 박스
-                    Container(
-                      width: 80,
-                      height: 80,
-                      color: Colors.blue,
-                      child: Center (
-                        //프로필 이미지 공간
-                        child: Image.network('src'),
-                      ),
-                    ),
-
-
-                    //유저 프로필 정보 박스
-                    Container(
-                      margin: EdgeInsets.only(left: 20),
-                      child: const Column(
-                        children: [
-
-                          //유저 닉네임 텍스트
-                          Text('목포대 불주먹'),
-
-                          //유저 닉네임 텍스트
-                          Text('목포대 불주먹'),
-
-                        ],
-                      ),
-                    ),
-
-                    Spacer(),
-
-                    //아이콘 박스
-                    Container(
-                      width: 30,
-                      height: 90,
-                      child: Center(
-                        child: Icon(
-                          Icons.chevron_right,
-                          size: 34,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 25),
+                    child: Row(
+                      children: [
+                        // 프로필 이미지
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                          ),
+                          //TODO : 이미지가 없어서 임시로 아이콘 사용 => 이미지로 바꿔야함
+                          child: const Icon(
+                            Icons.person_pin,
+                            size: 44,
+                          ),
                         ),
-                      )
+                        SizedBox(width: 10),
+
+                        // 사용자 정보 공간 (닉네임, 계정 이메일)
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // 사용자 닉네임 텍스트
+                              Text(
+                                '홍홍길길동동',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+
+                              SizedBox(height: 4),
+
+                              // 사용자 계정 이메일 텍스트
+                              Text(
+                                'hongildong@gmail.com',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        // 화살표 아이콘
+                        Container(
+                          child: const Icon(
+                            Icons.chevron_right,
+                            color: Colors.grey,
+                            size: 30,
+                          ),
+                        ),
+                      ],
                     ),
-
-                  ],
+                  ),
                 ),
-
               ),
 
-
               //대학교 설정 탭 (대학교 이름, 변경 버튼)
-              Container(),
+              Container(
+                child: Column(
+                  children: [
+                    //대학교 설정 탭 제목 텍스트
+                    Text('대학교 설정'),
 
+                    Row(
+                      children: [
+                        //대학교 이름 텍스트
+                        const Text('목포대학교'),
+
+                        // 대학교 설정 변경 버튼 공간
+                        Container(),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+
+              //디바이더
               const Divider(
                 height: 20,
                 thickness: 2,
@@ -119,16 +151,10 @@ class _UserEditPageState extends State<UserPage> {
 
               //기타 설정 탭 (전체 설정, 문의 하기, 로그 아웃)
               Container(),
-
-
-
             ],
           ),
         ),
       ),
     );
   }
-
-
-
 }
