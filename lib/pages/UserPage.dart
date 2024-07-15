@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+//위젯 임포트
+import 'package:amtt/widgets/UserDefaultTab.dart';
+
 class UserPage extends StatefulWidget {
   @override
   _UserEditPageState createState() => _UserEditPageState();
@@ -168,9 +171,36 @@ class _UserEditPageState extends State<UserPage> {
                     //앱 관련 탭 제목 텍스트
                     UserTabTitle(text : '앱 관련'),
 
+                    UsersdefaultTab(
+                        icon: Icons.markunread_sharp,
+                        text: '알림 키워드 관리',
+                        onTap: () => { print("클릭") }
+                    ),
+
+                    UsersdefaultTab(
+                        icon: Icons.favorite,
+                        text: '찜한 목록 보기',
+                        onTap: () => { print("클릭") }
+                    ),
+
+                    UsersdefaultTab(
+                        icon: Icons.manage_search,
+                        text: '거래 기록 보기',
+                        onTap: () => { print("클릭") }
+                    ),
+
 
                   ],
                 ),
+              ),
+
+              //디바이더
+              const Divider(
+                height: 20,
+                thickness: 2,
+                indent: 0,
+                endIndent: 0,
+                color: Color(0xffdbdbdb),
               ),
 
               //기타 설정 탭 (전체 설정, 문의 하기, 로그 아웃)

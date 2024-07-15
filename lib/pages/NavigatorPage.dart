@@ -1,6 +1,7 @@
+import 'package:amtt/pages/UserPage.dart';
 import 'package:flutter/material.dart';
 
-import 'UserEditPage.dart';
+import 'UserPage.dart';
 import 'ChatRoomsPage.dart';
 import 'ProductListPage.dart';
 
@@ -19,7 +20,7 @@ class NavigatorState extends State<NavigatorPage> {
   final List<Widget> NavPage = [
     ProductListPage(),
     ChatRoomsPage(),
-    UserEditPage(),
+    UserPage(),
   ];
 
   // 네비게이션 바 아이템 클릭시
