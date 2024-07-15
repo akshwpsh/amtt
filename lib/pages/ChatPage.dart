@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart'; // 시간 형식을 위해 필요
+import 'package:amtt/Service/FirebaseService.dart';
 
 class ChatPage extends StatelessWidget {
   final String chatRoomId;
@@ -115,7 +116,19 @@ class ChatPage extends StatelessWidget {
         'senderId': userId, // 사용자 ID 추가
         'timestamp': FieldValue.serverTimestamp(),
       });
+      _sendNotification(_controller.text);
       _controller.clear();
     }
+  }
+
+  void _sendNotification(String message) async {
+    final chatRoom = await FirebaseFirestore.instance.collection('chat_rooms').doc(chatRoomId).get();
+    final members = chatRoom['members'] as List;
+    final otherUserId = members.firstWhere((element) => element != userId);
+    if(otherUserId != null)
+      {
+        FirebaseService().notifyChat(otherUserId, chatRoomId, message);
+      }
+
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -55,6 +57,21 @@ class FirebaseService {
       }
     }
   }
+
+  Future<void> notifyChat(String toUid,String messageId ,String message) async{
+    if(toUid.isNotEmpty){
+      QuerySnapshot tokenSnapshot = await _firestore.collection('MessageTokens')
+          .where('uid', isEqualTo: toUid)
+          .get();
+      for (var tokenDoc in tokenSnapshot.docs) {
+        String token = tokenDoc['token'];
+        print ('send to $toUid, $token');
+        await send(token, "새로운 메시지가 도착했습니다.", message, "message", messageId);
+      }
+    }
+  }
+
+
   static Future<void> send(String token, String title, String body, String type, String id) async {
     final jsonCredentials =
     await rootBundle.loadString('assets/secret_key.json');
@@ -106,18 +123,35 @@ class FirebaseService {
     final data = await json.decode(response);
     return data['vapid_key'];
   }
+
+  Future<String> createChatRoom(String otherUserId,String productId, String roomName ) async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    DocumentReference docRef = await FirebaseFirestore.instance.collection('chat_rooms').add({
+      'name': roomName,
+      'last_updated': FieldValue.serverTimestamp(),
+      'members': [userId, otherUserId], // 현재 사용자 ID와 상대방의 ID 추가
+      'product_id': productId,
+    });
+    return docRef.id;
+  }
+
+  Future<String?> findExistingChatRoom(String postUserId, String postId) async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('chat_rooms')
+        .where('post_id', isEqualTo: postId)
+        .where('members', arrayContains: postUserId)
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      return querySnapshot.docs.first.id; // Return the ID of the existing chat room
+    }
+    return null; // No existing chat room found
+  }
 }
 
-Future<String> createChatRoom(String otherUserId,String productId, String roomName ) async {
-  String userId = FirebaseAuth.instance.currentUser!.uid;
-  DocumentReference docRef = await FirebaseFirestore.instance.collection('chat_rooms').add({
-    'name': roomName,
-    'last_updated': FieldValue.serverTimestamp(),
-    'members': [userId, otherUserId], // 현재 사용자 ID와 상대방의 ID 추가
-    'product_id': productId,
-  });
-  return docRef.id;
-}
+
+
 
 
 
