@@ -1,7 +1,6 @@
 import 'package:amtt/pages/UserPage.dart';
 import 'package:flutter/material.dart';
 
-import 'UserPage.dart';
 import 'ChatRoomsPage.dart';
 import 'ProductListPage.dart';
 import 'UserPage.dart';
@@ -13,6 +12,7 @@ class NavigatorPage extends StatefulWidget {
 }
 
 class NavigatorState extends State<NavigatorPage> {
+
 
   // 초기 네비게이션 바 인덱스
   int selectedIndex = 0;

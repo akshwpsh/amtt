@@ -7,6 +7,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 //위젯 임포트
 import 'package:amtt/widgets/UserDefaultTab.dart';
 
+//페이지 임포트
+import 'KeywordsPage.dart';
+import 'WishListPage.dart';
+import 'UserEditPage.dart';
+
 class UserPage extends StatefulWidget {
   @override
   _UserEditPageState createState() => _UserEditPageState();
@@ -52,17 +57,21 @@ class _UserEditPageState extends State<UserPage> {
                 color: Color(0xffF7F8F8), // 여기에 원하는 배경색을 설정
                 borderRadius: BorderRadius.circular(12),
                 child: InkWell(
-                  onTap: () => {},
-                  //클릭 이벤트
-                  highlightColor: Colors.grey.withOpacity(0.1),
-                  //길게 누를 때 색상
-                  splashColor: Colors.grey.withOpacity(0.2),
-                  //탭 했을 때 잉크 효과 색상
+                  onTap: () => {
+
+                    //계정 정보 수정 페이지로 넘어가기
+                    Navigator.push( context,
+                      MaterialPageRoute(builder: (context) => UserEditPage()),
+                    )
+                  }, //클릭 이벤트
+                  highlightColor: Colors.grey.withOpacity(0.1), //길게 누를 때 색상
+                  splashColor: Colors.grey.withOpacity(0.2), //탭 했을 때 잉크 효과 색상
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 25),
                     child: Row(
                       children: [
+
                         // 프로필 이미지
                         Container(
                           width: 60,
@@ -76,6 +85,7 @@ class _UserEditPageState extends State<UserPage> {
                             size: 44,
                           ),
                         ),
+
                         SizedBox(width: 10),
 
                         // 사용자 정보 공간 (닉네임, 계정 이메일)
@@ -127,14 +137,15 @@ class _UserEditPageState extends State<UserPage> {
                 child: Column(
                   children: [
                     //대학교 설정 탭 제목 텍스트
-                    UserTabTitle(text : '대학교 설정'),
+                    UserTabTitle(text: '대학교 설정'),
 
                     SizedBox(height: 0.01.sh),
 
                     Row(
                       children: [
                         //대학교 이름 텍스트
-                        const Text('목포대학교', style: TextStyle(color: Color(0xff596773), fontSize: 20)),
+                        const Text('목포대학교', style: TextStyle(color: Color(
+                            0xff596773), fontSize: 20)),
 
                         Spacer(),
 
@@ -165,28 +176,41 @@ class _UserEditPageState extends State<UserPage> {
 
               //앱 관련 설정 탭 (알림 키워드 등록, 찜한 목록, 거래 기록)
               Container(
-                child: Column (
+                child: Column(
                   children: [
 
                     //앱 관련 탭 제목 텍스트
-                    UserTabTitle(text : '앱 관련'),
+                    UserTabTitle(text: '앱 관련'),
 
                     UsersdefaultTab(
                         icon: Icons.markunread_sharp,
                         text: '알림 키워드 관리',
-                        onTap: () => { print("클릭") }
+                        onTap: () => {
+
+                        //알림 키워드 관리 페이지로 넘어가기
+                        Navigator.push( context,
+                          MaterialPageRoute(builder: (context) => KeywordsPage()),
+                        )
+
+                    }
                     ),
 
                     UsersdefaultTab(
                         icon: Icons.favorite,
                         text: '찜한 목록 보기',
-                        onTap: () => { print("클릭") }
+                        onTap: () => {
+
+                          //찜한 목록 페이지로 넘어가기
+                          Navigator.push( context,
+                            MaterialPageRoute(builder: (context) => WishListPage()),
+                          )
+                        }
                     ),
 
                     UsersdefaultTab(
                         icon: Icons.manage_search,
                         text: '거래 기록 보기',
-                        onTap: () => { print("클릭") }
+                        onTap: () => { print("거래 기록 버튼 클릭")}
                     ),
 
 
@@ -204,7 +228,43 @@ class _UserEditPageState extends State<UserPage> {
               ),
 
               //기타 설정 탭 (전체 설정, 문의 하기, 로그 아웃)
-              Container(),
+              Container(
+                child: Column(
+                  children: [
+
+                    //기타 설정 탭 제목 텍스트
+                    UserTabTitle(text: '기타'),
+
+                    UsersdefaultTab(
+                        icon: Icons.settings,
+                        text: '전체 설정',
+                        onTap: () => { print("전체 설정 클릭")}
+                    ),
+
+                    UsersdefaultTab(
+                        icon: Icons.call,
+                        text: '문의 하기',
+                        onTap: () => { print("문의 하기 클릭")}
+                    ),
+
+                    UsersdefaultTab(
+                        icon: Icons.logout_rounded,
+                        text: '로그 아웃',
+                        onTap: () => { print("로그 아웃 클릭")}
+                    ),
+
+                  ],
+                ),
+              ),
+
+              //디바이더
+              const Divider(
+                height: 20,
+                thickness: 2,
+                indent: 0,
+                endIndent: 0,
+                color: Color(0xffdbdbdb),
+              ),
             ],
           ),
         ),
@@ -242,7 +302,6 @@ class UserTabTitle extends StatelessWidget {
 }
 
 
-
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
@@ -260,7 +319,8 @@ class CustomButton extends StatelessWidget {
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.all(Color(0xFFDCF2F2)),
         foregroundColor: WidgetStateProperty.all(Color(0xFF4EBDBD)),
-        elevation: WidgetStateProperty.all(0), // 모든 상태에 대해 elevation을 0으로 설정
+        elevation: WidgetStateProperty.all(0),
+        // 모든 상태에 대해 elevation을 0으로 설정
         padding: WidgetStateProperty.all(EdgeInsets.all(2)),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
