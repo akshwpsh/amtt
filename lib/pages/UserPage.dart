@@ -117,25 +117,39 @@ class _UserEditPageState extends State<UserPage> {
                 ),
               ),
 
+              SizedBox(height: 0.02.sh),
+
               //대학교 설정 탭 (대학교 이름, 변경 버튼)
               Container(
                 child: Column(
                   children: [
                     //대학교 설정 탭 제목 텍스트
-                    Text('대학교 설정'),
+                    UserTabTitle(text : '대학교 설정'),
+
+                    SizedBox(height: 0.01.sh),
 
                     Row(
                       children: [
                         //대학교 이름 텍스트
-                        const Text('목포대학교'),
+                        const Text('목포대학교', style: TextStyle(color: Color(0xff596773), fontSize: 20)),
+
+                        Spacer(),
 
                         // 대학교 설정 변경 버튼 공간
-                        Container(),
+                        CustomButton(
+                          text: '변경',
+                          onPressed: () {
+                            // 버튼이 클릭되었을 때 실행할 코드
+                            print('버튼이 클릭되었습니다!');
+                          },
+                        )
                       ],
                     )
                   ],
                 ),
               ),
+
+              SizedBox(height: 0.01.sh),
 
               //디바이더
               const Divider(
@@ -146,13 +160,89 @@ class _UserEditPageState extends State<UserPage> {
                 color: Color(0xffdbdbdb),
               ),
 
-              //앱 설정 탭 (알림 키워드 등록, 찜한 목록, 거래 기록)
-              Container(),
+              //앱 관련 설정 탭 (알림 키워드 등록, 찜한 목록, 거래 기록)
+              Container(
+                child: Column (
+                  children: [
+
+                    //앱 관련 탭 제목 텍스트
+                    UserTabTitle(text : '앱 관련'),
+
+
+                  ],
+                ),
+              ),
 
               //기타 설정 탭 (전체 설정, 문의 하기, 로그 아웃)
               Container(),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class UserTabTitle extends StatelessWidget {
+  final String text;
+
+  const UserTabTitle({
+    Key? key,
+    required this.text,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 4),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.left,
+        ),
+      ),
+    );
+  }
+}
+
+
+
+class CustomButton extends StatelessWidget {
+  final String text;
+  final VoidCallback? onPressed;
+
+  const CustomButton({
+    Key? key,
+    required this.text,
+    this.onPressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.all(Color(0xFFDCF2F2)),
+        foregroundColor: WidgetStateProperty.all(Color(0xFF4EBDBD)),
+        elevation: WidgetStateProperty.all(0), // 모든 상태에 대해 elevation을 0으로 설정
+        padding: WidgetStateProperty.all(EdgeInsets.all(2)),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8), // 둥근 모서리 반경을 조절할 수 있습니다.
+          ),
+        ),
+      ),
+
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 16, // 글씨 크기를 조절할 수 있습니다.
         ),
       ),
     );
