@@ -1,3 +1,4 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -43,13 +44,87 @@ class _UserEditPageState extends State<UserEditPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('회원정보 수정'),
+        title: Text('프로필 수정'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.symmetric(horizontal: 0.06.sw),
         child: SingleChildScrollView(
           child: Column(
             children: [
+
+              Container(),
+
+              //디바이더
+              const Divider(
+                height: 20,
+                thickness: 2,
+                indent: 0,
+                endIndent: 0,
+                color: Color(0xffdbdbdb),
+              ),
+
+              // 닉네임 탭 제목 텍스트
+              UserTabTitle(text: '닉네임'),
+
+              // 닉네임 텍스트필드 공간
+              Container(),
+
+              // 이름 탭 제목 텍스트
+              UserTabTitle(text: '이름'),
+
+              // 이름 텍스트필드 공간
+              Container(),
+
+              // 전화번호 탭 제목 텍스트
+              UserTabTitle(text: '전화번호'),
+
+              // 전화번호 텍스트필드 공간
+              Container(),
+
+              // 학번, 학과 공간
+              Row(
+
+                children: [
+
+                  // 학번
+                  Column(
+                    children: [
+
+                      // 학번 탭 제목 텍스트
+                      UserTabTitle(text: '학번'),
+
+                      // 학번 텍스트필드 공간
+                      Container(),
+
+                    ],
+                  ),
+
+                  // 학과
+                  Column(
+                    children: [
+
+                      // 학번 탭 제목 텍스트
+                      UserTabTitle(text: '학번'),
+
+                      // 학번 텍스트필드 공간
+                      Container(),
+
+                    ],
+                  ),
+
+
+
+                ],
+
+              ),
+
+
+              // 계정 탈퇴 버튼 공간
+              Container(),
+
+
+
+
               TextField(
                 controller: _nickNameController,
                 decoration: InputDecoration(labelText: '닉네임'),
@@ -87,6 +162,9 @@ class _UserEditPageState extends State<UserEditPage> {
           ),
         ),
       ),
+
+      // 바닥 고정 앱바 - 저장 버튼 공간
+      bottomSheet: BottomAppBar(),
     );
   }
   void _updateUser() async {
@@ -119,4 +197,32 @@ class _UserEditPageState extends State<UserEditPage> {
     }
   }
 
+}
+
+
+class UserTabTitle extends StatelessWidget {
+  final String text;
+
+  const UserTabTitle({
+    Key? key,
+    required this.text,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 4),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.left,
+        ),
+      ),
+    );
+  }
 }
