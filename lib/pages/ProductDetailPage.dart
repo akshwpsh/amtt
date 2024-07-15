@@ -306,7 +306,7 @@ class ProductDetailPage extends StatelessWidget {
                               btnText: "채팅하기",
                               onPressed: () async {
                                 // Check for an existing chat room
-                                String? existingChatId = await FirebaseService().findExistingChatRoom(postUserId, postId);
+                                String? existingChatId = await FirebaseService().findExistingChatRoom(postId);
 
                                 String chatId;
                                 if (existingChatId != null) {

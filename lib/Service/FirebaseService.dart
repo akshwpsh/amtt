@@ -135,11 +135,10 @@ class FirebaseService {
     return docRef.id;
   }
 
-  Future<String?> findExistingChatRoom(String postUserId, String postId) async {
+  Future<String?> findExistingChatRoom(String productId) async {
     final querySnapshot = await FirebaseFirestore.instance
         .collection('chat_rooms')
-        .where('post_id', isEqualTo: postId)
-        .where('members', arrayContains: postUserId)
+        .where('product_id', isEqualTo: productId)
         .limit(1)
         .get();
 
