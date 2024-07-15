@@ -66,7 +66,9 @@ class _KeywordsPageState extends State<KeywordsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text('알림 키워드 추가'),
       ),
       body: Column(
