@@ -53,7 +53,7 @@ class _WishListPageState extends State<WishListPage> {
         title: Text('찜 리스트'),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 0.06.sw),
+        padding: EdgeInsets.symmetric(horizontal: 0.06.sw, vertical: 10),
         child: FutureBuilder<List<Map<String, dynamic>>>(
           future: fetchWishProducts(),
           builder: (context, snapshot) {
