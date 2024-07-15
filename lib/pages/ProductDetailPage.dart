@@ -301,12 +301,23 @@ class ProductDetailPage extends StatelessWidget {
                           Container(
                             width: 0.3.sw,
                             height: 0.05.sh,
-
                             //채팅 버튼
                             child: BtnYesBG(
                               btnText: "채팅하기",
                               onPressed: () async {
-                                String chatId = await createChatRoom(postUserId, postId, postName);
+                                // Check for an existing chat room
+                                String? existingChatId = await FirebaseService().findExistingChatRoom(postId);
+
+                                String chatId;
+                                if (existingChatId != null) {
+                                  // Use the existing chat room
+                                  chatId = existingChatId;
+                                } else {
+                                  // No existing chat room found, create a new one
+                                  chatId = await FirebaseService().createChatRoom(postUserId, postId, postName);
+                                }
+
+                                // Navigate to the chat room
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(

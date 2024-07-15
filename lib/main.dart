@@ -7,6 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
 import 'pages/MainPage.dart';
 import 'pages/ProductDetailPage.dart';
+import 'pages/ChatPage.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -28,7 +29,11 @@ Future<void> setupInteractedMessage() async {
 void _handleMessage(RemoteMessage message) {
   Future.delayed(const Duration(seconds: 1), () {
     print("id: ${message.data['id']}");
-    navigatorKey.currentState!.pushNamed('/post', arguments: message.data['id']);
+    String type = message.data['type'];
+    if(type == 'message')
+      navigatorKey.currentState!.pushNamed('/message', arguments: message.data['id']);
+    else if(type == 'keyword')
+      navigatorKey.currentState!.pushNamed('/post', arguments: message.data['id']);
   });
 }
 
@@ -104,6 +109,14 @@ class MyApp extends StatelessWidget {
                 return MaterialPageRoute(
                   builder: (context) {
                     return ProductDetailPage(postId: id);
+                  },
+                );
+              }
+              if (settings.name == '/message') {
+                final id = settings.arguments as String;
+                return MaterialPageRoute(
+                  builder: (context) {
+                    return ChatPage(id);
                   },
                 );
               }
