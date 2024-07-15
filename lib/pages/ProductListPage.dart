@@ -106,9 +106,13 @@ class _ProductListPageState extends State<ProductListPage> {
             final data = doc.data() as Map<String, dynamic>;
             final String postName = data['postName'] ?? 'No title';
             final String category = data['category'] ?? '';
-            
-            final matchesSearchText = _searchText == null || _searchText!.isEmpty || postName.toLowerCase().contains(_searchText!.toLowerCase());
-            final matchesCategory = _selectedCategory == null || _selectedCategory!.isEmpty || category == _selectedCategory;
+
+            final matchesSearchText = _searchText == null ||
+                _searchText!.isEmpty ||
+                postName.toLowerCase().contains(_searchText!.toLowerCase());
+            final matchesCategory = _selectedCategory == null ||
+                _selectedCategory!.isEmpty ||
+                category == _selectedCategory;
 
             return matchesSearchText && matchesCategory;
           }).toList();
@@ -123,6 +127,7 @@ class _ProductListPageState extends State<ProductListPage> {
               final data = doc.data() as Map<String, dynamic>;
               final String postname = data['postName'] ?? 'No title';
               final String userName = data['userName'] ?? 'Unknown';
+              final String category = data['category'] ?? 'No category';
               final Timestamp timestamp = data['timestamp'] ?? Timestamp.now();
               final String formattedDate =
                   DateFormat('yyyy-MM-dd').format(timestamp.toDate());
@@ -142,7 +147,7 @@ class _ProductListPageState extends State<ProductListPage> {
                         )
                       : null,
                   title: Text(postname),
-                  subtitle: Text('by $userName\n$formattedDate'),
+                  subtitle: Text('by $userName\n$formattedDate\n카테고리 : $category'),
                   isThreeLine: true,
                   onTap: () {
                     Navigator.push(
