@@ -42,14 +42,36 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
 
   String? userName;
   String? userUniversity;
+  String? _selectedCategory;
+  List<String> _categories = [];
   bool get isEditMode => widget.postId != null;
 
   @override
   void initState() {
     super.initState();
     _getUserData();
+    _fetchCategories();
     if (isEditMode) {
       _loadProductData(widget.postId!);
+    }
+  }
+   Future<void> _fetchCategories() async {
+    try {
+      DocumentSnapshot categoryDoc = await _firestore.collection('category').doc('categories').get();
+      Map<String, dynamic> data = categoryDoc.data() as Map<String, dynamic>;
+      List<String> categories = [];
+      data.forEach((key, value) {
+        categories.add(value);
+      });
+      setState(() {
+        _categories = categories;
+      });
+    } catch (e) {
+      print("Failed to fetch categories: $e");
+      // 오류가 발생하면 임시 카테고리들로 설정
+      setState(() {
+        _categories = ['전자제품', '책', '문구', '생활용품', '의류', '취미'];
+      });
     }
   }
 
@@ -69,12 +91,13 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
 
   Future<void> _loadProductData(String postId) async {
     DocumentSnapshot productData =
-    await _firestore.collection('products').doc(postId).get();
+        await _firestore.collection('products').doc(postId).get();
     setState(() {
       _postNameController.text = productData['postName'];
       _postDescriptionController.text = productData['postDescription'];
       _productPriceController.text = productData['productPrice'];
       _imageUrls = List<String>.from(productData['imageUrls']);
+      _selectedCategory = productData['category'];
     });
   }
 
@@ -109,7 +132,33 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
     return downloadUrls;
   }
 
-
+  void _selectCategory() async {
+    final selectedCategory = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('카테고리 선택'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: _categories.map((category) {
+                return ListTile(
+                  title: Text(category),
+                  onTap: () {
+                    Navigator.pop(context, category);
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+    if (selectedCategory != null) {
+      setState(() {
+        _selectedCategory = selectedCategory;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,20 +168,17 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
         backgroundColor: Colors.white,
         title: Text('게시글 등록'),
       ),
-      body: Theme (
-        data: ThemeData (
-
+      body: Theme(
+        data: ThemeData(
           inputDecorationTheme: InputDecorationTheme(
             labelStyle: TextStyle(color: Colors.black), // 라벨 텍스트 색상 설정
             focusedBorder: UnderlineInputBorder(
               borderSide:
-              BorderSide(color: Color(0xff4EBDBD)), // 포커스된 상태에서의 밑줄 색상
+                  BorderSide(color: Color(0xff4EBDBD)), // 포커스된 상태에서의 밑줄 색상
             ),
-
           ),
-
         ),
-        child: SingleChildScrollView (
+        child: SingleChildScrollView(
           child: Padding(
             //전체 패딩
             padding: EdgeInsets.all(0.1.sw),
@@ -155,16 +201,25 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
 
                   TextField(
                       controller: _postDescriptionController,
-                      decoration: InputDecoration(labelText: '게시글 내용', alignLabelWithHint: true),
+                      decoration: InputDecoration(
+                          labelText: '게시글 내용', alignLabelWithHint: true),
                       maxLines: 10),
                   SizedBox(height: 0.05.sh),
                   TextField(
                     keyboardType: TextInputType.number,
                     controller: _productPriceController,
-                    decoration: InputDecoration(labelText: '가격', suffixText: '원',),
+                    decoration: InputDecoration(
+                      labelText: '가격',
+                      suffixText: '원',
+                    ),
                   ),
-
                   //가격 필드와 이미지 등록 버튼 사이의 간격
+                  SizedBox(height: 0.05.sh),
+
+                  ElevatedButton(
+                    onPressed: _selectCategory,
+                    child: Text(_selectedCategory ?? '카테고리 고르기'),
+                  ),
                   SizedBox(height: 0.05.sh),
 
                   BtnNoBG(btnText: '이미지 등록', onPressed: _selectImage),
@@ -178,24 +233,25 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                             .asMap()
                             .entries
                             .map((entry) => Padding(
-                          padding: EdgeInsets.only( right: 10.0),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(0.03.sw),
-                            child: (kIsWeb)
-                                ? Image.network(
-                              _imageUrls[entry.key]!,
-                              height: 0.2.sw,
-                              width: 0.2.sw,
-                              fit: BoxFit.cover,
-                            )
-                                : Image.file(
-                              File(entry.value!.path),
-                              height: 0.2.sw,
-                              width: 0.2.sw,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ))
+                                  padding: EdgeInsets.only(right: 10.0),
+                                  child: ClipRRect(
+                                    borderRadius:
+                                        BorderRadius.circular(0.03.sw),
+                                    child: (kIsWeb)
+                                        ? Image.network(
+                                            _imageUrls[entry.key]!,
+                                            height: 0.2.sw,
+                                            width: 0.2.sw,
+                                            fit: BoxFit.cover,
+                                          )
+                                        : Image.file(
+                                            File(entry.value!.path),
+                                            height: 0.2.sw,
+                                            width: 0.2.sw,
+                                            fit: BoxFit.cover,
+                                          ),
+                                  ),
+                                ))
                             .toList(),
                       ),
                     ),
@@ -227,11 +283,12 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
             'postDescription': _postDescriptionController.text,
             'productPrice': _productPriceController.text,
             'imageUrls': imageUrls,
+            'category': _selectedCategory,
           });
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text('수정 완료')));
         } else {
-          DocumentReference doc =  await _firestore.collection('products').add({
+          DocumentReference doc = await _firestore.collection('products').add({
             'postName': _postNameController.text,
             'postDescription': _postDescriptionController.text,
             'productPrice': _productPriceController.text,
@@ -239,11 +296,13 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
             'userName': userName,
             'University': userUniversity,
             'imageUrls': imageUrls,
+            'category': _selectedCategory,
             'timestamp': FieldValue.serverTimestamp(),
           });
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text('게시물 등록 성공')));
-          FirebaseService().notifyUsersByTitle(_postNameController.text, doc.id);
+          FirebaseService()
+              .notifyUsersByTitle(_postNameController.text, doc.id);
         }
         _clearForm();
       }
@@ -260,6 +319,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
     setState(() {
       _selectedImages = [];
       _imageUrls = [];
+      _selectedCategory = null;
     });
   }
 }

@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 import 'package:amtt/Service/FirebaseService.dart';
 import 'ChatPage.dart';
 
-
 class ProductDetailPage extends StatelessWidget {
   final String postId;
   late final String postUserId;
@@ -32,10 +31,9 @@ class ProductDetailPage extends StatelessWidget {
     return doc.data() as Map<String, dynamic>;
   }
 
-
   Future<String> fetchUserAuth(String userId) async {
     DocumentSnapshot userDoc =
-    await FirebaseFirestore.instance.collection('users').doc(userId).get();
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
     return userDoc['auth'];
   }
 
@@ -92,7 +90,7 @@ class ProductDetailPage extends StatelessWidget {
           String description = data['postDescription'];
           String university = data['University'];
           List<dynamic> imageUrls = data['imageUrls'];
-
+          String category = data['category']; 
 
           return Scaffold(
               backgroundColor: Colors.white,
@@ -218,13 +216,17 @@ class ProductDetailPage extends StatelessWidget {
                       ),
 
                       SizedBox(height: 0.01.sh),
+                      Text(
+                        '카테고리 : $category',
+                        style:
+                            TextStyle(fontSize: 17, color: Color(0xff767676)),
+                      ),
+                      SizedBox(height: 0.01.sh),
 
                       //로그인 여부에 따른 찜버튼 보이기 + 편집,삭제 버튼
-                      if(isLogin != null)
-
+                      if (isLogin != null)
                         Row(
                           children: [
-
                             //찜버튼
                             FavoriteButton(postId: postId),
 
@@ -246,7 +248,8 @@ class ProductDetailPage extends StatelessWidget {
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) =>
-                                                  ProductRegisterPage(postId: postId),
+                                                  ProductRegisterPage(
+                                                      postId: postId),
                                             ),
                                           );
                                         },
@@ -268,13 +271,8 @@ class ProductDetailPage extends StatelessWidget {
                                 }
                               },
                             ),
-
-
-
                           ],
                         )
-
-
                     ],
                   ),
                 ),
@@ -306,7 +304,8 @@ class ProductDetailPage extends StatelessWidget {
                               btnText: "채팅하기",
                               onPressed: () async {
                                 // Check for an existing chat room
-                                String? existingChatId = await FirebaseService().findExistingChatRoom(postId);
+                                String? existingChatId = await FirebaseService()
+                                    .findExistingChatRoom(postId);
 
                                 String chatId;
                                 if (existingChatId != null) {
@@ -314,7 +313,9 @@ class ProductDetailPage extends StatelessWidget {
                                   chatId = existingChatId;
                                 } else {
                                   // No existing chat room found, create a new one
-                                  chatId = await FirebaseService().createChatRoom(postUserId, postId, postName);
+                                  chatId = await FirebaseService()
+                                      .createChatRoom(
+                                          postUserId, postId, postName);
                                 }
 
                                 // Navigate to the chat room
@@ -348,7 +349,6 @@ class FavoriteButton extends StatefulWidget {
 }
 
 class _FavoriteButtonState extends State<FavoriteButton> {
-
   //현재 찜 상태 나타내는 변수
   bool isZZim = false;
 
@@ -379,7 +379,6 @@ class _FavoriteButtonState extends State<FavoriteButton> {
       isZZim = confirmQuery.docs.isNotEmpty;
     });
   }
-
 
   //찜리스트에 추가 하는 코드
   Future<String> addZZimList(String postId) async {
@@ -415,11 +414,8 @@ class _FavoriteButtonState extends State<FavoriteButton> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-
     return IconButton(
       onPressed: () async {
         ///오류발생 이유 확인하기위한 트라이문
@@ -429,8 +425,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
             SnackBar(content: Text(result)),
           );
         } catch (e) {
-          if (e is FirebaseAuthException &&
-              e.code == 'ERROR_NO_USER') {
+          if (e is FirebaseAuthException && e.code == 'ERROR_NO_USER') {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('로그인먼저하세용')),
             );
@@ -440,9 +435,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
             );
           }
         }
-        setState(() {
-
-        });
+        setState(() {});
       },
       color: Color(0xFF4EBDBD),
       icon: Icon(
@@ -451,4 +444,3 @@ class _FavoriteButtonState extends State<FavoriteButton> {
     );
   }
 }
-

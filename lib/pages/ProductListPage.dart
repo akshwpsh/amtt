@@ -12,35 +12,105 @@ class ProductListPage extends StatefulWidget {
 class _ProductListPageState extends State<ProductListPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String? _searchText = '';
+  String? _selectedCategory;
   TextEditingController _searchController = TextEditingController();
+  List<String> _categories = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    try {
+      DocumentSnapshot categoryDoc = await _firestore.collection('category').doc('categories').get();
+      Map<String, dynamic> data = categoryDoc.data() as Map<String, dynamic>;
+      List<String> categories = [];
+      data.forEach((key, value) {
+        categories.add(value);
+      });
+      setState(() {
+        _categories = categories;
+      });
+    } catch (e) {
+      print("Failed to fetch categories: $e");
+      // 오류가 발생하면 임시 카테고리로바꾸기
+      setState(() {
+        _categories = ['전자제품', '책', '문구', '생활용품', '의류', '취미'];
+      });
+    }
+  }
+  void _selectCategory() async {
+    final selectedCategory = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('카테고리 선택'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: _categories.map((category) {
+                return ListTile(
+                  title: Text(category),
+                  onTap: () {
+                    Navigator.pop(context, category);
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    );
+    if (selectedCategory != null) {
+      setState(() {
+        _selectedCategory = selectedCategory;
+      });
+    } else {
+      setState(() {
+        _selectedCategory = null;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text('Product List'),
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(48.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: "검색하세용",
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () {
+        title: Text('상품 목록'),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(48.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: "검색하세용",
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed: () {
+                        setState(() {
+                          _searchText = _searchController.text;
+                        });
+                      },
+                    ),
+                  ),
+                  onSubmitted: (value) {
                     setState(() {
-                      _searchText = _searchController.text;
+                      _searchText = value;
                     });
                   },
                 ),
               ),
-              onSubmitted: (value) {
-                setState(() {
-                  _searchText = value;
-                });
-              },
-            ),
-          )),
+              IconButton(
+                icon: Icon(Icons.filter_list),
+                onPressed: _selectCategory,
+              ),
+            ],
+          ),
+        ),
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore
             .collection('products')
@@ -60,9 +130,16 @@ class _ProductListPageState extends State<ProductListPage> {
           final filteredDocs = snapshot.data!.docs.where((doc) {
             final data = doc.data() as Map<String, dynamic>;
             final String postName = data['postName'] ?? 'No title';
-            return postName
-                .toLowerCase()
-                .contains(_searchText?.toLowerCase() ?? '');
+            final String category = data['category'] ?? '';
+
+            final matchesSearchText = _searchText == null ||
+                _searchText!.isEmpty ||
+                postName.toLowerCase().contains(_searchText!.toLowerCase());
+            final matchesCategory = _selectedCategory == null ||
+                _selectedCategory!.isEmpty ||
+                category == _selectedCategory;
+
+            return matchesSearchText && matchesCategory;
           }).toList();
 
           if (filteredDocs.isEmpty) {
@@ -75,6 +152,7 @@ class _ProductListPageState extends State<ProductListPage> {
               final data = doc.data() as Map<String, dynamic>;
               final String postname = data['postName'] ?? 'No title';
               final String userName = data['userName'] ?? 'Unknown';
+              final String category = data['category'] ?? 'No category';
               final Timestamp timestamp = data['timestamp'] ?? Timestamp.now();
               final String formattedDate =
                   DateFormat('yyyy-MM-dd').format(timestamp.toDate());
@@ -94,7 +172,8 @@ class _ProductListPageState extends State<ProductListPage> {
                         )
                       : null,
                   title: Text(postname),
-                  subtitle: Text('by $userName\n$formattedDate'),
+                  subtitle:
+                      Text('by $userName\n$formattedDate\n카테고리 : $category'),
                   isThreeLine: true,
                   onTap: () {
                     Navigator.push(
