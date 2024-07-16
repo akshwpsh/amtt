@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+//위젯 임포트
+import 'package:amtt/widgets/BtnYesBG.dart';
+
 class UserEditPage extends StatefulWidget {
   @override
   _UserEditPageState createState() => _UserEditPageState();
@@ -27,7 +30,10 @@ class _UserEditPageState extends State<UserEditPage> {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
       // Firestore에서 사용자 데이터를 가져옵니다.
-      DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).get();
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .get();
       Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
 
       // 가져온 데이터를 각 TextEditingController에 설정합니다.
@@ -44,7 +50,9 @@ class _UserEditPageState extends State<UserEditPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
+        scrolledUnderElevation: 0, //스크롤 해도 색상 바뀌지 않게
         backgroundColor: Colors.white,
         title: Text('프로필 수정'),
       ),
@@ -53,7 +61,6 @@ class _UserEditPageState extends State<UserEditPage> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-
               SizedBox(height: 0.02.sh),
 
               // 프로필 이미지 공간
@@ -93,47 +100,47 @@ class _UserEditPageState extends State<UserEditPage> {
 
               // 학번, 학과 공간
               Row(
-
                 children: [
-
                   // 학번
                   Column(
                     children: [
-
                       // 학번 탭 제목 텍스트
                       UserTabTitle(text: '학번'),
 
                       // 학번 텍스트필드 공간
                       Container(),
-
                     ],
                   ),
 
                   // 학과
                   Column(
                     children: [
-
                       // 학번 탭 제목 텍스트
                       UserTabTitle(text: '학번'),
 
                       // 학번 텍스트필드 공간
                       Container(),
-
                     ],
                   ),
-
-
-
                 ],
-
               ),
 
+              SizedBox(height: 0.01.sh),
 
               // 계정 탈퇴 버튼 공간
-              Container(),
+              Container(
+                width: double.infinity,
+                height: 60,
+                child: CustomCancelButton(
+                  text: '계정 탈퇴',
+                  onPressed: () {
+                    // 버튼이 클릭되었을 때 실행할 코드
+                    print('탈퇴 버튼 클릭');
+                  },
+                ),
+              ),
 
-
-
+              SizedBox(height: 0.01.sh),
 
               TextField(
                 controller: _nickNameController,
@@ -168,20 +175,42 @@ class _UserEditPageState extends State<UserEditPage> {
                 onPressed: _deleteUser,
                 child: Text('회원 탈퇴'),
               ),
+
+              SizedBox(height: 0.01.sh),
             ],
           ),
         ),
       ),
 
       // 바닥 고정 앱바 - 저장 버튼 공간
-      bottomSheet: BottomAppBar(),
+      bottomNavigationBar: Container(
+        color: Colors.white,
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Padding(
+              padding: EdgeInsets.all(0.06.sw),
+              child: Container(
+                height: 60,
+                child: BtnYesBG(
+                    btnText: '저장', onPressed: () => {print('저장 버튼 눌림')}),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
+
   void _updateUser() async {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
       // Firestore에서 사용자 데이터를 업데이트합니다.
-      await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).update({
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .update({
         'nickName': _nickNameController.text,
         'name': _nameController.text,
         'phoneNumber': _phoneNumberController.text,
@@ -198,7 +227,10 @@ class _UserEditPageState extends State<UserEditPage> {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
       // Firestore에서 사용자 데이터를 삭제합니다.
-      await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).delete();
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .delete();
 
       // Firebase Authentication에서 사용자를 삭제합니다.
       await currentUser.delete();
@@ -206,9 +238,7 @@ class _UserEditPageState extends State<UserEditPage> {
       print('User deleted');
     }
   }
-
 }
-
 
 class UserTabTitle extends StatelessWidget {
   final String text;
@@ -237,8 +267,6 @@ class UserTabTitle extends StatelessWidget {
   }
 }
 
-
-
 class ProfileImageWithIcon extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
@@ -254,9 +282,9 @@ class ProfileImageWithIcon extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Stack( //위젯 겹처서 쌓기 위해
+        Stack(
+          //위젯 겹처서 쌓기 위해
           children: [
-
             // 프로필 이미지 공간(둥근배경)
             Material(
               shape: const CircleBorder(),
@@ -298,7 +326,6 @@ class ProfileImageWithIcon extends StatelessWidget {
                 ),
               ),
             ),
-
           ],
         ),
 
@@ -312,6 +339,43 @@ class ProfileImageWithIcon extends StatelessWidget {
 
         SizedBox(height: 0.02.sh),
       ],
+    );
+  }
+}
+
+class CustomCancelButton extends StatelessWidget {
+  final String text;
+  final VoidCallback? onPressed;
+
+  const CustomCancelButton({
+    Key? key,
+    required this.text,
+    this.onPressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.all(Color(0xFFFADEDE)),
+        foregroundColor: WidgetStateProperty.all(Color(0xFFE85858)),
+        elevation: WidgetStateProperty.all(0),
+
+        // 모든 상태에 대해 elevation을 0으로 설정
+        padding: WidgetStateProperty.all(EdgeInsets.all(2)),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 16, // 글씨 크기를 조절할 수 있습니다.
+        ),
+      ),
     );
   }
 }
