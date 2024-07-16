@@ -43,7 +43,9 @@ class _UserEditPageState extends State<UserEditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text('프로필 수정'),
       ),
       body: Padding(
@@ -52,7 +54,15 @@ class _UserEditPageState extends State<UserEditPage> {
           child: Column(
             children: [
 
-              Container(),
+              SizedBox(height: 0.02.sh),
+
+              // 프로필 이미지 공간
+              ProfileImageWithIcon(
+                icon: Icons.person, // 사용자의 프로필 이미지 경로
+                onTap: () {
+                  print('이미지를 변경하는 코드 넣어야함!');
+                },
+              ),
 
               //디바이더
               const Divider(
@@ -223,6 +233,85 @@ class UserTabTitle extends StatelessWidget {
           textAlign: TextAlign.left,
         ),
       ),
+    );
+  }
+}
+
+
+
+class ProfileImageWithIcon extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const ProfileImageWithIcon({
+    Key? key,
+    required this.icon,
+    required this.onTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Stack( //위젯 겹처서 쌓기 위해
+          children: [
+
+            // 프로필 이미지 공간(둥근배경)
+            Material(
+              shape: const CircleBorder(),
+              color: Color(0xff7E7E7E), // 배경색 설정
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: onTap,
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  alignment: Alignment.center,
+
+                  //TODO : 이미지 없어서 일단 아이콘으로 대체 나중에 이미지로 받아오게 해야함
+                  child: Icon(
+                    icon,
+                    size: 64,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+
+            // 카메라 아이콘
+            Positioned(
+              bottom: 4,
+              right: 4,
+              child: GestureDetector(
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt,
+                    color: Colors.teal,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ),
+
+          ],
+        ),
+
+        SizedBox(height: 0.03.sh),
+
+        // 프로필 이미지 설정 제목 텍스트
+        const Text(
+          '프로필 이미지 설정',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+
+        SizedBox(height: 0.02.sh),
+      ],
     );
   }
 }
