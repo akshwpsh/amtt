@@ -35,6 +35,7 @@ class _LoginPageState extends State<LoginPage> {
       //키보드 올라올때 사이즈 에러 방지
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text('Login'),
       ),
       backgroundColor: Colors.white,

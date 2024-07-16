@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 //위젯 임포트
 import 'package:amtt/widgets/BtnYesBG.dart';
+import 'package:amtt/widgets/RoundedTextField.dart';
 
 class UserEditPage extends StatefulWidget {
   @override
@@ -83,44 +84,66 @@ class _UserEditPageState extends State<UserEditPage> {
               // 닉네임 탭 제목 텍스트
               UserTabTitle(text: '닉네임'),
 
+
               // 닉네임 텍스트필드 공간
-              Container(),
+              Container(
+                margin: const EdgeInsets.only(top: 10, bottom: 10),
+                child: RoundedTextField(labelText: '이메일', controller : _nickNameController, obscureText : false),
+              ),
 
               // 이름 탭 제목 텍스트
               UserTabTitle(text: '이름'),
 
               // 이름 텍스트필드 공간
-              Container(),
+              Container(
+                margin: const EdgeInsets.only(top: 10, bottom: 10),
+                child: RoundedTextField(labelText: '이름', controller : _nameController, obscureText : false),
+              ),
 
               // 전화번호 탭 제목 텍스트
               UserTabTitle(text: '전화번호'),
 
               // 전화번호 텍스트필드 공간
-              Container(),
+              Container(
+                margin: const EdgeInsets.only(top: 10, bottom: 10),
+                child: RoundedTextField(labelText: '전화번호', controller : _phoneNumberController, obscureText : false),
+              ),
 
               // 학번, 학과 공간
               Row(
                 children: [
                   // 학번
-                  Column(
-                    children: [
-                      // 학번 탭 제목 텍스트
-                      UserTabTitle(text: '학번'),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        // 학번 탭 제목 텍스트
+                        UserTabTitle(text: '학번'),
 
-                      // 학번 텍스트필드 공간
-                      Container(),
-                    ],
+                        // 학번 텍스트필드 공간
+                        Container(
+                          margin: const EdgeInsets.only(top: 10, bottom: 10),
+                          child: RoundedTextField(labelText: '학번', controller: _studentIdController, obscureText: false),
+                        ),
+                      ],
+                    ),
                   ),
 
-                  // 학과
-                  Column(
-                    children: [
-                      // 학번 탭 제목 텍스트
-                      UserTabTitle(text: '학번'),
+                  SizedBox(width: 15,),
 
-                      // 학번 텍스트필드 공간
-                      Container(),
-                    ],
+                  // 학과
+                  Expanded(
+                    child: Column(
+                      children: [
+                        // 학과 탭 제목 텍스트
+                        UserTabTitle(text: '학과'),
+
+                        // 학과 텍스트필드 공간
+                        Container(
+                          margin: const EdgeInsets.only(top: 10, bottom: 10),
+                          child: RoundedTextField(labelText: '학과', controller: _departmentController, obscureText: false),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -133,48 +156,13 @@ class _UserEditPageState extends State<UserEditPage> {
                 height: 60,
                 child: CustomCancelButton(
                   text: '계정 탈퇴',
-                  onPressed: () {
-                    // 버튼이 클릭되었을 때 실행할 코드
-                    print('탈퇴 버튼 클릭');
-                  },
+                  onPressed: _deleteUser
                 ),
               ),
 
               SizedBox(height: 0.01.sh),
 
-              TextField(
-                controller: _nickNameController,
-                decoration: InputDecoration(labelText: '닉네임'),
-              ),
-              TextField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: '이름'),
-              ),
-              TextField(
-                controller: _phoneNumberController,
-                decoration: InputDecoration(labelText: '전화번호'),
-              ),
-              TextField(
-                controller: _studentIdController,
-                decoration: InputDecoration(labelText: '학번'),
-              ),
-              TextField(
-                controller: _schoolController,
-                decoration: InputDecoration(labelText: '학교'),
-              ),
-              TextField(
-                controller: _departmentController,
-                decoration: InputDecoration(labelText: '학과'),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _updateUser,
-                child: Text('수정'),
-              ),
-              ElevatedButton(
-                onPressed: _deleteUser,
-                child: Text('회원 탈퇴'),
-              ),
+
 
               SizedBox(height: 0.01.sh),
             ],
@@ -194,7 +182,7 @@ class _UserEditPageState extends State<UserEditPage> {
               child: Container(
                 height: 60,
                 child: BtnYesBG(
-                    btnText: '저장', onPressed: () => {print('저장 버튼 눌림')}),
+                    btnText: '저장', onPressed: _updateUser),
               ),
             ),
           ),
@@ -203,6 +191,7 @@ class _UserEditPageState extends State<UserEditPage> {
     );
   }
 
+  // 계정 정보 수정
   void _updateUser() async {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
@@ -220,9 +209,12 @@ class _UserEditPageState extends State<UserEditPage> {
       });
 
       print('User updated');
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('수정되었습니다!')));
     }
   }
 
+  // 계정 정보 삭제
   void _deleteUser() async {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
