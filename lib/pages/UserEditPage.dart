@@ -372,30 +372,3 @@ class CustomCancelButton extends StatelessWidget {
   }
 }
 
-
-class UserTabTitle extends StatelessWidget {
-  final String text;
-
-  const UserTabTitle({
-    Key? key,
-    required this.text,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 4),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.left,
-        ),
-      ),
-    );
-  }
-}
