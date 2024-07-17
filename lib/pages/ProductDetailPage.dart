@@ -127,9 +127,6 @@ class ProductDetailPage extends StatelessWidget {
                               if(isLogin != null)
                               //찜버튼
                                 FavoriteButton(postId: postId),
-                              
-                              
-                              if(isAuthor)
 
                                 PopupMenuButton<String>(
                                   color: Colors.white,
