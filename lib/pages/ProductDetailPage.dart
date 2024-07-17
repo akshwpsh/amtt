@@ -8,6 +8,10 @@ import 'package:intl/intl.dart';
 import 'package:amtt/Service/FirebaseService.dart';
 import 'ChatPage.dart';
 
+//위젯 임포트
+import 'package:amtt/widgets/ImageSlider.dart'; //이미지 슬라이더
+
+
 class ProductDetailPage extends StatelessWidget {
   final String postId;
   late final String postUserId;
@@ -96,122 +100,108 @@ class ProductDetailPage extends StatelessWidget {
               backgroundColor: Colors.white,
               appBar: AppBar(
                 backgroundColor: Colors.white,
-                title: Text('상세보기'),
+
+                title: Container(
+                  child: Text('상세보기', style: TextStyle(fontWeight: FontWeight.bold),),
+
+                ),
 
                 //앱바 아이콘 버튼들
                 actions: [
 
-                  if(isLogin != null)
-                    //찜버튼
-                    FavoriteButton(postId: postId),
+                  Padding(
+                    padding: EdgeInsets.only(right: 0),
+                    child: Row(
+                      children: [
 
+                        if(isLogin != null)
+                        //찜버튼
+                          FavoriteButton(postId: postId),
 
-                  FutureBuilder<bool>(
-                    future: canEdit(user!.uid, postId),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else {
-                        final bool canEditPost = snapshot.data ?? false;
+                        FutureBuilder<bool>(
+                          future: canEdit(user!.uid, postId),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return CircularProgressIndicator();
+                            } else if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            } else {
+                              final bool canEditPost = snapshot.data ?? false;
 
-                        return PopupMenuButton<String>(
-                          color: Colors.white,
-                          icon: Icon(Icons.more_vert_rounded, color: Color(0xff4EBDBD)),
-                          onSelected: (String result) {
-                            switch (result) {
-                              case '공유하기':
-                                print('공유하기 선택됨');
-                                //TODO : 공유 기능 구현 해아함
-                                break;
-                              case '수정하기':
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        ProductRegisterPage(
-                                            postId: postId),
-                                  ),
-                                );
-                                break;
-                              case '삭제하기':
-                                deletePost(context, postId);
-                                break;
+                              return PopupMenuButton<String>(
+                                color: Colors.white,
+                                icon: Icon(Icons.more_vert_rounded, color: Color(0xff4EBDBD)),
+                                onSelected: (String result) {
+                                  switch (result) {
+                                    case '공유하기':
+                                      print('공유하기 선택됨');
+                                      //TODO : 공유 기능 구현 해아함
+                                      break;
+                                    case '수정하기':
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ProductRegisterPage(
+                                                  postId: postId),
+                                        ),
+                                      );
+                                      break;
+                                    case '삭제하기':
+                                      deletePost(context, postId);
+                                      break;
+                                  }
+                                },
+                                itemBuilder: (BuildContext context) {
+                                  List<PopupMenuEntry<String>> menuItems = [
+                                    const PopupMenuItem<String>(
+                                      value: '공유하기',
+                                      child: Text('공유하기'),
+                                    ),
+                                  ];
+
+                                  if (canEditPost) {
+                                    menuItems.addAll([
+                                      const PopupMenuItem<String>(
+                                        value: '수정하기',
+                                        child: Text('수정하기'),
+                                      ),
+                                      const PopupMenuItem<String>(
+                                        value: '삭제하기',
+                                        child: Text('삭제하기'),
+                                      ),
+                                    ]);
+                                  }
+
+                                  return menuItems;
+                                },
+                              );
                             }
                           },
-                          itemBuilder: (BuildContext context) {
-                            List<PopupMenuEntry<String>> menuItems = [
-                              const PopupMenuItem<String>(
-                                value: '공유하기',
-                                child: Text('공유하기'),
-                              ),
-                            ];
+                        ),
 
-                            if (canEditPost) {
-                              menuItems.addAll([
-                                const PopupMenuItem<String>(
-                                  value: '수정하기',
-                                  child: Text('수정하기'),
-                                ),
-                                const PopupMenuItem<String>(
-                                  value: '삭제하기',
-                                  child: Text('삭제하기'),
-                                ),
-                              ]);
-                            }
 
-                            return menuItems;
-                          },
-                        );
-                      }
-                    },
+                      ],
+                    ),
                   ),
+
+
 
                 ],
               ),
               body: SingleChildScrollView(
                 child: Padding(
-                  padding: EdgeInsets.all(0.1.sw),
+                  padding: EdgeInsets.symmetric(horizontal: 0.1.sw),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (imageUrls.isNotEmpty)
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Color(0xff767676),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: SizedBox(
-                            height: 0.3.sh,
 
-                            //이미지 페이지를 넘기기 위한 위젯 - 이미지 슬라이드 하는 곳
-                            child: PageView.builder(
-                              itemCount: imageUrls.length,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  child: Center(
-                                    child: ClipRRect(
-                                      //이미지 둥근 모서리 값
-                                      borderRadius: BorderRadius.circular(12.0),
-                                      child: Image.network(
-                                        imageUrls[index],
-                                        //이미지가 뒤 컨테이너에 꽉차게 크기 설정
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        fit: BoxFit.cover, //비율유지하면서 채우기
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                          return Icon(Icons.error);
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
+                      SizedBox(height: 0.02.sh,),
+
+                      // 이미지 공간
+                      if (imageUrls.isNotEmpty)
+                        //이미지 슬라이더
+                        ImageSliderWithIndicator(imageUrls: imageUrls),
 
                       SizedBox(height: 0.02.sh),
 
@@ -228,12 +218,19 @@ class ProductDetailPage extends StatelessWidget {
                         height: 0.05.sh,
                         child: Row(
                           children: [
-                            //유저 프로필 사진 공간
+                            // 프로필 이미지
                             Container(
                               width: 0.04.sh,
                               height: 0.04.sh,
-                              color: Colors.blueGrey,
                               margin: const EdgeInsets.only(right: 15),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                              ),
+                              //TODO : 이미지가 없어서 임시로 아이콘 사용 => 이미지로 바꿔야함
+                              child: const Icon(
+                                Icons.person_pin,
+                                size: 44,
+                              ),
                             ),
 
                             //유저명
