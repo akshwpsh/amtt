@@ -135,7 +135,8 @@ class FirebaseService {
     return docRef.id;
   }
 
-  Future<void> deleteChat(String chatRoomId, String userId) async {
+  Future<void> deleteChat(String chatRoomId) async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
     await FirebaseFirestore.instance.collection('chat_rooms')
         .doc(chatRoomId)
         .update({
