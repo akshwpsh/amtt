@@ -97,6 +97,78 @@ class ProductDetailPage extends StatelessWidget {
               appBar: AppBar(
                 backgroundColor: Colors.white,
                 title: Text('상세보기'),
+
+                //앱바 아이콘 버튼들
+                actions: [
+
+                  if(isLogin != null)
+                    //찜버튼
+                    FavoriteButton(postId: postId),
+
+
+                  FutureBuilder<bool>(
+                    future: canEdit(user!.uid, postId),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      } else {
+                        final bool canEditPost = snapshot.data ?? false;
+
+                        return PopupMenuButton<String>(
+                          color: Colors.white,
+                          icon: Icon(Icons.more_vert_rounded, color: Color(0xff4EBDBD)),
+                          onSelected: (String result) {
+                            switch (result) {
+                              case '공유하기':
+                                print('공유하기 선택됨');
+                                //TODO : 공유 기능 구현 해아함
+                                break;
+                              case '수정하기':
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ProductRegisterPage(
+                                            postId: postId),
+                                  ),
+                                );
+                                break;
+                              case '삭제하기':
+                                deletePost(context, postId);
+                                break;
+                            }
+                          },
+                          itemBuilder: (BuildContext context) {
+                            List<PopupMenuEntry<String>> menuItems = [
+                              const PopupMenuItem<String>(
+                                value: '공유하기',
+                                child: Text('공유하기'),
+                              ),
+                            ];
+
+                            if (canEditPost) {
+                              menuItems.addAll([
+                                const PopupMenuItem<String>(
+                                  value: '수정하기',
+                                  child: Text('수정하기'),
+                                ),
+                                const PopupMenuItem<String>(
+                                  value: '삭제하기',
+                                  child: Text('삭제하기'),
+                                ),
+                              ]);
+                            }
+
+                            return menuItems;
+                          },
+                        );
+                      }
+                    },
+                  ),
+
+                ],
               ),
               body: SingleChildScrollView(
                 child: Padding(
@@ -223,56 +295,7 @@ class ProductDetailPage extends StatelessWidget {
                       ),
                       SizedBox(height: 0.01.sh),
 
-                      //로그인 여부에 따른 찜버튼 보이기 + 편집,삭제 버튼
-                      if (isLogin != null)
-                        Row(
-                          children: [
-                            //찜버튼
-                            FavoriteButton(postId: postId),
 
-                            //사용자 체크해서 편집, 삭제 버튼 표시하는 코드
-                            FutureBuilder<bool>(
-                              future: canEdit(user!.uid, postId),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return CircularProgressIndicator();
-                                } else if (snapshot.hasError) {
-                                  return Text('Error: ${snapshot.error}');
-                                } else if (snapshot.hasData && snapshot.data!) {
-                                  return Row(
-                                    children: [
-                                      ElevatedButton.icon(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ProductRegisterPage(
-                                                      postId: postId),
-                                            ),
-                                          );
-                                        },
-                                        icon: Icon(Icons.edit),
-                                        label: Text('편집'),
-                                      ),
-                                      SizedBox(width: 8.0),
-                                      ElevatedButton.icon(
-                                        onPressed: () {
-                                          deletePost(context, postId);
-                                        },
-                                        icon: Icon(Icons.delete),
-                                        label: Text('삭제'),
-                                      ),
-                                    ],
-                                  );
-                                } else {
-                                  return Container();
-                                }
-                              },
-                            ),
-                          ],
-                        )
                     ],
                   ),
                 ),

@@ -95,8 +95,9 @@ class MyApp extends StatelessWidget {
           child: MaterialApp(
             navigatorKey: navigatorKey,
             title: 'Flutter Auth Demo',
+            debugShowCheckedModeBanner: false, //디버그 배너 끄기
             theme: ThemeData(
-              primaryColor: Color(0xff4EBDBD),
+              primaryColor:   Color(0xff4EBDBD),
               //텍스트 필드 선택 되었을 때의 커서 색상 설정
               textSelectionTheme: TextSelectionThemeData(
                 cursorColor: Color(0xff4EBDBD), // 커서 색상 설정선택 핸들 색상 설정
