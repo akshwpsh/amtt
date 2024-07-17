@@ -8,6 +8,10 @@ import 'package:intl/intl.dart';
 import 'package:amtt/Service/FirebaseService.dart';
 import 'ChatPage.dart';
 
+//위젯 임포트
+import 'package:amtt/widgets/ImageSlider.dart'; //이미지 슬라이더
+
+
 class ProductDetailPage extends StatelessWidget {
   final String postId;
   late final String postUserId;
@@ -33,7 +37,7 @@ class ProductDetailPage extends StatelessWidget {
 
   Future<String> fetchUserAuth(String userId) async {
     DocumentSnapshot userDoc =
-        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    await FirebaseFirestore.instance.collection('users').doc(userId).get();
     return userDoc['auth'];
   }
 
@@ -85,260 +89,284 @@ class ProductDetailPage extends StatelessWidget {
           String userName = data['userName'];
           Timestamp timestamp = data['timestamp'];
           String formattedDate =
-              DateFormat('yyyy-MM-dd').format(timestamp.toDate());
+          DateFormat('yyyy-MM-dd').format(timestamp.toDate());
           String price = data['productPrice'];
           String description = data['postDescription'];
           String university = data['University'];
           List<dynamic> imageUrls = data['imageUrls'];
-          String category = data['category']; 
+          String category = data['category'];
 
-          return Scaffold(
-              backgroundColor: Colors.white,
-              appBar: AppBar(
-                backgroundColor: Colors.white,
-                title: Text('상세보기'),
-              ),
-              body: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.all(0.1.sw),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (imageUrls.isNotEmpty)
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Color(0xff767676),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: SizedBox(
-                            height: 0.3.sh,
+          return FutureBuilder<bool>(
+            future: canEdit(user!.uid, postId),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                final bool isAuthor = snapshot.data ?? false;
 
-                            //이미지 페이지를 넘기기 위한 위젯 - 이미지 슬라이드 하는 곳
-                            child: PageView.builder(
-                              itemCount: imageUrls.length,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  child: Center(
-                                    child: ClipRRect(
-                                      //이미지 둥근 모서리 값
-                                      borderRadius: BorderRadius.circular(12.0),
-                                      child: Image.network(
-                                        imageUrls[index],
-                                        //이미지가 뒤 컨테이너에 꽉차게 크기 설정
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        fit: BoxFit.cover, //비율유지하면서 채우기
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                          return Icon(Icons.error);
-                                        },
+                return Scaffold(
+                    backgroundColor: Colors.white,
+                    appBar: AppBar(
+                      backgroundColor: Colors.white,
+
+                      title: Container(
+                        child: Text('상세보기', style: TextStyle(fontWeight: FontWeight.bold),),
+
+                      ),
+
+                      //앱바 아이콘 버튼들
+                      actions: [
+
+                        Padding(
+                          padding: EdgeInsets.only(right: 0),
+                          child: Row(
+                            children: [
+
+                              if(isLogin != null)
+                              //찜버튼
+                                FavoriteButton(postId: postId),
+
+                              PopupMenuButton<String>(
+                                color: Colors.white,
+                                icon: Icon(Icons.more_vert_rounded, color: Color(0xff4EBDBD)),
+                                onSelected: (String result) {
+                                  switch (result) {
+                                    case '공유하기':
+                                      print('공유하기 선택됨');
+                                      //TODO : 공유 기능 구현 해아함
+                                      print(canEdit(user!.uid, postId));
+                                      break;
+                                    case '수정하기':
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ProductRegisterPage(
+                                                  postId: postId),
+                                        ),
+                                      );
+                                      break;
+                                    case '삭제하기':
+                                      deletePost(context, postId);
+                                      break;
+                                  }
+                                },
+                                itemBuilder: (BuildContext context) {
+                                  List<PopupMenuEntry<String>> menuItems = [
+                                    const PopupMenuItem<String>(
+                                      value: '공유하기',
+                                      child: Text('공유하기'),
+                                    ),
+                                  ];
+
+                                  //작성자 본인이면 수정하기, 삭제하기 버튼이 보이도록
+                                  if (isAuthor) {
+                                    menuItems.addAll([
+                                      const PopupMenuItem<String>(
+                                        value: '수정하기',
+                                        child: Text('수정하기'),
                                       ),
+                                      const PopupMenuItem<String>(
+                                        value: '삭제하기',
+                                        child: Text('삭제하기'),
+                                      ),
+                                    ]);
+                                  }
+
+                                  return menuItems;
+                                },
+                              ),
+
+
+                            ],
+                          ),
+                        ),
+
+
+
+                      ],
+                    ),
+                    body: SingleChildScrollView(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 0.1.sw),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            SizedBox(height: 0.02.sh,),
+
+                            // 이미지 공간
+                            if (imageUrls.isNotEmpty)
+                            //이미지 슬라이더
+                              ImageSliderWithIndicator(imageUrls: imageUrls),
+
+                            SizedBox(height: 0.02.sh),
+
+                            const Divider(
+                              height: 20,
+                              thickness: 2,
+                              indent: 0,
+                              endIndent: 0,
+                              color: Color(0xffdbdbdb),
+                            ),
+
+                            //유저 정보 공간
+                            Container(
+                              height: 0.05.sh,
+                              child: Row(
+                                children: [
+                                  // 프로필 이미지
+                                  Container(
+                                    width: 0.04.sh,
+                                    height: 0.04.sh,
+                                    margin: const EdgeInsets.only(right: 15),
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                    ),
+                                    //TODO : 이미지가 없어서 임시로 아이콘 사용 => 이미지로 바꿔야함
+                                    child: const Icon(
+                                      Icons.person_pin,
+                                      size: 44,
                                     ),
                                   ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
 
-                      SizedBox(height: 0.02.sh),
+                                  //유저명
+                                  Text('$userName',
+                                      style: TextStyle(
+                                          fontSize: 17, fontWeight: FontWeight.w600)),
 
-                      const Divider(
-                        height: 20,
-                        thickness: 2,
-                        indent: 0,
-                        endIndent: 0,
-                        color: Color(0xffdbdbdb),
-                      ),
+                                  Spacer(),
 
-                      //유저 정보 공간
-                      Container(
-                        height: 0.05.sh,
-                        child: Row(
-                          children: [
-                            //유저 프로필 사진 공간
-                            Container(
-                              width: 0.04.sh,
-                              height: 0.04.sh,
-                              color: Colors.blueGrey,
-                              margin: const EdgeInsets.only(right: 15),
+                                  Text('$university'),
+                                ],
+                              ),
                             ),
 
-                            //유저명
-                            Text('$userName',
-                                style: TextStyle(
-                                    fontSize: 17, fontWeight: FontWeight.w600)),
-
-                            Spacer(),
-
-                            Text('$university'),
-                          ],
-                        ),
-                      ),
-
-                      const Divider(
-                        height: 20,
-                        thickness: 2,
-                        indent: 0,
-                        endIndent: 0,
-                        color: Color(0xffdbdbdb),
-                      ),
-
-                      SizedBox(height: 0.02.sh),
-
-                      //게시글 제목
-                      Text(
-                        postName,
-                        style: TextStyle(
-                            fontSize: 26.0, fontWeight: FontWeight.bold),
-                      ),
-
-                      SizedBox(height: 0.01.sh),
-
-                      //게시글 상태정보 나열(날짜, 뷰, 찜, 채팅)
-                      Row(
-                        children: [
-                          Text(
-                            formattedDate,
-                            style: TextStyle(
-                                fontSize: 17, color: Color(0xff767676)),
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(height: 0.01.sh),
-
-                      //게시글 내용
-                      Text(
-                        description,
-                        style:
-                            TextStyle(fontSize: 17, color: Color(0xff767676)),
-                      ),
-
-                      SizedBox(height: 0.01.sh),
-                      Text(
-                        '카테고리 : $category',
-                        style:
-                            TextStyle(fontSize: 17, color: Color(0xff767676)),
-                      ),
-                      SizedBox(height: 0.01.sh),
-
-                      //로그인 여부에 따른 찜버튼 보이기 + 편집,삭제 버튼
-                      if (isLogin != null)
-                        Row(
-                          children: [
-                            //찜버튼
-                            FavoriteButton(postId: postId),
-
-                            //사용자 체크해서 편집, 삭제 버튼 표시하는 코드
-                            FutureBuilder<bool>(
-                              future: canEdit(user!.uid, postId),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return CircularProgressIndicator();
-                                } else if (snapshot.hasError) {
-                                  return Text('Error: ${snapshot.error}');
-                                } else if (snapshot.hasData && snapshot.data!) {
-                                  return Row(
-                                    children: [
-                                      ElevatedButton.icon(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ProductRegisterPage(
-                                                      postId: postId),
-                                            ),
-                                          );
-                                        },
-                                        icon: Icon(Icons.edit),
-                                        label: Text('편집'),
-                                      ),
-                                      SizedBox(width: 8.0),
-                                      ElevatedButton.icon(
-                                        onPressed: () {
-                                          deletePost(context, postId);
-                                        },
-                                        icon: Icon(Icons.delete),
-                                        label: Text('삭제'),
-                                      ),
-                                    ],
-                                  );
-                                } else {
-                                  return Container();
-                                }
-                              },
+                            const Divider(
+                              height: 20,
+                              thickness: 2,
+                              indent: 0,
+                              endIndent: 0,
+                              color: Color(0xffdbdbdb),
                             ),
-                          ],
-                        )
-                    ],
-                  ),
-                ),
-              ),
 
-              ///하단 앱바 (가격, 채팅버튼)
-              bottomNavigationBar: Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    top: BorderSide(color: Color(0xffdbdbdb), width: 1.0),
-                  ),
-                ),
-                child: BottomAppBar(
-                    color: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 0.1.sw),
-                    child: Container(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          //가격 정보
-                          Text('가격 : $price 원',
+                            SizedBox(height: 0.02.sh),
+
+                            //게시글 제목
+                            Text(
+                              postName,
                               style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold)),
-                          Container(
-                            width: 0.3.sw,
-                            height: 0.05.sh,
-                            //채팅 버튼
-                            child: BtnYesBG(
-                              btnText: "채팅하기",
-                              onPressed: () async {
-                                if(postUserId == user!.uid){ // 본인 게시물인 경우
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('본인 게시물입니다.')),
-                                  );
-                                  return;
-                                }
-                                // Check for an existing chat room
-                                String? existingChatId = await FirebaseService()
-                                    .getExistingChatRoomId(postUserId, postId);
-
-                                String chatId;
-                                if (existingChatId != null) {
-                                  // Use the existing chat room
-                                  chatId = existingChatId;
-                                  await FirebaseService().rejoinChatRoom(chatId);//채팅방 재참여
-                                } else {
-                                  // No existing chat room found, create a new one
-                                  chatId = await FirebaseService()
-                                      .createChatRoom(
-                                          postUserId, postId, postName);
-                                }
-
-                                // Navigate to the chat room
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ChatPage(chatId),
-                                  ),
-                                );
-                              },
+                                  fontSize: 26.0, fontWeight: FontWeight.bold),
                             ),
-                          )
-                        ],
+
+                            SizedBox(height: 0.01.sh),
+
+                            //게시글 상태정보 나열(날짜, 뷰, 찜, 채팅)
+                            Row(
+                              children: [
+                                Text(
+                                  formattedDate,
+                                  style: TextStyle(
+                                      fontSize: 17, color: Color(0xff767676)),
+                                ),
+                              ],
+                            ),
+
+                            SizedBox(height: 0.01.sh),
+
+                            //게시글 내용
+                            Text(
+                              description,
+                              style:
+                              TextStyle(fontSize: 17, color: Color(0xff767676)),
+                            ),
+
+                            SizedBox(height: 0.01.sh),
+                            Text(
+                              '카테고리 : $category',
+                              style:
+                              TextStyle(fontSize: 17, color: Color(0xff767676)),
+                            ),
+                            SizedBox(height: 0.01.sh),
+
+
+                          ],
+                        ),
                       ),
-                    )),
-              ));
+                    ),
+
+                    ///하단 앱바 (가격, 채팅버튼)
+                    bottomNavigationBar: Container(
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(color: Color(0xffdbdbdb), width: 1.0),
+                        ),
+                      ),
+                      child: BottomAppBar(
+                          color: Colors.white,
+                          padding: EdgeInsets.symmetric(horizontal: 0.1.sw),
+                          child: Container(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                //가격 정보
+                                Text('가격 : $price 원',
+                                    style: TextStyle(
+                                        fontSize: 20, fontWeight: FontWeight.bold)),
+
+
+                                //작성자 본인이 아니면 채팅하기 버튼이 보이도록
+                                if(!isAuthor)
+                                  Container(
+                                    width: 0.3.sw,
+                                    height: 0.05.sh,
+                                    //채팅 버튼
+                                    child: BtnYesBG(
+                                      btnText: "채팅하기",
+                                      onPressed: () async {
+                                        if(postUserId == user!.uid){ // 본인 게시물인 경우
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('본인 게시물입니다.')),
+                                          );
+                                          return;
+                                        }
+                                        // Check for an existing chat room
+                                        String? existingChatId = await FirebaseService()
+                                            .getExistingChatRoomId(postUserId, postId);
+
+                                        String chatId;
+                                        if (existingChatId != null) {
+                                          // Use the existing chat room
+                                          chatId = existingChatId;
+                                          await FirebaseService().rejoinChatRoom(chatId);//채팅방 재참여
+                                        } else {
+                                          // No existing chat room found, create a new one
+                                          chatId = await FirebaseService()
+                                              .createChatRoom(
+                                              postUserId, postId, postName);
+                                        }
+
+                                        // Navigate to the chat room
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ChatPage(chatId),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  )
+                              ],
+                            ),
+                          )),
+                    ));
+              }
+            },
+          );
+
+
         }
       },
     );
