@@ -127,7 +127,6 @@ class ProductDetailPage extends StatelessWidget {
                               if(isLogin != null)
                               //찜버튼
                                 FavoriteButton(postId: postId),
-
                               PopupMenuButton<String>(
                                 color: Colors.white,
                                 icon: Icon(Icons.more_vert_rounded, color: Color(0xff4EBDBD)),
@@ -178,8 +177,6 @@ class ProductDetailPage extends StatelessWidget {
                                   return menuItems;
                                 },
                               ),
-
-
                             ],
                           ),
                         ),
@@ -194,7 +191,6 @@ class ProductDetailPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-
                             SizedBox(height: 0.02.sh,),
 
                             // 이미지 공간
@@ -365,8 +361,6 @@ class ProductDetailPage extends StatelessWidget {
               }
             },
           );
-
-
         }
       },
     );
