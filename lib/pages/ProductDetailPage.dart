@@ -303,7 +303,7 @@ class ProductDetailPage extends StatelessWidget {
                             child: BtnYesBG(
                               btnText: "채팅하기",
                               onPressed: () async {
-                                if(postUserId == user!.uid){
+                                if(postUserId == user!.uid){ // 본인 게시물인 경우
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(content: Text('본인 게시물입니다.')),
                                   );
@@ -311,12 +311,13 @@ class ProductDetailPage extends StatelessWidget {
                                 }
                                 // Check for an existing chat room
                                 String? existingChatId = await FirebaseService()
-                                    .findExistingChatRoom(postId, user!.uid);
+                                    .getExistingChatRoomId(postUserId, postId);
 
                                 String chatId;
                                 if (existingChatId != null) {
                                   // Use the existing chat room
                                   chatId = existingChatId;
+                                  await FirebaseService().rejoinChatRoom(chatId);//채팅방 재참여
                                 } else {
                                   // No existing chat room found, create a new one
                                   chatId = await FirebaseService()
