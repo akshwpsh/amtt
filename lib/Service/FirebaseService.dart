@@ -135,10 +135,20 @@ class FirebaseService {
     return docRef.id;
   }
 
-  Future<String?> findExistingChatRoom(String productId) async {
+  Future<void> deleteChat(String chatRoomId, String userId) async {
+    await FirebaseFirestore.instance.collection('chat_rooms')
+        .doc(chatRoomId)
+        .update({
+      'deleted_by': FieldValue.arrayUnion([userId])
+    });
+  }
+
+
+  Future<String?> findExistingChatRoom(String productId, String userId) async {
     final querySnapshot = await FirebaseFirestore.instance
         .collection('chat_rooms')
         .where('product_id', isEqualTo: productId)
+        .where('members', arrayContains: userId)
         .limit(1)
         .get();
 
@@ -147,6 +157,8 @@ class FirebaseService {
     }
     return null; // No existing chat room found
   }
+
+
 }
 
 

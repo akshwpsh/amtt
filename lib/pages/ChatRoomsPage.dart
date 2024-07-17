@@ -16,6 +16,7 @@ class ChatRoomsPage extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('chat_rooms')
             .where('members', arrayContains: userId)
+            .where('deleted_by', whereNotIn: [userId])
             .snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
