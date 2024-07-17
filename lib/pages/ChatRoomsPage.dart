@@ -49,9 +49,9 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
               DocumentSnapshot document = snapshot.data!.docs[index];
               String chatRoomId = document['room_id'];
 
-              // 채팅방 이름을 가져오기 위해 채팅방 문서 조회
-              return FutureBuilder<DocumentSnapshot>(
-                future: _firestore.collection('chat_rooms').doc(chatRoomId).get(),
+              // 채팅방 이름을 가져오기 위해 스트림 사용
+              return StreamBuilder<DocumentSnapshot>(
+                stream: _firestore.collection('chat_rooms').doc(chatRoomId).snapshots(),
                 builder: (context, chatRoomSnapshot) {
                   if (chatRoomSnapshot.hasError) {
                     return ListTile(

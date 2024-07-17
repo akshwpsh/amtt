@@ -181,7 +181,9 @@ class FirebaseService {
       await FirebaseFirestore.instance.collection('chat_participants')
           .doc('$chatRoomId-$userId')
           .set({
-        'userId': userId,
+        'product_id': participantDoc['product_id'],
+        'room_id': chatRoomId,
+        'user_id': userId,
         'joined_at': FieldValue.serverTimestamp(),
         'left_at': null,
       });
