@@ -118,45 +118,107 @@ class FirebaseService {
     final data = await json.decode(response);
     return data['fcm_url'];
   }
+
   Future<String> getVapidKey() async {
     final String response = await rootBundle.loadString('assets/secret.json');
     final data = await json.decode(response);
     return data['vapid_key'];
   }
 
-  Future<String> createChatRoom(String otherUserId,String productId, String roomName ) async {
+  Future<String> createChatRoom(String otherUserId, String productId, String roomName) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
-    DocumentReference docRef = await FirebaseFirestore.instance.collection('chat_rooms').add({
+
+    // 1. 채팅방 문서 생성
+    DocumentReference chatRoomRef = await FirebaseFirestore.instance.collection('chat_rooms').add({
       'name': roomName,
       'last_updated': FieldValue.serverTimestamp(),
-      'members': [userId, otherUserId], // 현재 사용자 ID와 상대방의 ID 추가
       'product_id': productId,
     });
-    return docRef.id;
+
+    // 2. 참여자 문서 생성
+    await FirebaseFirestore.instance.collection('chat_participants').doc('${chatRoomRef.id}-$userId').set({
+      'product_id': productId,
+      'room_id': chatRoomRef.id,
+      'user_id': userId,
+      'joined_at': FieldValue.serverTimestamp(),
+      'left_at': null,
+    });
+
+    await FirebaseFirestore.instance.collection('chat_participants').doc('${chatRoomRef.id}-$otherUserId').set({
+      'product_id': productId,
+      'room_id': chatRoomRef.id,
+      'user_id': otherUserId,
+      'joined_at': FieldValue.serverTimestamp(),
+      'left_at': null,
+    });
+
+    return chatRoomRef.id;
   }
 
-  Future<void> deleteChat(String chatRoomId, String userId) async {
-    await FirebaseFirestore.instance.collection('chat_rooms')
-        .doc(chatRoomId)
+
+  Future<void> leaveChatRoom(String chatRoomId) async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    // 1. 참여자 문서 업데이트
+    await FirebaseFirestore.instance.collection('chat_participants')
+        .doc('$chatRoomId-$userId')
         .update({
-      'deleted_by': FieldValue.arrayUnion([userId])
+      'left_at': FieldValue.serverTimestamp(),
     });
   }
 
+  Future<void> rejoinChatRoom(String chatRoomId) async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
 
-  Future<String?> findExistingChatRoom(String productId, String userId) async {
-    final querySnapshot = await FirebaseFirestore.instance
-        .collection('chat_rooms')
-        .where('product_id', isEqualTo: productId)
-        .where('members', arrayContains: userId)
-        .limit(1)
+    // 1. 참여자 문서 확인
+    DocumentSnapshot participantDoc = await FirebaseFirestore.instance
+        .collection('chat_participants')
+        .doc('$chatRoomId-$userId')
         .get();
 
-    if (querySnapshot.docs.isNotEmpty) {
-      return querySnapshot.docs.first.id; // Return the ID of the existing chat room
+    if (!participantDoc.exists || participantDoc['left_at'] != null) {
+      // 2. 채팅방 참여
+      await FirebaseFirestore.instance.collection('chat_participants')
+          .doc('$chatRoomId-$userId')
+          .set({
+        'userId': userId,
+        'joined_at': FieldValue.serverTimestamp(),
+        'left_at': null,
+      });
     }
-    return null; // No existing chat room found
   }
+
+  Future<String?> getExistingChatRoomId(String otherUserId, String productId) async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    // 1. 사용자와 특정 제품에 대한 모든 채팅방 조회
+    QuerySnapshot userChatRoomsSnapshot = await FirebaseFirestore.instance
+        .collection('chat_participants')
+        .where('user_id', isEqualTo: userId)
+        .where('product_id', isEqualTo: productId)
+        .get();
+
+    for (QueryDocumentSnapshot userChatDoc in userChatRoomsSnapshot.docs) {
+      String chatRoomId = userChatDoc['room_id'];
+
+      // 2. 해당 채팅방에 다른 사용자가 참여하고 있는지 확인
+      QuerySnapshot otherUserChatRoomsSnapshot = await FirebaseFirestore.instance
+          .collection('chat_participants')
+          .where('room_id', isEqualTo: chatRoomId)
+          .where('user_id', isEqualTo: otherUserId)
+          .get();
+
+      if (otherUserChatRoomsSnapshot.docs.isNotEmpty) {
+        print('Existing chat room found: $chatRoomId');
+        return chatRoomId;
+      }
+    }
+
+    // 해당 조건을 만족하는 채팅방이 없는 경우 null 반환
+    print('No existing chat room found');
+    return null;
+  }
+
 
 
 }
