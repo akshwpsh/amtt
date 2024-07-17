@@ -15,13 +15,19 @@ class RoundedTextField extends StatelessWidget {
       child: Container(
         height: 0.06.sh,
         decoration: BoxDecoration(
-          color: Colors.grey[300], // 회색 배경색
+          color: Color(0xffF7F8F8), // 배경색
+          border: Border.all( // 테두리
+            color: Color(0xFFBDBDBD), // 테두리 색상 설정
+            width: 1.0,
+          ),
           borderRadius: BorderRadius.circular(12.0), // 모서리 둥글게
         ),
         child: TextField(
           controller: controller,
           obscureText: obscureText,
+          style: TextStyle(color: Color(0xff596773)),
           decoration: InputDecoration(
+            floatingLabelBehavior: FloatingLabelBehavior.never, //labelText 가 상단으로 이동되지 않게 막음
             labelText: labelText,
             border: InputBorder.none,
             contentPadding: EdgeInsets.symmetric(horizontal: 16.0), //내부 패딩

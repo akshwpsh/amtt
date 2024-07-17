@@ -324,7 +324,7 @@ class CustomButton extends StatelessWidget {
         padding: WidgetStateProperty.all(EdgeInsets.all(2)),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8), // 둥근 모서리 반경을 조절할 수 있습니다.
+            borderRadius: BorderRadius.circular(8), // 둥근 모서리
           ),
         ),
       ),
@@ -332,7 +332,7 @@ class CustomButton extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          fontSize: 16, // 글씨 크기를 조절할 수 있습니다.
+          fontSize: 16,
         ),
       ),
     );
