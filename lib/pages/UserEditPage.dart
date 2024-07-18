@@ -1,7 +1,11 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 //위젯 임포트
 import 'package:amtt/widgets/BtnYesBG.dart';
@@ -20,6 +24,10 @@ class _UserEditPageState extends State<UserEditPage> {
   final TextEditingController _schoolController = TextEditingController();
   final TextEditingController _departmentController = TextEditingController();
 
+  XFile? _selectedImage;
+  String? _imageUrl;
+  final _imagePicker = ImagePicker();
+
   @override
   void initState() {
     super.initState();
@@ -37,14 +45,45 @@ class _UserEditPageState extends State<UserEditPage> {
           .get();
       Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
 
+      setState(() {
+        _nickNameController.text = userData['nickName'];
+        _nameController.text = userData['name'];
+        _phoneNumberController.text = userData['phoneNumber'];
+        _studentIdController.text = userData['studentId'];
+        _schoolController.text = userData['school'];
+        _departmentController.text = userData['department'];
+        _imageUrl = userData['imageUrl'];
+      });
       // 가져온 데이터를 각 TextEditingController에 설정합니다.
-      _nickNameController.text = userData['nickName'];
-      _nameController.text = userData['name'];
-      _phoneNumberController.text = userData['phoneNumber'];
-      _studentIdController.text = userData['studentId'];
-      _schoolController.text = userData['school'];
-      _departmentController.text = userData['department'];
     }
+  }
+
+  Future<void> _selectImage() async {
+    XFile? pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery, imageQuality: 50);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = pickedFile;
+      });
+    }
+  }
+
+  Future<String?> _uploadImageToFirebase() async {
+    if (_selectedImage == null) return null;
+
+    final storageRef =
+        FirebaseStorage.instance.ref('user_images/${_selectedImage!.name}');
+
+    if (kIsWeb) {
+      // Web 환경에서 Uint8List로 변환하여 업로드
+      Uint8List imageBytes = await _selectedImage!.readAsBytes();
+      await storageRef.putData(imageBytes);
+    } else {
+      // 모바일 환경에서 File로 업로드
+      await storageRef.putFile(File(_selectedImage!.path));
+    }
+
+    return await storageRef.getDownloadURL();
   }
 
   @override
@@ -66,10 +105,11 @@ class _UserEditPageState extends State<UserEditPage> {
 
               // 프로필 이미지 공간
               ProfileImageWithIcon(
-                icon: Icons.person, // 사용자의 프로필 이미지 경로
-                onTap: () {
-                  print('이미지를 변경하는 코드 넣어야함!');
-                },
+                imageUrl: _selectedImage != null
+                    ? null
+                    : _imageUrl, // 선택한 이미지없으면 기존 이미지 URL
+                icon: Icons.person, // 기본 아이콘
+                onTap: _selectImage,
               ),
 
               //디바이더
@@ -84,11 +124,13 @@ class _UserEditPageState extends State<UserEditPage> {
               // 닉네임 탭 제목 텍스트
               UserTabTitle(text: '닉네임'),
 
-
               // 닉네임 텍스트필드 공간
               Container(
                 margin: const EdgeInsets.only(top: 10, bottom: 10),
-                child: RoundedTextField(labelText: '이메일', controller : _nickNameController, obscureText : false),
+                child: RoundedTextField(
+                    labelText: '이메일',
+                    controller: _nickNameController,
+                    obscureText: false),
               ),
 
               // 이름 탭 제목 텍스트
@@ -97,7 +139,10 @@ class _UserEditPageState extends State<UserEditPage> {
               // 이름 텍스트필드 공간
               Container(
                 margin: const EdgeInsets.only(top: 10, bottom: 10),
-                child: RoundedTextField(labelText: '이름', controller : _nameController, obscureText : false),
+                child: RoundedTextField(
+                    labelText: '이름',
+                    controller: _nameController,
+                    obscureText: false),
               ),
 
               // 전화번호 탭 제목 텍스트
@@ -106,7 +151,10 @@ class _UserEditPageState extends State<UserEditPage> {
               // 전화번호 텍스트필드 공간
               Container(
                 margin: const EdgeInsets.only(top: 10, bottom: 10),
-                child: RoundedTextField(labelText: '전화번호', controller : _phoneNumberController, obscureText : false),
+                child: RoundedTextField(
+                    labelText: '전화번호',
+                    controller: _phoneNumberController,
+                    obscureText: false),
               ),
 
               // 학번, 학과 공간
@@ -122,13 +170,18 @@ class _UserEditPageState extends State<UserEditPage> {
                         // 학번 텍스트필드 공간
                         Container(
                           margin: const EdgeInsets.only(top: 10, bottom: 10),
-                          child: RoundedTextField(labelText: '학번', controller: _studentIdController, obscureText: false),
+                          child: RoundedTextField(
+                              labelText: '학번',
+                              controller: _studentIdController,
+                              obscureText: false),
                         ),
                       ],
                     ),
                   ),
 
-                  SizedBox(width: 15,),
+                  SizedBox(
+                    width: 15,
+                  ),
 
                   // 학과
                   Expanded(
@@ -140,7 +193,10 @@ class _UserEditPageState extends State<UserEditPage> {
                         // 학과 텍스트필드 공간
                         Container(
                           margin: const EdgeInsets.only(top: 10, bottom: 10),
-                          child: RoundedTextField(labelText: '학과', controller: _departmentController, obscureText: false),
+                          child: RoundedTextField(
+                              labelText: '학과',
+                              controller: _departmentController,
+                              obscureText: false),
                         ),
                       ],
                     ),
@@ -154,15 +210,11 @@ class _UserEditPageState extends State<UserEditPage> {
               Container(
                 width: double.infinity,
                 height: 60,
-                child: CustomCancelButton(
-                  text: '계정 탈퇴',
-                  onPressed: _deleteUser
-                ),
+                child:
+                    CustomCancelButton(text: '계정 탈퇴', onPressed: _deleteUser),
               ),
 
               SizedBox(height: 0.01.sh),
-
-
 
               SizedBox(height: 0.01.sh),
             ],
@@ -181,8 +233,7 @@ class _UserEditPageState extends State<UserEditPage> {
               padding: EdgeInsets.all(0.06.sw),
               child: Container(
                 height: 60,
-                child: BtnYesBG(
-                    btnText: '저장', onPressed: _updateUser),
+                child: BtnYesBG(btnText: '저장', onPressed: _updateUser),
               ),
             ),
           ),
@@ -195,18 +246,24 @@ class _UserEditPageState extends State<UserEditPage> {
   void _updateUser() async {
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
-      // Firestore에서 사용자 데이터를 업데이트합니다.
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUser.uid)
-          .update({
+      String? imageUrl = await _uploadImageToFirebase();
+      Map<String, dynamic> updatedData = {
         'nickName': _nickNameController.text,
         'name': _nameController.text,
         'phoneNumber': _phoneNumberController.text,
         'studentId': _studentIdController.text,
         'school': _schoolController.text,
         'department': _departmentController.text,
-      });
+      };
+
+      if (imageUrl != null) {
+        updatedData['imageUrl'] = imageUrl;
+      }
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .update(updatedData);
 
       print('User updated');
       ScaffoldMessenger.of(context)
@@ -260,11 +317,13 @@ class UserTabTitle extends StatelessWidget {
 }
 
 class ProfileImageWithIcon extends StatelessWidget {
+  final String? imageUrl;
   final IconData icon;
   final VoidCallback onTap;
 
   const ProfileImageWithIcon({
     Key? key,
+    this.imageUrl,
     required this.icon,
     required this.onTap,
   }) : super(key: key);
@@ -290,11 +349,22 @@ class ProfileImageWithIcon extends StatelessWidget {
                   alignment: Alignment.center,
 
                   //TODO : 이미지 없어서 일단 아이콘으로 대체 나중에 이미지로 받아오게 해야함
-                  child: Icon(
-                    icon,
-                    size: 64,
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: imageUrl != null
+                        ? DecorationImage(
+                            image: NetworkImage(imageUrl!),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
                   ),
+                  child: imageUrl == null
+                      ? Icon(
+                          icon,
+                          size: 64,
+                          color: Colors.white,
+                        )
+                      : null,
                 ),
               ),
             ),
@@ -371,4 +441,3 @@ class CustomCancelButton extends StatelessWidget {
     );
   }
 }
-

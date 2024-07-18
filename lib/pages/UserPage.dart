@@ -18,6 +18,8 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserEditPageState extends State<UserPage> {
+   String? _profileImageUrl;
+
   @override
   void initState() {
     super.initState();
@@ -34,6 +36,10 @@ class _UserEditPageState extends State<UserPage> {
           .doc(currentUser.uid)
           .get();
       Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
+      String? profileImageUrl = userData['ImageUrl']; // 프로필 이미지 URL
+      setState(() {
+      _profileImageUrl = profileImageUrl;
+    });
     }
   }
 
@@ -71,19 +77,26 @@ class _UserEditPageState extends State<UserPage> {
                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 25),
                     child: Row(
                       children: [
-
-                        // 프로필 이미지
+                       // 프로필 이미지
                         Container(
                           width: 60,
                           height: 60,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             shape: BoxShape.circle,
+                            image: _profileImageUrl !=null
+                            ? DecorationImage(
+                              image: NetworkImage(_profileImageUrl!),
+                              fit : BoxFit.cover,
+                            )
+                            : null,
+                            color: _profileImageUrl == null?Colors.grey : null,
                           ),
                           //TODO : 이미지가 없어서 임시로 아이콘 사용 => 이미지로 바꿔야함
-                          child: const Icon(
+                          child: _profileImageUrl == null
+                          ? const Icon(
                             Icons.person_pin,
                             size: 44,
-                          ),
+                          ):null,
                         ),
 
                         SizedBox(width: 10),
