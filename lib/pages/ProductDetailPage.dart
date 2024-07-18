@@ -37,7 +37,7 @@ class ProductDetailPage extends StatelessWidget {
 
   Future<String> fetchUserAuth(String userId) async {
     DocumentSnapshot userDoc =
-        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    await FirebaseFirestore.instance.collection('users').doc(userId).get();
     return userDoc['auth'];
   }
 
@@ -89,7 +89,7 @@ class ProductDetailPage extends StatelessWidget {
           String userName = data['userName'];
           Timestamp timestamp = data['timestamp'];
           String formattedDate =
-              DateFormat('yyyy-MM-dd').format(timestamp.toDate());
+          DateFormat('yyyy-MM-dd').format(timestamp.toDate());
           String price = data['productPrice'];
           String description = data['postDescription'];
           String university = data['University'];
@@ -127,59 +127,56 @@ class ProductDetailPage extends StatelessWidget {
                               if(isLogin != null)
                               //찜버튼
                                 FavoriteButton(postId: postId),
+                              PopupMenuButton<String>(
+                                color: Colors.white,
+                                icon: Icon(Icons.more_vert_rounded, color: Color(0xff4EBDBD)),
+                                onSelected: (String result) {
+                                  switch (result) {
+                                    case '공유하기':
+                                      print('공유하기 선택됨');
+                                      //TODO : 공유 기능 구현 해아함
+                                      print(canEdit(user!.uid, postId));
+                                      break;
+                                    case '수정하기':
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ProductRegisterPage(
+                                                  postId: postId),
+                                        ),
+                                      );
+                                      break;
+                                    case '삭제하기':
+                                      deletePost(context, postId);
+                                      break;
+                                  }
+                                },
+                                itemBuilder: (BuildContext context) {
+                                  List<PopupMenuEntry<String>> menuItems = [
+                                    const PopupMenuItem<String>(
+                                      value: '공유하기',
+                                      child: Text('공유하기'),
+                                    ),
+                                  ];
 
-                                PopupMenuButton<String>(
-                                  color: Colors.white,
-                                  icon: Icon(Icons.more_vert_rounded, color: Color(0xff4EBDBD)),
-                                  onSelected: (String result) {
-                                    switch (result) {
-                                      case '공유하기':
-                                        print('공유하기 선택됨');
-                                        //TODO : 공유 기능 구현 해아함
-                                        print(canEdit(user!.uid, postId));
-                                        break;
-                                      case '수정하기':
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                ProductRegisterPage(
-                                                    postId: postId),
-                                          ),
-                                        );
-                                        break;
-                                      case '삭제하기':
-                                        deletePost(context, postId);
-                                        break;
-                                    }
-                                  },
-                                  itemBuilder: (BuildContext context) {
-                                    List<PopupMenuEntry<String>> menuItems = [
+                                  //작성자 본인이면 수정하기, 삭제하기 버튼이 보이도록
+                                  if (isAuthor) {
+                                    menuItems.addAll([
                                       const PopupMenuItem<String>(
-                                        value: '공유하기',
-                                        child: Text('공유하기'),
+                                        value: '수정하기',
+                                        child: Text('수정하기'),
                                       ),
-                                    ];
+                                      const PopupMenuItem<String>(
+                                        value: '삭제하기',
+                                        child: Text('삭제하기'),
+                                      ),
+                                    ]);
+                                  }
 
-                                    //작성자 본인이면 수정하기, 삭제하기 버튼이 보이도록
-                                    if (isAuthor) {
-                                      menuItems.addAll([
-                                        const PopupMenuItem<String>(
-                                          value: '수정하기',
-                                          child: Text('수정하기'),
-                                        ),
-                                        const PopupMenuItem<String>(
-                                          value: '삭제하기',
-                                          child: Text('삭제하기'),
-                                        ),
-                                      ]);
-                                    }
-
-                                    return menuItems;
-                                  },
-                                ),
-                                
-
+                                  return menuItems;
+                                },
+                              ),
                             ],
                           ),
                         ),
@@ -194,7 +191,6 @@ class ProductDetailPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-
                             SizedBox(height: 0.02.sh,),
 
                             // 이미지 공간
@@ -326,14 +322,21 @@ class ProductDetailPage extends StatelessWidget {
                                     child: BtnYesBG(
                                       btnText: "채팅하기",
                                       onPressed: () async {
+                                        if(postUserId == user!.uid){ // 본인 게시물인 경우
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text('본인 게시물입니다.')),
+                                          );
+                                          return;
+                                        }
                                         // Check for an existing chat room
                                         String? existingChatId = await FirebaseService()
-                                            .findExistingChatRoom(postId);
+                                            .getExistingChatRoomId(postUserId, postId);
 
                                         String chatId;
                                         if (existingChatId != null) {
                                           // Use the existing chat room
                                           chatId = existingChatId;
+                                          await FirebaseService().rejoinChatRoom(chatId);//채팅방 재참여
                                         } else {
                                           // No existing chat room found, create a new one
                                           chatId = await FirebaseService()
@@ -358,8 +361,6 @@ class ProductDetailPage extends StatelessWidget {
               }
             },
           );
-
-          
         }
       },
     );

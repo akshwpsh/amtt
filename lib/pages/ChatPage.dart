@@ -17,6 +17,15 @@ class ChatPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Chat Room'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: () async {
+              await FirebaseService().leaveChatRoom(chatRoomId);
+              Navigator.pop(context);
+            }
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -122,13 +131,26 @@ class ChatPage extends StatelessWidget {
   }
 
   void _sendNotification(String message) async {
-    final chatRoom = await FirebaseFirestore.instance.collection('chat_rooms').doc(chatRoomId).get();
-    final members = chatRoom['members'] as List;
-    final otherUserId = members.firstWhere((element) => element != userId);
-    if(otherUserId != null)
-      {
-        FirebaseService().notifyChat(otherUserId, chatRoomId, message);
-      }
+    final otherUserId = await getOtherUserId(chatRoomId);
+    FirebaseService().notifyChat(otherUserId, chatRoomId, message);
 
   }
+
+  Future<String> getOtherUserId(String chatRoomId) async {
+    QuerySnapshot participantsSnapshot = await FirebaseFirestore.instance
+        .collection('chat_participants')
+        .where('room_id', isEqualTo: chatRoomId)
+        .get();
+
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+
+    for (DocumentSnapshot participant in participantsSnapshot.docs) {
+      if (participant.get('user_id') != userId) {
+        return participant.get('user_id');
+      }
+    }
+
+    return '';
+  }
+
 }
