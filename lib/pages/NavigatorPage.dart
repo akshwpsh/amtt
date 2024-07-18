@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'ChatRoomsPage.dart';
 import 'ProductListPage.dart';
-import 'UserPage.dart';
+//import 'UserPage.dart';
 
 class NavigatorPage extends StatefulWidget {
 
