@@ -29,14 +29,19 @@ class ProductCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(
-              color: Colors.grey,
-              width: 1.0,
+            top: BorderSide( // 위 테두리
+            color: Color(0xffF7F8F8),
+            width: 1.0,
+            ),
+            bottom: BorderSide( // 아래 테두리
+            color: Color(0xffF7F8F8),
+            width: 1.0,
             ),
           ),
+          borderRadius: BorderRadius.circular(0.0),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(0.0),
+          padding: const EdgeInsets.all(10.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -62,7 +67,7 @@ class ProductCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xff596773),
+                        color: Color(0xff8ADADA),
                       ),
                     ),
                     SizedBox(height: 8),
@@ -134,8 +139,8 @@ class ProductCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
                           imageUrl,
-                          width: 80,
-                          height: 80,
+                          width: 90,
+                          height: 90,
                           fit: BoxFit.cover,
                         ),
                       ),

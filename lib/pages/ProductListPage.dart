@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
+// 페이지 임포트
 import 'ProductDetailPage.dart';
+import 'ProductRegisterPage.dart';
 
 //위젯 임포트
 import 'package:amtt/widgets/ProductCard.dart';
@@ -48,24 +50,11 @@ class _ProductListPageState extends State<ProductListPage> {
     }
   }
   void _selectCategory() async {
-    final selectedCategory = await showDialog<String>(
+    final selectedCategory = await showModalBottomSheet(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('카테고리 선택'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: _categories.map((category) {
-                return ListTile(
-                  title: Text(category),
-                  onTap: () {
-                    Navigator.pop(context, category);
-                  },
-                );
-              }).toList(),
-            ),
-          ),
-        );
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return BottomSheetContent(categories: _categories);
       },
     );
     if (selectedCategory != null) {
@@ -88,78 +77,25 @@ class _ProductListPageState extends State<ProductListPage> {
         child: Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
+            automaticallyImplyLeading: false, // 뒤로가기 버튼 비활성화
             backgroundColor: Colors.white,
-            title: Text('상품 목록'),
+            // TODO : 여기 접속한 유저가 선택한 대학에 따라 설정되게 해야함
+            title: Text('목포대학교',style: TextStyle(fontWeight: FontWeight.bold),),
+            titleSpacing: 0,
             actions: [
 
-              IconButton(onPressed: () => {print("알림버튼 클릭")}, icon: Icon(Icons.notifications_rounded), color: Color(0xff4EBDBD),),
+              IconButton(onPressed: () => {print("알림버튼 클릭")}, icon: Icon(Icons.search, size: 30,)),
+              IconButton(onPressed: () => {print("알림버튼 클릭")}, icon: Icon(Icons.notifications_none, size: 30,)),
 
             ],
-            bottom: PreferredSize(
-              preferredSize: Size.fromHeight(48.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: "검색하세용",
-                        suffixIcon: IconButton(
-                          icon: Icon(Icons.search),
-                          onPressed: () {
-                            setState(() {
-                              _searchText = _searchController.text;
-                            });
-                          },
-                        ),
-                      ),
-                      onSubmitted: (value) {
-                        setState(() {
-                          _searchText = value;
-                        });
-                      },
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.filter_list),
-                    onPressed: _selectCategory,
-                  ),
-                ],
-              ),
-            ),
+
           ),
           body: Column(
             children: <Widget>[
 
               SizedBox(height : 15),
 
-              // 검색 필드 공간
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(
-                    color: Color(0xff4EBDBD),
-                    width: 2.0,
-                  ),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 12.0),
-                child: Row(
-                  children: [
-                    Icon(Icons.search, color: Color(0xff4EBDBD)),
-                    SizedBox(width: 8.0),
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          labelText: '목록 검색',
-                          border: InputBorder.none,
-                          labelStyle: TextStyle(color: Color(0xff4EBDBD)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+
 
               SizedBox(height: 15,),
 
@@ -173,15 +109,7 @@ class _ProductListPageState extends State<ProductListPage> {
                     flex: 2,
                     child: Container(
 
-                      child: BtnNoBG(btnText : '검색조건', onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          builder: (BuildContext context) {
-                            return BottomSheetContent();
-                          },
-                        );
-                      },
+                      child: BtnNoBG(btnText : '검색조건', onPressed: _selectCategory
                       ),
                     ),
 
@@ -194,8 +122,20 @@ class _ProductListPageState extends State<ProductListPage> {
                     flex: 1,
                     child: Container(
 
-                      child: BtnYesBG(btnText : '글쓰기', onPressed : () => {
-                        print("검색조건 클릭")
+                      child: BtnYesBG(
+                          btnText : '글쓰기',
+                          onPressed: () async {
+                            if (await isUserLogin()) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ProductRegisterPage()),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("로그인하고와라잇")),
+                              );
+                            }
 
                       }),
 
@@ -261,7 +201,7 @@ class _ProductListPageState extends State<ProductListPage> {
                         try{
 
                           return Container(
-                            margin: EdgeInsets.only(bottom: 20), // 카드 아이템 간의 마진
+                            margin: EdgeInsets.only(bottom: 0), // 카드 아이템 간의 마진
                             child: ProductCard(
                               title: postname,
                               price: price,
@@ -302,15 +242,30 @@ class _ProductListPageState extends State<ProductListPage> {
 }
 
 
-class BottomSheetContent extends StatelessWidget {
+class BottomSheetContent extends StatefulWidget {
+  final List<String> categories;
+
+  BottomSheetContent({required this.categories}); // 생성자 수정
+
+  @override
+  _BottomSheetContentState createState() => _BottomSheetContentState();
+}
+
+class _BottomSheetContentState extends State<BottomSheetContent> {
+  String selected = '';
+
   @override
   Widget build(BuildContext context) {
+    final _categories = widget.categories;
     return Container(
-      padding: EdgeInsets.all(16),
+      color: Colors.white,
+      padding: EdgeInsets.all(0.03.sh),
       height: MediaQuery.of(context).size.height * 0.9,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
+          // 상단바 공간
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -321,50 +276,106 @@ class BottomSheetContent extends StatelessWidget {
                 },
               ),
               Text(
-                '제목',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                '검색 필터',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               SizedBox(width: 48), // To balance the back button on the left
             ],
           ),
+
+          SizedBox(height: 26),
+
+          Text('카테고리 선택', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           SizedBox(height: 16),
-          Text('카테고리 선택', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          DropdownButton<String>(
-            isExpanded: true,
-            items: <String>['카테고리 1', '카테고리 2', '카테고리 3'].map((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
+          
+          // 그리드 카테고리 아이템 공간
+          GridView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3, // 한 줄에 몇개 넣을건지
+              crossAxisSpacing: 25, // 좌 우 간격
+              mainAxisSpacing: 25, //위 아래 간격
+              childAspectRatio: 1, // 비율, 높을수록 위아래로 납작해짐
+            ),
+            
+            
+            itemCount: _categories.length,
+            itemBuilder: (context, index) {
+              final category = _categories[index];
+              final isSelected = selected == category;
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    selected = category;
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isSelected ? Colors.teal.withOpacity(0.2) : Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        //그리드 아이템 내부 아이콘 ( 카테고리 아이콘 )
+                        //TODO : 여기 각 카테고리 이름에 맞는 아이콘 나오도록 해야함
+                        Icon(Icons.category, size: 24, color: isSelected ? Colors.teal : Colors.grey),
+                        SizedBox(height: 8),
+                        // 그리드 아이템 내부 텍스트 ( 카테고리 이름 )
+                        Text(category, style: TextStyle(fontSize: 16 , color: isSelected ? Colors.teal : Colors.grey)),
+                      ],
+                    ),
+                  ),
+                ),
               );
-            }).toList(),
-            onChanged: (_) {},
+            },
           ),
-          SizedBox(height: 16),
+
+          SizedBox(height: 26),
+          Text('검색학과', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+
+          //검색 학과 드롭다운 공간
+          Container(),
+
+          SizedBox(height: 26),
           Text('가격 선택', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          Slider(
-            value: 50,
-            min: 0,
-            max: 100,
-            divisions: 10,
-            label: '50',
-            onChanged: (value) {},
-          ),
+
+          //가격선택 슬라이더 공간
+          Container(),
+
           Spacer(),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  // 초기화 버튼 기능
-                },
-                child: Text('초기화'),
+
+              Expanded(
+                flex: 1,
+                child: BtnNoBG(btnText: '초기화',
+                    onPressed: () {
+                      setState(() {
+                        selected = '';
+                      });
+                    }),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  // 저장 버튼 기능
-                },
-                child: Text('저장'),
+
+              SizedBox(width: 20,),
+
+              Expanded(
+                flex: 1,
+                child: BtnYesBG(btnText: '검색',
+                    onPressed: () {
+                      //print(_selectedCategory);
+                      Navigator.pop(context, selected);
+                    }),
               ),
+
+
+
+
+
             ],
           ),
         ],
