@@ -49,7 +49,7 @@ class ProductCard extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
@@ -62,7 +62,7 @@ class ProductCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: Color(0xff596773),
                       ),
                     ),
                     SizedBox(height: 8),

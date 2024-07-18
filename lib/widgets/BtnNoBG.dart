@@ -24,7 +24,7 @@ class BtnNoBG extends StatelessWidget {
       ),
       child: Text(
         btnText, // 버튼에 표시할 텍스트
-        style: TextStyle(fontSize: 18.sp), // 텍스트 스타일 설정
+        style: TextStyle(fontSize: 20), // 텍스트 스타일 설정
       ),
     );
   }
