@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 // 페이지 임포트
 import 'ProductDetailPage.dart';
 import 'ProductRegisterPage.dart';
+import 'SearchPage.dart';
 
 //위젯 임포트
 import 'package:amtt/widgets/ProductCard.dart';
@@ -77,6 +78,7 @@ class _ProductListPageState extends State<ProductListPage> {
         child: Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
+            scrolledUnderElevation: 0,
             automaticallyImplyLeading: false, // 뒤로가기 버튼 비활성화
             backgroundColor: Colors.white,
             // TODO : 여기 접속한 유저가 선택한 대학에 따라 설정되게 해야함
@@ -84,7 +86,9 @@ class _ProductListPageState extends State<ProductListPage> {
             titleSpacing: 0,
             actions: [
 
-              IconButton(onPressed: () => {print("알림버튼 클릭")}, icon: Icon(Icons.search, size: 30,)),
+              IconButton(onPressed: () => {
+                Navigator.push( context, MaterialPageRoute(
+              builder: (context) => SearchPage()), )}, icon: Icon(Icons.search, size: 30,)),
               IconButton(onPressed: () => {print("알림버튼 클릭")}, icon: Icon(Icons.notifications_none, size: 30,)),
 
             ],
@@ -287,7 +291,7 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
 
           Text('카테고리 선택', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           SizedBox(height: 16),
-          
+
           // 그리드 카테고리 아이템 공간
           GridView.builder(
             shrinkWrap: true,
@@ -298,8 +302,8 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
               mainAxisSpacing: 25, //위 아래 간격
               childAspectRatio: 1, // 비율, 높을수록 위아래로 납작해짐
             ),
-            
-            
+
+
             itemCount: _categories.length,
             itemBuilder: (context, index) {
               final category = _categories[index];
