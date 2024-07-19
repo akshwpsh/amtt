@@ -100,6 +100,7 @@ class ProductCard extends StatelessWidget {
 
                         //TODO : 이 아래는 실제 데이터 여부에 따라 표시되도록, 데이터 없으면 아에 안보이게 해야함
 
+                        /*
                         //찜 갯수
                         Icon(size: 13, color: Colors.grey,Icons.favorite),
                         Text(
@@ -120,7 +121,7 @@ class ProductCard extends StatelessWidget {
                             fontSize: 16,
                             color: Colors.grey,
                           ),
-                        ),
+                        ),*/
 
                       ],
                     )
