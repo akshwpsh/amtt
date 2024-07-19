@@ -74,6 +74,7 @@ class _WishListPageState extends State<WishListPage> {
                 final String postname = data['postName'] ?? 'No title';
                 final String userName = data['userName'] ?? 'Unknown';
                 final String price = data['productPrice'] ?? '가격정보 없음';
+                final String category = data['category'] ?? 'No category'; // 목록 카테고리
                 final Timestamp timestamp = data['timestamp'] ?? Timestamp.now();
                 final String formattedDate =
                 DateFormat('yyyy-MM-dd').format(timestamp.toDate());

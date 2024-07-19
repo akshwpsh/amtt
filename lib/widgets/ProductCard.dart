@@ -29,14 +29,19 @@ class ProductCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           border: Border(
-            bottom: BorderSide(
-              color: Colors.grey,
-              width: 1.0,
+            top: BorderSide( // 위 테두리
+            color: Color(0xffF7F8F8),
+            width: 1.0,
+            ),
+            bottom: BorderSide( // 아래 테두리
+            color: Color(0xffF7F8F8),
+            width: 1.0,
             ),
           ),
+          borderRadius: BorderRadius.circular(0.0),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(0.0),
+          padding: const EdgeInsets.all(10.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -49,7 +54,7 @@ class ProductCard extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
@@ -62,7 +67,7 @@ class ProductCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: Color(0xff8ADADA),
                       ),
                     ),
                     SizedBox(height: 8),
@@ -95,6 +100,7 @@ class ProductCard extends StatelessWidget {
 
                         //TODO : 이 아래는 실제 데이터 여부에 따라 표시되도록, 데이터 없으면 아에 안보이게 해야함
 
+                        /*
                         //찜 갯수
                         Icon(size: 13, color: Colors.grey,Icons.favorite),
                         Text(
@@ -115,7 +121,7 @@ class ProductCard extends StatelessWidget {
                             fontSize: 16,
                             color: Colors.grey,
                           ),
-                        ),
+                        ),*/
 
                       ],
                     )
@@ -134,8 +140,8 @@ class ProductCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
                           imageUrl,
-                          width: 80,
-                          height: 80,
+                          width: 90,
+                          height: 90,
                           fit: BoxFit.cover,
                         ),
                       ),
