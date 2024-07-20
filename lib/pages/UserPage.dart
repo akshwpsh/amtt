@@ -3,14 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-//위젯 임포트
 import 'package:amtt/widgets/UserDefaultTab.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 
-//페이지 임포트
 import 'KeywordsPage.dart';
 import 'WishListPage.dart';
 import 'UserEditPage.dart';
+import 'contactUsPage.dart';
 
 class UserPage extends StatefulWidget {
   @override
@@ -257,7 +256,11 @@ class _UserEditPageState extends State<UserPage> {
                     UsersdefaultTab(
                         icon: Icons.call,
                         text: '문의 하기',
-                        onTap: () => { print("문의 하기 클릭")}
+                        onTap: () async => {
+                          Navigator.push( context,
+                            MaterialPageRoute(builder: (context) => ContactUsPage()),
+                          )
+                        }
                     ),
 
                     UsersdefaultTab(
