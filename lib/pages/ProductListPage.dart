@@ -88,7 +88,7 @@ class _ProductListPageState extends State<ProductListPage> {
 
               IconButton(onPressed: () => {
                 Navigator.push( context, MaterialPageRoute(
-              builder: (context) => SearchPage()), )}, icon: Icon(Icons.search, size: 30,)),
+                    builder: (context) => SearchPage()), )}, icon: Icon(Icons.search, size: 30,)),
               IconButton(onPressed: () => {print("알림버튼 클릭")}, icon: Icon(Icons.notifications_none, size: 30,)),
 
             ],
@@ -96,8 +96,6 @@ class _ProductListPageState extends State<ProductListPage> {
           ),
           body: Column(
             children: <Widget>[
-
-              SizedBox(height : 15),
 
 
 
@@ -108,19 +106,7 @@ class _ProductListPageState extends State<ProductListPage> {
 
                 children: [
 
-                  //검색필터 공간
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-
-                      child: BtnNoBG(btnText : '검색조건', onPressed: _selectCategory
-                      ),
-                    ),
-
-                  ),
-
-                  SizedBox(width: 15,),
-
+                  /*
                   //글쓰기 버튼 공간
                   Expanded(
                     flex: 1,
@@ -145,7 +131,7 @@ class _ProductListPageState extends State<ProductListPage> {
 
                     ),
 
-                  ),
+                  ),*/
                 ],
 
               ),
@@ -198,7 +184,7 @@ class _ProductListPageState extends State<ProductListPage> {
                         final String category = data['category'] ?? 'No category'; // 목록 카테고리
                         final Timestamp timestamp = data['timestamp'] ?? Timestamp.now();
                         final String formattedDate =
-                            DateFormat('yyyy-MM-dd').format(timestamp.toDate()); // 게시 날짜
+                        DateFormat('yyyy-MM-dd').format(timestamp.toDate()); // 게시 날짜
                         final List<dynamic> imageUrls = data['imageUrls'] ?? []; // 목록 이미지 리스트
 
 
@@ -215,9 +201,9 @@ class _ProductListPageState extends State<ProductListPage> {
                               userName: userName,
                               onTap: () {
                                 Navigator.push(context, MaterialPageRoute(
-                                    builder: (context) => ProductDetailPage(
-                                      postId: doc.id,
-                                    ),
+                                  builder: (context) => ProductDetailPage(
+                                    postId: doc.id,
+                                  ),
                                 ));
                               },
                             ),
@@ -237,6 +223,29 @@ class _ProductListPageState extends State<ProductListPage> {
                 ),
               ),
             ],
+          ),
+
+          floatingActionButton: Container(
+            width: 130,
+
+            child: CustomFloatingActionButton(
+              onPressed: () async {
+                if (await isUserLogin()) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ProductRegisterPage()),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("로그인이 필요한 기능입니다")),
+                  );
+                }
+
+              },
+
+            ),
+
           ),
 
         ),
@@ -387,3 +396,38 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
     );
   }
 }
+
+
+
+class CustomFloatingActionButton extends StatelessWidget {
+  const CustomFloatingActionButton({
+    Key? key,
+    required this.onPressed,
+  }) : super(key: key);
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      onPressed: onPressed,
+      fillColor: const Color(0xFF4EBDBD),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.add, color: Colors.white),
+            const SizedBox(width: 8.0),
+            const Text('글쓰기', style: TextStyle(color: Colors.white)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
