@@ -24,6 +24,7 @@ dependencies:
   googleapis_auth:
   firebase_admin:
   flutter_local_notifications:
+  flutter_email_sender:
   http:
 
 dev_dependencies:
