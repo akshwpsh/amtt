@@ -123,6 +123,8 @@ class _SearchPageState extends State<SearchPage> {
       child: Padding(
         padding: EdgeInsets.all(0.04.sw),
         child: Scaffold(
+          //키보드 올라올때 사이즈 에러 방지
+          resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
           appBar: AppBar(
             backgroundColor: Colors.white,
