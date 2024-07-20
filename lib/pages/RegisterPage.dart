@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 //위젯 임포트
 import 'package:amtt/widgets/BtnYesBG.dart';
+import 'LoginPage.dart';
 
 class RegisterPage extends StatefulWidget {
   final bool isGoogleSignUp;
@@ -33,6 +34,44 @@ class _RegisterPageState extends State<RegisterPage> {
 
   //현재 페이지 변수
   int _currentPage = 0;
+  bool _isRegistDone = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isGoogleSignUp && widget.user != null) {
+      _emailController.text = widget.user!.email ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    ///위젯이 화면에서 제거될때 호출
+    ///구글로 로그인한 사용자가
+    ///추가 사용자정보를 입력하지 않으면
+    ///로그아웃
+    if (!_isRegistDone && widget.isGoogleSignUp && _auth.currentUser != null) {
+      _logout();
+    }
+    super.dispose();
+  }
+
+  void _logout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      // 알림 표시
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('로그아웃되었습니다. 추가 사용자 정보 입력이 필요합니다.')),
+      );
+      // 로그인 페이지로 리디렉션
+       Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+    } catch (e) {
+      print('Logout error: $e');
+    }
+  }
 
   //다음페이지로 이동
   void _nextPage() {
@@ -59,7 +98,8 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _register() async {
-    if (_passwordController.text != _confirmPasswordController.text) {
+    if (!widget.isGoogleSignUp &&
+        _passwordController.text != _confirmPasswordController.text) {
       print('Passwords do not match');
       return;
     }
@@ -83,7 +123,7 @@ class _RegisterPageState extends State<RegisterPage> {
             .updateDisplayName(_nickNameController.text.trim());
       }
 
-      if(user!= null){  
+      if (user != null) {
         await _firestore.collection('users').doc(user.uid).set({
           'email': _emailController.text.trim(),
           'nickName': _nickNameController.text.trim(),
@@ -96,6 +136,9 @@ class _RegisterPageState extends State<RegisterPage> {
           'auth': 'user',
         });
         print('Registration successful: $user');
+        setState(() {
+          _isRegistDone = true;
+        });
       }
     } catch (e) {
       print('Registration failed: $e');
@@ -145,7 +188,10 @@ class _RegisterPageState extends State<RegisterPage> {
                           //다음 버튼
 
                           BtnYesBG(
-                              btnText: _currentPage < 4 ? '다음' : '등록',
+                              btnText:
+                                  _currentPage < (widget.isGoogleSignUp ? 2 : 4)
+                                      ? '다음'
+                                      : '등록',
                               onPressed: _nextPage),
                         ],
                       ))),
@@ -168,11 +214,13 @@ class _RegisterPageState extends State<RegisterPage> {
                         });
                       },
                       children: [
-                        SignUpStep1(emailController: _emailController),
-                        SignUpStep2(
-                            passwordController: _passwordController,
-                            confirmPasswordController:
-                                _confirmPasswordController),
+                        if (!widget.isGoogleSignUp)
+                          SignUpStep1(emailController: _emailController),
+                        if (!widget.isGoogleSignUp)
+                          SignUpStep2(
+                              passwordController: _passwordController,
+                              confirmPasswordController:
+                                  _confirmPasswordController),
                         SignUpStep3(nickNameController: _nickNameController),
                         SignUpStep4(
                             nameController: _nameController,
