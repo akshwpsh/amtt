@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -18,7 +19,60 @@ class UserPage extends StatefulWidget {
 
 class _UserEditPageState extends State<UserPage> {
    String? _profileImageUrl;
+   String userEmail = FirebaseAuth.instance.currentUser!.email!;
+   Future<void> _sendEmail() async {
+     String supportEmail = "sophra1234@gmail.com";
+     final Email email = Email(
+       body: '보낸 사람: ${userEmail}\n 문의 내용을 입력해주세요.',
+       subject: '문의하기',
+       recipients: ['sophra1234@gmail.com'], // 수신자 이메일을 여기에 입력
+       isHTML: false, // 일반 텍스트로 전송
+     );
 
+     try {
+       await FlutterEmailSender.send(email);
+       ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(content: Text('문의가 전송되었습니다.')),
+       );
+     } catch (error) {
+       print(error);
+       _showErrorDialog(supportEmail);
+     }
+   }
+   void _showErrorDialog(String supportEmail) {
+     showDialog(
+       context: context,
+       builder: (BuildContext context) {
+         return AlertDialog(
+           title: Text('문의 전송 실패'),
+           content: Column(
+             mainAxisSize: MainAxisSize.min,
+             children: [
+               Text('문의 전송에 실패했습니다. 다음 이메일 주소로 문의해주세요.'),
+               SizedBox(height: 10),
+               Text('이메일: $supportEmail'),
+             ],
+           ),
+           actions: [
+             TextButton(
+               onPressed: () {
+                 // 이메일 주소를 클립보드에 복사
+                 Clipboard.setData(ClipboardData(text: supportEmail));
+                 Navigator.of(context).pop();
+               },
+               child: Text('이메일 복사'),
+             ),
+             TextButton(
+               onPressed: () {
+                 Navigator.of(context).pop();
+               },
+               child: Text('확인'),
+             ),
+           ],
+         );
+       },
+     );
+   }
   @override
   void initState() {
     super.initState();
@@ -257,9 +311,7 @@ class _UserEditPageState extends State<UserPage> {
                         icon: Icons.call,
                         text: '문의 하기',
                         onTap: () async => {
-                          Navigator.push( context,
-                            MaterialPageRoute(builder: (context) => ContactUsPage()),
-                          )
+                           _sendEmail()
                         }
                     ),
 
