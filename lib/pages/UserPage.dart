@@ -10,7 +10,6 @@ import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'KeywordsPage.dart';
 import 'WishListPage.dart';
 import 'UserEditPage.dart';
-import 'contactUsPage.dart';
 
 class UserPage extends StatefulWidget {
   @override
