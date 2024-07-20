@@ -8,6 +8,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:amtt/widgets/BtnYesBG.dart';
 
 class RegisterPage extends StatefulWidget {
+  final bool isGoogleSignUp;
+  final User? user;
+
+  RegisterPage({required this.isGoogleSignUp, this.user});
   @override
   _RegisterPageState createState() => _RegisterPageState();
 }
@@ -61,27 +65,38 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     try {
-      UserCredential userCredential =
-          await _auth.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
+      User? user;
 
-      await userCredential.user!.updateDisplayName(_nickNameController.text.trim());
+      if (widget.isGoogleSignUp) {
+        user = widget.user;
+        if (user == null) {
+          throw Exception('유저정보미확인 오류');
+        }
+      } else {
+        UserCredential userCredential =
+            await _auth.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+        user = userCredential.user;
+        await userCredential.user!
+            .updateDisplayName(_nickNameController.text.trim());
+      }
 
-      await _firestore.collection('users').doc(userCredential.user!.uid).set({
-        'email': _emailController.text.trim(),
-        'nickName': _nickNameController.text.trim(),
-        'name': _nameController.text.trim(),
-        'phoneNumber': _phoneNumberController.text.trim().replaceAll('-', ''),
-        'studentId': _studentIdController.text.trim(),
-        'school': _schoolController.text.trim(),
-        'department': _departmentController.text.trim(),
-        'registeredAt': FieldValue.serverTimestamp(),
-        'auth': 'user',
-      });
-
-      print('Registration successful: $userCredential');
+      if(user!= null){  
+        await _firestore.collection('users').doc(user.uid).set({
+          'email': _emailController.text.trim(),
+          'nickName': _nickNameController.text.trim(),
+          'name': _nameController.text.trim(),
+          'phoneNumber': _phoneNumberController.text.trim().replaceAll('-', ''),
+          'studentId': _studentIdController.text.trim(),
+          'school': _schoolController.text.trim(),
+          'department': _departmentController.text.trim(),
+          'registeredAt': FieldValue.serverTimestamp(),
+          'auth': 'user',
+        });
+        print('Registration successful: $user');
+      }
     } catch (e) {
       print('Registration failed: $e');
     }

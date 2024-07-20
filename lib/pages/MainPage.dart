@@ -35,7 +35,7 @@ class MainPage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => RegisterPage()),
+                  MaterialPageRoute(builder: (context) => RegisterPage(isGoogleSignUp: false)),
                 );
               },
             ),
