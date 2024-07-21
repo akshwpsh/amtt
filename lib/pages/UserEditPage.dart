@@ -348,7 +348,6 @@ class ProfileImageWithIcon extends StatelessWidget {
                   height: 100,
                   alignment: Alignment.center,
 
-                  //TODO : 이미지 없어서 일단 아이콘으로 대체 나중에 이미지로 받아오게 해야함
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     image: imageUrl != null

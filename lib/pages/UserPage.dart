@@ -90,7 +90,7 @@ class _UserEditPageState extends State<UserPage> {
           .doc(currentUser.uid)
           .get();
       Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
-      String? profileImageUrl = userData['ImageUrl']; // 프로필 이미지 URL
+      String? profileImageUrl = userData['imageUrl']; // 프로필 이미지 URL
       String? nickname = userData['nickName'];
       print(_profileImageUrl);
       setState(() {
@@ -140,25 +140,34 @@ class _UserEditPageState extends State<UserPage> {
                     child: Row(
                       children: [
                        // 프로필 이미지
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: _profileImageUrl !=null
-                            ? DecorationImage(
-                              image: NetworkImage(_profileImageUrl!),
-                              fit : BoxFit.cover,
-                            )
-                            : null,
-                            color: _profileImageUrl == null?Colors.grey : null,
+                        Material(
+                          shape: const CircleBorder(),
+                          color: Color(0xff7E7E7E), // 배경색 설정
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            child: Container(
+                              width: 60,
+                              height: 60,
+                              alignment: Alignment.center,
+
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: _profileImageUrl != null
+                                    ? DecorationImage(
+                                  image: NetworkImage(_profileImageUrl!),
+                                  fit: BoxFit.cover,
+                                )
+                                    : null,
+                              ),
+                              child: _profileImageUrl == null
+                                  ? Icon(
+                                Icons.person,
+                                size: 34,
+                                color: Colors.white,
+                              )
+                                  : null,
+                            ),
                           ),
-                          //TODO : 이미지가 없어서 임시로 아이콘 사용 => 이미지로 바꿔야함
-                          child: _profileImageUrl == null
-                          ? const Icon(
-                            Icons.person,
-                            size: 44,
-                          ):null,
                         ),
 
                         SizedBox(width: 10),
