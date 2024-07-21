@@ -10,7 +10,6 @@ import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'KeywordsPage.dart';
 import 'WishListPage.dart';
 import 'UserEditPage.dart';
-import 'contactUsPage.dart';
 
 class UserPage extends StatefulWidget {
   @override
@@ -19,6 +18,7 @@ class UserPage extends StatefulWidget {
 
 class _UserEditPageState extends State<UserPage> {
    String? _profileImageUrl;
+   String? _Nickname;
    String userEmail = FirebaseAuth.instance.currentUser!.email!;
    Future<void> _sendEmail() async {
      String supportEmail = "sophra1234@gmail.com";
@@ -76,9 +76,10 @@ class _UserEditPageState extends State<UserPage> {
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadUserData(); // 유저 데이터 가져오기
   }
 
+   // 유저 데이터 가져오기
   Future<void> _loadUserData() async {
     // 현재 로그인된 사용자의 정보를 가져옵니다.
     User? currentUser = FirebaseAuth.instance.currentUser;
@@ -90,14 +91,22 @@ class _UserEditPageState extends State<UserPage> {
           .get();
       Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
       String? profileImageUrl = userData['ImageUrl']; // 프로필 이미지 URL
+      String? nickname = userData['nickName'];
+      print(_profileImageUrl);
       setState(() {
       _profileImageUrl = profileImageUrl;
+      _Nickname = nickname;
     });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+
+    final nickname = _Nickname ?? "닉네임 정보 없음"; //닉네임
+    final email = _Nickname ?? "닉네임 정보 없음"; //닉네임
+
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -147,7 +156,7 @@ class _UserEditPageState extends State<UserPage> {
                           //TODO : 이미지가 없어서 임시로 아이콘 사용 => 이미지로 바꿔야함
                           child: _profileImageUrl == null
                           ? const Icon(
-                            Icons.person_pin,
+                            Icons.person,
                             size: 44,
                           ):null,
                         ),
@@ -155,14 +164,14 @@ class _UserEditPageState extends State<UserPage> {
                         SizedBox(width: 10),
 
                         // 사용자 정보 공간 (닉네임, 계정 이메일)
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // 사용자 닉네임 텍스트
                               Text(
-                                '홍홍길길동동',
-                                style: TextStyle(
+                                nickname,
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -172,7 +181,7 @@ class _UserEditPageState extends State<UserPage> {
 
                               // 사용자 계정 이메일 텍스트
                               Text(
-                                'hongildong@gmail.com',
+                                userEmail,
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey,
@@ -220,7 +229,6 @@ class _UserEditPageState extends State<UserPage> {
                           text: '변경',
                           onPressed: () {
                             // 버튼이 클릭되었을 때 실행할 코드
-                            print('버튼이 클릭되었습니다!');
                           },
                         )
                       ],
