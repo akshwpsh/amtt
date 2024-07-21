@@ -1,6 +1,11 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+//위젯 임포트
+import 'package:amtt/widgets/RoundedTextField.dart';
+import 'package:amtt/widgets/BtnYesBG.dart';
 
 class KeywordsPage extends StatefulWidget {
   @override
@@ -18,6 +23,10 @@ class _KeywordsPageState extends State<KeywordsPage> {
         'keyword': _keywordController.text,
       });
       _keywordController.clear();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('키워드가 추가되었습니다!')),
+      );
     }
   }
 
@@ -38,6 +47,7 @@ class _KeywordsPageState extends State<KeywordsPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
+
           title: Text('키워드 수정'),
           content: TextField(
             controller: _editController,
@@ -65,64 +75,91 @@ class _KeywordsPageState extends State<KeywordsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text('알림 키워드 추가'),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _keywordController,
-              decoration: InputDecoration(
-                labelText: '키워드 입력',
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.add),
-                  onPressed: _addKeyword,
-                ),
-              ),
-            ),
+    return Container(
+      color: Colors.white,
+      child: Padding(
+        padding: EdgeInsets.all(0.04.sw),
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            title: Text('알림 키워드 관리'),
           ),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('keywords')
-                  .where('uid', isEqualTo: user?.uid)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                final keywords = snapshot.data!.docs;
-                return ListView.builder(
-                  itemCount: keywords.length,
-                  itemBuilder: (context, index) {
-                    final keywordData = keywords[index];
-                    return ListTile(
-                      title: Text(keywordData['keyword']),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.edit),
-                            onPressed: () => _showEditDialog(keywordData.id, keywordData['keyword']),
+          body: Column(
+            children: [
+
+              SizedBox(height : 20,),
+
+              Row(
+
+                children: [
+
+                  // 키워드 입력 창 (텍스트필드)
+                  Expanded(
+                    flex: 4,
+                    child: RoundedTextField(
+                      labelText: '키워드 입력',
+                      controller: _keywordController,
+                      obscureText: false,
+
+                    ),
+                  ),
+
+                  SizedBox(width: 15,),
+
+                  // 키워드 추가버튼
+                  Expanded(
+                    flex: 1,
+                    child: BtnYesBG(
+                      btnText: '추가',
+                      onPressed: () { _addKeyword(); },
+                    ),
+                  ),
+
+
+
+                ],
+
+              ),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('keywords')
+                      .where('uid', isEqualTo: user?.uid)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    final keywords = snapshot.data!.docs;
+                    return ListView.builder(
+                      itemCount: keywords.length,
+                      itemBuilder: (context, index) {
+                        final keywordData = keywords[index];
+                        return ListTile(
+                          title: Text(keywordData['keyword']),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () => _showEditDialog(keywordData.id, keywordData['keyword']),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () => _deleteKeyword(keywordData.id),
+                              ),
+                            ],
                           ),
-                          IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () => _deleteKeyword(keywordData.id),
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
