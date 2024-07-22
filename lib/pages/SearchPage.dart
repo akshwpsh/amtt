@@ -26,6 +26,7 @@ class _SearchPageState extends State<SearchPage> {
   List<String> _selectedCategories = [];
   List<String> _categories = [];
 
+  RangeValues _selectedPriceRange = RangeValues(0, 1000000);
   @override
   void initState() {
     super.initState();
@@ -55,21 +56,26 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  void _selectCategory() async {
-    final selectedCategories = await showModalBottomSheet<List<String>>(
+  void _selectSearchFilter() async {
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
         return BottomSheetContent(
-            categories: _categories, selectedCategories: _selectedCategories);
+          categories: _categories,
+          selectedCategories: _selectedCategories,
+          selectedPriceRange: _selectedPriceRange,
+        );
       },
     );
-    if (selectedCategories != null) {
+    if (result != null) {
       setState(() {
-        _selectedCategories = selectedCategories;
+        _selectedCategories = result['selectedCategories'];
+        _selectedPriceRange = result['selectedPriceRange'];
       });
     }
   }
+
 
   // 검색기록 가져오는 메서드
   Future<void> _loadSearchHistory() async {
@@ -249,6 +255,9 @@ class _SearchPageState extends State<SearchPage> {
                               final String postName =
                                   data['postName'] ?? 'No title';
                               final String category = data['category'] ?? '';
+                              final double price = double.tryParse(
+                                      data['productPrice'].toString()) ??
+                                  double.maxFinite;
 
                               final matchesSearchText = _searchText == null ||
                                   _searchText!.isEmpty ||
@@ -260,7 +269,13 @@ class _SearchPageState extends State<SearchPage> {
                                   _selectedCategories.isEmpty ||
                                       _selectedCategories.contains(category);
 
-                              return matchesSearchText && matchesCategory;
+                              final matchesPrice =
+                                  price >= _selectedPriceRange.start &&
+                                      price <= _selectedPriceRange.end;
+
+                              return matchesSearchText &&
+                                  matchesCategory &&
+                                  matchesPrice;
                             }).toList();
 
                             if (filteredDocs.isEmpty) {
@@ -338,7 +353,7 @@ class _SearchPageState extends State<SearchPage> {
                     child: Container(
                       height: 60,
                       child:
-                          BtnNoBG(btnText: '결과 필터', onPressed: _selectCategory),
+                          BtnNoBG(btnText: '결과 필터', onPressed: _selectSearchFilter),
                     ),
                   ),
                 ),
@@ -355,9 +370,12 @@ class _SearchPageState extends State<SearchPage> {
 class BottomSheetContent extends StatefulWidget {
   final List<String> categories;
   final List<String> selectedCategories;
+  final RangeValues selectedPriceRange;
 
   BottomSheetContent(
-      {required this.categories, required this.selectedCategories}); // 생성자 수정
+      {required this.categories,
+      required this.selectedCategories,
+      required this.selectedPriceRange}); // 생성자 수정
 
   @override
   _BottomSheetContentState createState() => _BottomSheetContentState();
@@ -365,10 +383,12 @@ class BottomSheetContent extends StatefulWidget {
 
 class _BottomSheetContentState extends State<BottomSheetContent> {
   late List<String> _selectedCategories;
+  late RangeValues _currentPriceRange;
 
   void initState() {
     super.initState();
     _selectedCategories = widget.selectedCategories;
+    _currentPriceRange = widget.selectedPriceRange;
   }
 
   @override
@@ -388,7 +408,10 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
               IconButton(
                 icon: Icon(Icons.arrow_back),
                 onPressed: () {
-                  Navigator.pop(context, _selectedCategories);
+                  Navigator.pop(context, {
+                    'selectedCategories': _selectedCategories,
+                    'selectedPriceRange': _currentPriceRange,
+                  });
                 },
               ),
               Text(
@@ -473,7 +496,21 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
 
           //가격선택 슬라이더 공간
-          Container(),
+          RangeSlider(
+            values: _currentPriceRange,
+            min: 0,
+            max: 1000000,
+            divisions: 100,
+            labels: RangeLabels(
+              _currentPriceRange.start.round().toString(),
+              _currentPriceRange.end.round().toString(),
+            ),
+            onChanged: (RangeValues values) {
+              setState(() {
+                _currentPriceRange = values;
+              });
+            },
+          ),
 
           Spacer(),
 
@@ -487,6 +524,7 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
                     onPressed: () {
                       setState(() {
                         _selectedCategories.clear();
+                        _currentPriceRange = RangeValues(0, 1000000);
                       });
                     }),
               ),
@@ -499,7 +537,10 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
                     btnText: '검색',
                     onPressed: () {
                       //print(_selectedCategory);
-                      Navigator.pop(context, _selectedCategories);
+                      Navigator.pop(context, {
+                        'selectedCategories': _selectedCategories,
+                        'selectedPriceRange': _currentPriceRange,
+                      });
                     }),
               ),
             ],

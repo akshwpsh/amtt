@@ -20,8 +20,11 @@ class _ProductListPageState extends State<ProductListPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String? _searchText = '';
   List<String> _selectedCategories = [];
+
   TextEditingController _searchController = TextEditingController();
   List<String> _categories = [];
+
+  RangeValues _selectedPriceRange = RangeValues(0, 10000000);
 
   @override
   void initState() {
@@ -55,8 +58,11 @@ class _ProductListPageState extends State<ProductListPage> {
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return BottomSheetContent(
-            categories: _categories, selectedCategories: _selectedCategories);
+         return BottomSheetContent(
+          categories: _categories, 
+          selectedCategories: _selectedCategories, 
+          selectedPriceRange: _selectedPriceRange,
+        );
       },
     );
     if (selectedCategories != null) {
