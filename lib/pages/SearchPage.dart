@@ -23,9 +23,8 @@ class _SearchPageState extends State<SearchPage> {
   String? _searchText = '';
   List<String> _searchHistory = []; // 검색 기록 목록
 
-  String? _selectedCategory;
+  List<String> _selectedCategories = [];
   List<String> _categories = [];
-
 
   @override
   void initState() {
@@ -33,12 +32,12 @@ class _SearchPageState extends State<SearchPage> {
     _fetchCategories(); //카테고리 목록 가져오기
     _loadSearchHistory(); // 검색기록 가져오기
     _searchController.addListener(_onTextChanged); //검색컨트롤러에 텍스트 변화 리스너 추가
-
   }
 
   Future<void> _fetchCategories() async {
     try {
-      DocumentSnapshot categoryDoc = await _firestore.collection('category').doc('categories').get();
+      DocumentSnapshot categoryDoc =
+          await _firestore.collection('category').doc('categories').get();
       Map<String, dynamic> data = categoryDoc.data() as Map<String, dynamic>;
       List<String> categories = [];
       data.forEach((key, value) {
@@ -57,20 +56,17 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _selectCategory() async {
-    final selectedCategory = await showModalBottomSheet(
+    final selectedCategories = await showModalBottomSheet<List<String>>(
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return BottomSheetContent(categories: _categories);
+        return BottomSheetContent(
+            categories: _categories, selectedCategories: _selectedCategories);
       },
     );
-    if (selectedCategory != null) {
+    if (selectedCategories != null) {
       setState(() {
-        _selectedCategory = selectedCategory;
-      });
-    } else {
-      setState(() {
-        _selectedCategory = null;
+        _selectedCategories = selectedCategories;
       });
     }
   }
@@ -114,8 +110,6 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -143,7 +137,8 @@ class _SearchPageState extends State<SearchPage> {
                 decoration: InputDecoration(
                   hintText: '검색어를 입력하세요',
                   border: OutlineInputBorder(),
-                  focusedBorder: OutlineInputBorder( // 활성화 시 테두리 설정
+                  focusedBorder: OutlineInputBorder(
+                    // 활성화 시 테두리 설정
                     borderSide: BorderSide(
                       color: Color(0xff4EBDBD), // 활성화 시 테두리 색상
                     ),
@@ -158,9 +153,9 @@ class _SearchPageState extends State<SearchPage> {
           ),
           body: Column(
             children: [
-
-
-              SizedBox(height: 30,),
+              SizedBox(
+                height: 30,
+              ),
 
               // 검색기록 리스트 공간
               Visibility(
@@ -169,7 +164,13 @@ class _SearchPageState extends State<SearchPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      child: Text('검색기록', textAlign: TextAlign.left, style: TextStyle(fontSize: 17, ),),
+                      child: Text(
+                        '검색기록',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          fontSize: 17,
+                        ),
+                      ),
                       width: double.infinity,
                     ),
                     Container(
@@ -177,7 +178,6 @@ class _SearchPageState extends State<SearchPage> {
                       child: ListView.builder(
                         itemCount: _searchHistory.length,
                         itemBuilder: (context, index) {
-
                           // 검색기록 아이템
                           return ListTile(
                             contentPadding: EdgeInsets.zero,
@@ -201,11 +201,7 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                   ],
                 ),
-
-
-
               ),
-
 
               // 검색결과 목록 공간
               Visibility(
@@ -214,94 +210,114 @@ class _SearchPageState extends State<SearchPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       Container(
-                        child: Text('검색결과', textAlign: TextAlign.left, style: TextStyle(fontSize: 17, ),),
+                        child: Text(
+                          '검색결과',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontSize: 17,
+                          ),
+                        ),
                         width: double.infinity,
                       ),
-
-                      SizedBox(height: 15,),
-
+                      SizedBox(
+                        height: 15,
+                      ),
                       Expanded(
                         child: StreamBuilder<QuerySnapshot>(
-                        stream: _firestore
-                            .collection('products')
-                            .orderBy('timestamp', descending: true)
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Center(child: CircularProgressIndicator());
-                          }
-                          if (snapshot.hasError) {
-                            return Center(child: Text('Error: ${snapshot.error}'));
-                          }
-                          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                            return Center(child: Text('No products found.'));
-                          }
+                          stream: _firestore
+                              .collection('products')
+                              .orderBy('timestamp', descending: true)
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            }
+                            if (snapshot.hasError) {
+                              return Center(
+                                  child: Text('Error: ${snapshot.error}'));
+                            }
+                            if (!snapshot.hasData ||
+                                snapshot.data!.docs.isEmpty) {
+                              return Center(child: Text('No products found.'));
+                            }
 
-                          final filteredDocs = snapshot.data!.docs.where((doc) {
-                            final data = doc.data() as Map<String, dynamic>;
-                            final String postName = data['postName'] ?? 'No title';
-                            final String category = data['category'] ?? '';
-
-                            final matchesSearchText = _searchText == null ||
-                                _searchText!.isEmpty ||
-                                postName.toLowerCase().contains(_searchText!.toLowerCase());
-
-                            return matchesSearchText;
-                          }).toList();
-
-                          if (filteredDocs.isEmpty) {
-                            return Center(child: Text('검색하신 내용에 맞는 상품이없어용'));
-                          }
-                          return ListView.builder(
-                            itemCount: filteredDocs.length,
-                            itemBuilder: (context, index) {
-                              final doc = filteredDocs[index];
+                            final filteredDocs =
+                                snapshot.data!.docs.where((doc) {
                               final data = doc.data() as Map<String, dynamic>;
-                              final String postname = data['postName'] ?? 'No title'; // 목록 제목
-                              final String userName = data['userName'] ?? 'Unknown'; // 게시 유저명
-                              final String price = data['productPrice'] ?? '가격정보 없음'; // 목록 가격
-                              final String category = data['category'] ?? 'No category'; // 목록 카테고리
-                              final Timestamp timestamp = data['timestamp'] ?? Timestamp.now();
-                              final String formattedDate =
-                              DateFormat('yyyy-MM-dd').format(timestamp.toDate()); // 게시 날짜
-                              final List<dynamic> imageUrls = data['imageUrls'] ?? []; // 목록 이미지 리스트
+                              final String postName =
+                                  data['postName'] ?? 'No title';
+                              final String category = data['category'] ?? '';
 
+                              final matchesSearchText = _searchText == null ||
+                                  _searchText!.isEmpty ||
+                                  postName
+                                      .toLowerCase()
+                                      .contains(_searchText!.toLowerCase());
 
-                              try{
+                              final matchesCategory =
+                                  _selectedCategories.isEmpty ||
+                                      _selectedCategories.contains(category);
 
-                                return Container(
-                                  margin: EdgeInsets.only(bottom: 0), // 카드 아이템 간의 마진
-                                  child: ProductCard(
-                                    title: postname,
-                                    price: price,
-                                    date: formattedDate,
-                                    //이미지 경로가 없으면 비어있는 거 보냄
-                                    imageUrl: imageUrls.firstOrNull ?? '',
-                                    userName: userName,
-                                    onTap: () {
-                                      Navigator.push(context, MaterialPageRoute(
-                                        builder: (context) => ProductDetailPage(
-                                          postId: doc.id,
-                                        ),
-                                      ));
-                                    },
-                                  ),
-                                );
+                              return matchesSearchText && matchesCategory;
+                            }).toList();
 
-                              }
-                              catch (e, stackTrace)
-                              {
-                                print("에러발생");
-                                print(stackTrace);
-                              }
+                            if (filteredDocs.isEmpty) {
+                              return Center(child: Text('검색하신 내용에 맞는 상품이없어용'));
+                            }
+                            return ListView.builder(
+                              itemCount: filteredDocs.length,
+                              itemBuilder: (context, index) {
+                                final doc = filteredDocs[index];
+                                final data = doc.data() as Map<String, dynamic>;
+                                final String postname =
+                                    data['postName'] ?? 'No title'; // 목록 제목
+                                final String userName =
+                                    data['userName'] ?? 'Unknown'; // 게시 유저명
+                                final String price =
+                                    data['productPrice'] ?? '가격정보 없음'; // 목록 가격
+                                final String category = data['category'] ??
+                                    'No category'; // 목록 카테고리
+                                final Timestamp timestamp =
+                                    data['timestamp'] ?? Timestamp.now();
+                                final String formattedDate =
+                                    DateFormat('yyyy-MM-dd')
+                                        .format(timestamp.toDate()); // 게시 날짜
+                                final List<dynamic> imageUrls =
+                                    data['imageUrls'] ?? []; // 목록 이미지 리스트
 
-
-                            },
-                          );
-                        },
-                      ),
+                                try {
+                                  return Container(
+                                    margin: EdgeInsets.only(
+                                        bottom: 0), // 카드 아이템 간의 마진
+                                    child: ProductCard(
+                                      title: postname,
+                                      price: price,
+                                      date: formattedDate,
+                                      //이미지 경로가 없으면 비어있는 거 보냄
+                                      imageUrl: imageUrls.firstOrNull ?? '',
+                                      userName: userName,
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ProductDetailPage(
+                                                postId: doc.id,
+                                              ),
+                                            ));
+                                      },
+                                    ),
+                                  );
+                                } catch (e, stackTrace) {
+                                  print("에러발생");
+                                  print(stackTrace);
+                                }
+                              },
+                            );
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -321,15 +337,14 @@ class _SearchPageState extends State<SearchPage> {
                     padding: EdgeInsets.all(0.06.sw),
                     child: Container(
                       height: 60,
-                      child: BtnNoBG(btnText: '결과 필터', onPressed: _selectCategory),
+                      child:
+                          BtnNoBG(btnText: '결과 필터', onPressed: _selectCategory),
                     ),
                   ),
                 ),
               ),
             ),
           ),
-
-
         ),
       ),
     );
@@ -339,15 +354,22 @@ class _SearchPageState extends State<SearchPage> {
 // 하단에서 올라오는 결과 필터 다이얼로그창
 class BottomSheetContent extends StatefulWidget {
   final List<String> categories;
+  final List<String> selectedCategories;
 
-  BottomSheetContent({required this.categories}); // 생성자 수정
+  BottomSheetContent(
+      {required this.categories, required this.selectedCategories}); // 생성자 수정
 
   @override
   _BottomSheetContentState createState() => _BottomSheetContentState();
 }
 
 class _BottomSheetContentState extends State<BottomSheetContent> {
-  String selected = '';
+  late List<String> _selectedCategories;
+
+  void initState() {
+    super.initState();
+    _selectedCategories = widget.selectedCategories;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -359,7 +381,6 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           // 상단바 공간
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -367,7 +388,7 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
               IconButton(
                 icon: Icon(Icons.arrow_back),
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pop(context, _selectedCategories);
                 },
               ),
               Text(
@@ -380,7 +401,8 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
 
           SizedBox(height: 26),
 
-          Text('카테고리 선택', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text('카테고리 선택',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           SizedBox(height: 16),
 
           // 그리드 카테고리 아이템 공간
@@ -393,21 +415,25 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
               mainAxisSpacing: 25, //위 아래 간격
               childAspectRatio: 1, // 비율, 높을수록 위아래로 납작해짐
             ),
-
-
             itemCount: _categories.length,
             itemBuilder: (context, index) {
               final category = _categories[index];
-              final isSelected = selected == category;
+              final isSelected = _selectedCategories.contains(category);
               return GestureDetector(
                 onTap: () {
                   setState(() {
-                    selected = category;
+                    if (isSelected) {
+                      _selectedCategories.remove(category);
+                    } else {
+                      _selectedCategories.add(category);
+                    }
                   });
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.teal.withOpacity(0.2) : Colors.grey[200],
+                    color: isSelected
+                        ? Colors.teal.withOpacity(0.2)
+                        : Colors.grey[200],
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Center(
@@ -416,10 +442,15 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
                       children: [
                         //그리드 아이템 내부 아이콘 ( 카테고리 아이콘 )
                         //TODO : 여기 각 카테고리 이름에 맞는 아이콘 나오도록 해야함
-                        Icon(Icons.category, size: 24, color: isSelected ? Colors.teal : Colors.grey),
+                        Icon(Icons.category,
+                            size: 24,
+                            color: isSelected ? Colors.teal : Colors.grey),
                         SizedBox(height: 8),
                         // 그리드 아이템 내부 텍스트 ( 카테고리 이름 )
-                        Text(category, style: TextStyle(fontSize: 16 , color: isSelected ? Colors.teal : Colors.grey)),
+                        Text(category,
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: isSelected ? Colors.teal : Colors.grey)),
                       ],
                     ),
                   ),
@@ -434,12 +465,12 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
 
            */
 
-
           //검색 학과 드롭다운 공간
           Container(),
 
           SizedBox(height: 26),
-          Text('가격 선택', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text('가격 선택',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
 
           //가격선택 슬라이더 공간
           Container(),
@@ -449,32 +480,28 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-
               Expanded(
                 flex: 1,
-                child: BtnNoBG(btnText: '초기화',
+                child: BtnNoBG(
+                    btnText: '초기화',
                     onPressed: () {
                       setState(() {
-                        selected = '';
+                        _selectedCategories.clear();
                       });
                     }),
               ),
-
-              SizedBox(width: 20,),
-
+              SizedBox(
+                width: 20,
+              ),
               Expanded(
                 flex: 1,
-                child: BtnYesBG(btnText: '검색',
+                child: BtnYesBG(
+                    btnText: '검색',
                     onPressed: () {
                       //print(_selectedCategory);
-                      Navigator.pop(context, selected);
+                      Navigator.pop(context, _selectedCategories);
                     }),
               ),
-
-
-
-
-
             ],
           ),
         ],
