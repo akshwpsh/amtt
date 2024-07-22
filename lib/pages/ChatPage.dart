@@ -9,6 +9,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 class ChatPage extends StatelessWidget {
   final String chatRoomId;
   final TextEditingController _controller = TextEditingController();
@@ -18,139 +20,173 @@ class ChatPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Chat Room'),
-        actions: [
-          IconButton(
-              icon: Icon(Icons.exit_to_app),
-              onPressed: () async {
-                await FirebaseService().leaveChatRoom(chatRoomId);
-                Navigator.pop(context);
-              }),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: StreamBuilder(
-              stream: FirebaseFirestore.instance
-                  .collection('chat_rooms')
-                  .doc(chatRoomId)
-                  .collection('messages')
-                  .orderBy('timestamp', descending: true)
-                  .snapshots(),
-              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
-                }
-                var messages = snapshot.data!.docs;
-                return ListView.builder(
-                  reverse: true,
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    var message = messages[index];
-                    bool isMe = message['senderId'] == userId;
-                    var timestamp = message['timestamp'] as Timestamp?;
-                    var time = timestamp != null
-                        ? DateFormat('HH:mm').format(timestamp.toDate())
-                        : 'N/A';
 
-                    Widget messageWidget;
-                    if (message['type'] == 'text') {
-                      messageWidget = Text(
-                        message['text'],
-                        style: TextStyle(
-                            color: isMe ? Colors.white : Colors.black),
-                      );
-                    } else if (message['type'] == 'image') {
-                      messageWidget = Image.network(message['imageUrl']);
-                    } else if (message['type'] == 'images') {
-                      List<dynamic> imageUrls = message['imageUrls'];
-                      messageWidget = Column(
-                        children: imageUrls
-                            .map((url) => Image.network(url))
-                            .toList(),
-                      );
-                    } else {
-                      messageWidget = SizedBox.shrink(); // 미지정 유형
+    // 바텀시트 보이게 하는 메서드
+    void _showBottomSheet() {
+      showModalBottomSheet(
+          context: context,
+          builder: (BuildContext context) => BottomSheetContent()
+      );
+    }
+
+    return Container(
+      color: Colors.white,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 0.06.sw, vertical: 10),
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            title: Text('Chat Room'),
+            actions: [
+              IconButton(
+                  icon: Icon(Icons.exit_to_app),
+                  onPressed: () async {
+                    await FirebaseService().leaveChatRoom(chatRoomId);
+                    Navigator.pop(context);
+                  }),
+            ],
+          ),
+          body: Column(
+            children: [
+              Expanded(
+                child: StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('chat_rooms')
+                      .doc(chatRoomId)
+                      .collection('messages')
+                      .orderBy('timestamp', descending: true)
+                      .snapshots(),
+                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (!snapshot.hasData) {
+                      return Center(child: CircularProgressIndicator());
                     }
+                    var messages = snapshot.data!.docs;
 
-                    return Align(
-                      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                      child: Column(
-                        crossAxisAlignment:
-                        isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 10),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 15),
-                            decoration: BoxDecoration(
-                              color: isMe ? Colors.blue : Colors.grey[300],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: messageWidget,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                            child: Row(
-                              mainAxisAlignment:
-                              isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  message['sender'],
-                                  style: TextStyle(
-                                      color: isMe ? Colors.white70 : Colors.black54,
-                                      fontSize: 12),
+                    // 메시지 리스트 빌더
+                    return ListView.builder(
+                      reverse: true,
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        var message = messages[index];
+                        bool isMe = message['senderId'] == userId;
+                        var timestamp = message['timestamp'] as Timestamp?;
+                        var time = timestamp != null
+                            ? DateFormat('HH:mm').format(timestamp.toDate())
+                            : 'N/A';
+
+                        Widget messageWidget;
+                        if (message['type'] == 'text') {
+                          messageWidget = Text(
+                            message['text'],
+                            style: TextStyle(
+                                color: isMe ? Colors.white : Colors.black),
+                          );
+                        } else if (message['type'] == 'image') {
+                          messageWidget = Image.network(message['imageUrl']);
+                        } else if (message['type'] == 'images') {
+                          List<dynamic> imageUrls = message['imageUrls'];
+                          messageWidget = Column(
+                            children: imageUrls
+                                .map((url) => Image.network(url))
+                                .toList(),
+                          );
+                        } else {
+                          messageWidget = SizedBox.shrink(); // 미지정 유형
+                        }
+
+                        return Align(
+                          alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+
+                          // 채팅 메시지 공간
+                          child: Column(
+                            crossAxisAlignment:
+                            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                margin: EdgeInsets.symmetric(
+                                    vertical: 5, horizontal: 10),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 15),
+
+                                //박스 데코레이션 (색상, 둥근 테두리)
+                                decoration: BoxDecoration(
+                                  color: isMe ? Color(0xff4EBDBD): Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                                SizedBox(width: 10),
-                                Text(
-                                  time,
-                                  style: TextStyle(
-                                      color: isMe ? Colors.white70 : Colors.black54,
-                                      fontSize: 12),
+                                child: messageWidget,
+                              ),
+
+
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                  isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                                  children: [
+
+                                    // 채팅 유저명 공간
+                                    Text(
+                                      message['sender'],
+                                      style: TextStyle(
+                                          color: isMe ? Colors.black54 : Colors.black54,
+                                          fontSize: 12),
+                                    ),
+                                    SizedBox(width: 10),
+
+                                    // 채팅 시간 표시 공간
+                                    Text(
+                                      time,
+                                      style: TextStyle(
+                                          color: isMe ? Colors.black54 : Colors.black54,
+                                          fontSize: 12),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     );
                   },
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(Icons.image),
-                  onPressed: _sendImages,
                 ),
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(
-                      hintText: 'Enter your message',
+              ),
+
+
+              //채팅 입력 바 공간
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.image),
+                      onPressed: _showBottomSheet,
                     ),
-                  ),
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        decoration: InputDecoration(
+                          hintText: 'Enter your message',
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.send),
+                      onPressed: _sendMessage,
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: _sendMessage,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
+
+  // 메시지 보내는 메서드
   void _sendMessage() {
     if (_controller.text.isNotEmpty) {
       FirebaseFirestore.instance
@@ -169,6 +205,7 @@ class ChatPage extends StatelessWidget {
     }
   }
 
+  // 이미지 보내는 메서드
   Future<void> _sendImages() async {
     final picker = ImagePicker();
     final pickedFiles = await picker.pickMultiImage();
@@ -240,5 +277,50 @@ class ChatPage extends StatelessWidget {
     }
 
     return '';
+  }
+}
+
+
+// 하단에서 올라오는 결과 필터 다이얼로그창
+class BottomSheetContent extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+
+
+    return Container(
+      color: Colors.white,
+      padding: EdgeInsets.all(0.03.sh),
+      height: MediaQuery.of(context).size.height * 0.9,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          // 상단바 공간
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+
+              Text(
+                '추가 기능',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(width: 48), // To balance the back button on the left
+            ],
+          ),
+
+          SizedBox(height: 26),
+
+          //
+
+          SizedBox(height: 16),
+
+
+
+
+
+        ],
+      ),
+    );
   }
 }
