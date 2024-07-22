@@ -110,6 +110,7 @@ class _UserEditPageState extends State<UserPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        scrolledUnderElevation: 0, //스크롤 해도 색상 바뀌지 않게
         title: Text('나의 정보'),
         backgroundColor: Colors.white,
       ),

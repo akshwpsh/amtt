@@ -74,65 +74,67 @@ class _KeywordsPageState extends State<KeywordsPage> {
           elevation: 0,
           backgroundColor: Colors.transparent,
           child: Container(
-            height: 250,
+            height: 0.3.sh,
             width: 300,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                SizedBox(height: 20),
-                Text(
-                  "키워드 수정",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-                ),
-                SizedBox(height: 20),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: TextField(
-                    controller: _editController,
-                    decoration: InputDecoration(
-                      hintText: "텍스트를 입력하세요",
-                      border: OutlineInputBorder(),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  SizedBox(height: 20),
+                  Text(
+                    "키워드 수정",
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(height: 20),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: TextField(
+                      controller: _editController,
+                      decoration: InputDecoration(
+                        hintText: "텍스트를 입력하세요",
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                   ),
-                ),
 
-                SizedBox(height: 10,),
+                  SizedBox(height: 10,),
 
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
 
-                      Expanded(
-                        child: BtnNoBG(
-                          btnText: '취소',
-                          onPressed: () { Navigator.of(context).pop(); },
+                        Expanded(
+                          child: BtnNoBG(
+                            btnText: '취소',
+                            onPressed: () { Navigator.of(context).pop(); },
+                          ),
                         ),
-                      ),
 
-                      SizedBox(width: 10,),
+                        SizedBox(width: 10,),
 
-                      Expanded(
-                        child: BtnYesBG(
-                          btnText: '확인',
-                          onPressed: () {
-                            _editKeyword(docId, _editController.text);
-                            Navigator.of(context).pop();
-                          },
+                        Expanded(
+                          child: BtnYesBG(
+                            btnText: '확인',
+                            onPressed: () {
+                              _editKeyword(docId, _editController.text);
+                              Navigator.of(context).pop();
+                            },
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
 
 
 
-              ],
+                ],
+              ),
             ),
           )
         );
@@ -149,6 +151,7 @@ class _KeywordsPageState extends State<KeywordsPage> {
         child: Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
+            scrolledUnderElevation: 0, //스크롤 해도 색상 바뀌지 않게
             backgroundColor: Colors.white,
             title: Text('알림 키워드 관리'),
           ),
@@ -265,7 +268,7 @@ class CustomListTile extends StatelessWidget {
       ),
       child: Padding(
         //내부 패딩 값
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18), 
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
             Expanded(

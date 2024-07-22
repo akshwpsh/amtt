@@ -76,7 +76,7 @@ class _ProductListPageState extends State<ProductListPage> {
         child: Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
-            scrolledUnderElevation: 0,
+            scrolledUnderElevation: 0, //스크롤 해도 색상 바뀌지 않게
             automaticallyImplyLeading: false, // 뒤로가기 버튼 비활성화
             backgroundColor: Colors.white,
             // TODO : 여기 접속한 유저가 선택한 대학에 따라 설정되게 해야함

@@ -49,6 +49,7 @@ class _WishListPageState extends State<WishListPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        scrolledUnderElevation: 0, //스크롤 해도 색상 바뀌지 않게
         backgroundColor: Colors.white,
         title: Text('찜 리스트'),
       ),
