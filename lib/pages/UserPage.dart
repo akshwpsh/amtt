@@ -18,6 +18,7 @@ class UserPage extends StatefulWidget {
 
 class _UserEditPageState extends State<UserPage> {
    String? _profileImageUrl;
+   String? _Nickname;
    String userEmail = FirebaseAuth.instance.currentUser!.email!;
    Future<void> _sendEmail() async {
      String supportEmail = "sophra1234@gmail.com";
@@ -75,9 +76,10 @@ class _UserEditPageState extends State<UserPage> {
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadUserData(); // 유저 데이터 가져오기
   }
 
+   // 유저 데이터 가져오기
   Future<void> _loadUserData() async {
     // 현재 로그인된 사용자의 정보를 가져옵니다.
     User? currentUser = FirebaseAuth.instance.currentUser;
@@ -88,18 +90,27 @@ class _UserEditPageState extends State<UserPage> {
           .doc(currentUser.uid)
           .get();
       Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
-      String? profileImageUrl = userData['ImageUrl']; // 프로필 이미지 URL
+      String? profileImageUrl = userData['imageUrl']; // 프로필 이미지 URL
+      String? nickname = userData['nickName'];
+      print(_profileImageUrl);
       setState(() {
       _profileImageUrl = profileImageUrl;
+      _Nickname = nickname;
     });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+
+    final nickname = _Nickname ?? "닉네임 정보 없음"; //닉네임
+    final email = _Nickname ?? "닉네임 정보 없음"; //닉네임
+
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        scrolledUnderElevation: 0, //스크롤 해도 색상 바뀌지 않게
         title: Text('나의 정보'),
         backgroundColor: Colors.white,
       ),
@@ -130,38 +141,47 @@ class _UserEditPageState extends State<UserPage> {
                     child: Row(
                       children: [
                        // 프로필 이미지
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: _profileImageUrl !=null
-                            ? DecorationImage(
-                              image: NetworkImage(_profileImageUrl!),
-                              fit : BoxFit.cover,
-                            )
-                            : null,
-                            color: _profileImageUrl == null?Colors.grey : null,
+                        Material(
+                          shape: const CircleBorder(),
+                          color: Color(0xff7E7E7E), // 배경색 설정
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            child: Container(
+                              width: 60,
+                              height: 60,
+                              alignment: Alignment.center,
+
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: _profileImageUrl != null
+                                    ? DecorationImage(
+                                  image: NetworkImage(_profileImageUrl!),
+                                  fit: BoxFit.cover,
+                                )
+                                    : null,
+                              ),
+                              child: _profileImageUrl == null
+                                  ? Icon(
+                                Icons.person,
+                                size: 34,
+                                color: Colors.white,
+                              )
+                                  : null,
+                            ),
                           ),
-                          //TODO : 이미지가 없어서 임시로 아이콘 사용 => 이미지로 바꿔야함
-                          child: _profileImageUrl == null
-                          ? const Icon(
-                            Icons.person_pin,
-                            size: 44,
-                          ):null,
                         ),
 
                         SizedBox(width: 10),
 
                         // 사용자 정보 공간 (닉네임, 계정 이메일)
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // 사용자 닉네임 텍스트
                               Text(
-                                '홍홍길길동동',
-                                style: TextStyle(
+                                nickname,
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -171,7 +191,7 @@ class _UserEditPageState extends State<UserPage> {
 
                               // 사용자 계정 이메일 텍스트
                               Text(
-                                'hongildong@gmail.com',
+                                userEmail,
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey,
@@ -219,7 +239,6 @@ class _UserEditPageState extends State<UserPage> {
                           text: '변경',
                           onPressed: () {
                             // 버튼이 클릭되었을 때 실행할 코드
-                            print('버튼이 클릭되었습니다!');
                           },
                         )
                       ],
