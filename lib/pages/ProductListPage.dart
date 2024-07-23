@@ -19,9 +19,12 @@ class ProductListPage extends StatefulWidget {
 class _ProductListPageState extends State<ProductListPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String? _searchText = '';
-  String? _selectedCategory;
+  List<String> _selectedCategories = [];
+
   TextEditingController _searchController = TextEditingController();
   List<String> _categories = [];
+
+  RangeValues _selectedPriceRange = RangeValues(0, 10000000);
 
   @override
   void initState() {
@@ -31,7 +34,8 @@ class _ProductListPageState extends State<ProductListPage> {
 
   Future<void> _fetchCategories() async {
     try {
-      DocumentSnapshot categoryDoc = await _firestore.collection('category').doc('categories').get();
+      DocumentSnapshot categoryDoc =
+          await _firestore.collection('category').doc('categories').get();
       Map<String, dynamic> data = categoryDoc.data() as Map<String, dynamic>;
       List<String> categories = [];
       data.forEach((key, value) {
@@ -48,21 +52,22 @@ class _ProductListPageState extends State<ProductListPage> {
       });
     }
   }
+
   void _selectCategory() async {
-    final selectedCategory = await showModalBottomSheet(
+    final selectedCategories = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return BottomSheetContent(categories: _categories);
+         return BottomSheetContent(
+          categories: _categories, 
+          selectedCategories: _selectedCategories, 
+          selectedPriceRange: _selectedPriceRange,
+        );
       },
     );
-    if (selectedCategory != null) {
+    if (selectedCategories != null) {
       setState(() {
-        _selectedCategory = selectedCategory;
-      });
-    } else {
-      setState(() {
-        _selectedCategory = null;
+        _selectedCategories = selectedCategories;
       });
     }
   }
@@ -80,30 +85,40 @@ class _ProductListPageState extends State<ProductListPage> {
             automaticallyImplyLeading: false, // 뒤로가기 버튼 비활성화
             backgroundColor: Colors.white,
             // TODO : 여기 접속한 유저가 선택한 대학에 따라 설정되게 해야함
-            title: Text('목포대학교',style: TextStyle(fontWeight: FontWeight.bold),),
+            title: Text(
+              '목포대학교',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             titleSpacing: 0,
             actions: [
-
-              IconButton(onPressed: () => {
-                Navigator.push( context, MaterialPageRoute(
-                    builder: (context) => SearchPage()), )}, icon: Icon(Icons.search, size: 30,)),
-              IconButton(onPressed: () => {print("알림버튼 클릭")}, icon: Icon(Icons.notifications_none, size: 30,)),
-
+              IconButton(
+                  onPressed: () => {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SearchPage()),
+                        )
+                      },
+                  icon: Icon(
+                    Icons.search,
+                    size: 30,
+                  )),
+              IconButton(
+                  onPressed: () => {print("알림버튼 클릭")},
+                  icon: Icon(
+                    Icons.notifications_none,
+                    size: 30,
+                  )),
             ],
-
           ),
           body: Column(
             children: <Widget>[
-
-
-
-              SizedBox(height: 15,),
+              SizedBox(
+                height: 15,
+              ),
 
               // 검색 필터, 글쓰기 버튼 공간
               Row(
-
                 children: [
-
                   /*
                   //글쓰기 버튼 공간
                   Expanded(
@@ -131,10 +146,11 @@ class _ProductListPageState extends State<ProductListPage> {
 
                   ),*/
                 ],
-
               ),
 
-              SizedBox(height: 15,),
+              SizedBox(
+                height: 15,
+              ),
 
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
@@ -160,10 +176,11 @@ class _ProductListPageState extends State<ProductListPage> {
 
                       final matchesSearchText = _searchText == null ||
                           _searchText!.isEmpty ||
-                          postName.toLowerCase().contains(_searchText!.toLowerCase());
-                      final matchesCategory = _selectedCategory == null ||
-                          _selectedCategory!.isEmpty ||
-                          category == _selectedCategory;
+                          postName
+                              .toLowerCase()
+                              .contains(_searchText!.toLowerCase());
+                      final matchesCategory = _selectedCategories.isEmpty ||
+                          _selectedCategories.contains(category);
 
                       return matchesSearchText && matchesCategory;
                     }).toList();
@@ -176,18 +193,22 @@ class _ProductListPageState extends State<ProductListPage> {
                       itemBuilder: (context, index) {
                         final doc = filteredDocs[index];
                         final data = doc.data() as Map<String, dynamic>;
-                        final String postname = data['postName'] ?? 'No title'; // 목록 제목
-                        final String userName = data['userName'] ?? 'Unknown'; // 게시 유저명
-                        final String price = data['productPrice'] ?? '가격정보 없음'; // 목록 가격
-                        final String category = data['category'] ?? 'No category'; // 목록 카테고리
-                        final Timestamp timestamp = data['timestamp'] ?? Timestamp.now();
-                        final String formattedDate =
-                        DateFormat('yyyy-MM-dd').format(timestamp.toDate()); // 게시 날짜
-                        final List<dynamic> imageUrls = data['imageUrls'] ?? []; // 목록 이미지 리스트
+                        final String postname =
+                            data['postName'] ?? 'No title'; // 목록 제목
+                        final String userName =
+                            data['userName'] ?? 'Unknown'; // 게시 유저명
+                        final String price =
+                            data['productPrice'] ?? '가격정보 없음'; // 목록 가격
+                        final String category =
+                            data['category'] ?? 'No category'; // 목록 카테고리
+                        final Timestamp timestamp =
+                            data['timestamp'] ?? Timestamp.now();
+                        final String formattedDate = DateFormat('yyyy-MM-dd')
+                            .format(timestamp.toDate()); // 게시 날짜
+                        final List<dynamic> imageUrls =
+                            data['imageUrls'] ?? []; // 목록 이미지 리스트
 
-
-                        try{
-
+                        try {
                           return Container(
                             margin: EdgeInsets.only(bottom: 0), // 카드 아이템 간의 마진
                             child: ProductCard(
@@ -198,23 +219,20 @@ class _ProductListPageState extends State<ProductListPage> {
                               imageUrl: imageUrls.firstOrNull ?? '',
                               userName: userName,
                               onTap: () {
-                                Navigator.push(context, MaterialPageRoute(
-                                  builder: (context) => ProductDetailPage(
-                                    postId: doc.id,
-                                  ),
-                                ));
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ProductDetailPage(
+                                        postId: doc.id,
+                                      ),
+                                    ));
                               },
                             ),
                           );
-
-                        }
-                        catch (e, stackTrace)
-                        {
+                        } catch (e, stackTrace) {
                           print("에러발생");
                           print(stackTrace);
                         }
-
-
                       },
                     );
                   },
@@ -222,10 +240,8 @@ class _ProductListPageState extends State<ProductListPage> {
               ),
             ],
           ),
-
           floatingActionButton: Container(
             width: 130,
-
             child: CustomFloatingActionButton(
               onPressed: () async {
                 if (await isUserLogin()) {
@@ -239,22 +255,14 @@ class _ProductListPageState extends State<ProductListPage> {
                     SnackBar(content: Text("로그인이 필요한 기능입니다")),
                   );
                 }
-
               },
-
             ),
-
           ),
-
         ),
       ),
     );
   }
 }
-
-
-
-
 
 class CustomFloatingActionButton extends StatelessWidget {
   const CustomFloatingActionButton({
@@ -286,5 +294,3 @@ class CustomFloatingActionButton extends StatelessWidget {
     );
   }
 }
-
-
