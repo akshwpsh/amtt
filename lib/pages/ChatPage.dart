@@ -11,6 +11,10 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+//위젯 임포트
+import 'package:amtt/widgets/BtnNoBG.dart';
+import 'package:amtt/widgets/BtnYesBG.dart';
+
 class ChatPage extends StatelessWidget {
   final String chatRoomId;
   final TextEditingController _controller = TextEditingController();
@@ -25,7 +29,20 @@ class ChatPage extends StatelessWidget {
     void _showBottomSheet() {
       showModalBottomSheet(
           context: context,
-          builder: (BuildContext context) => BottomSheetContent()
+        builder: (BuildContext context) {
+          // 키보드 높이를 가져옵니다.
+          final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
+          print('키보드 높이 : ');
+          print(keyboardHeight);
+
+          // BottomSheet의 높이를 키보드 높이 또는 최소 높이 중 큰 값으로 설정합니다.
+          final sheetHeight = 200.0;
+          return Container(
+            height: sheetHeight,
+            child: BottomSheetContent(imagePressed: _sendImages),
+          );
+        },
       );
     }
 
@@ -35,10 +52,15 @@ class ChatPage extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 0.06.sw, vertical: 10),
         child: Scaffold(
           backgroundColor: Colors.white,
+
+          //앱바
           appBar: AppBar(
+            scrolledUnderElevation: 0, // 스크롤시 색상 변경 방지
             backgroundColor: Colors.white,
-            title: Text('Chat Room'),
+            title: Text('채팅방'),
             actions: [
+
+              // 채팅방 나가기 버튼
               IconButton(
                   icon: Icon(Icons.exit_to_app),
                   onPressed: () async {
@@ -47,6 +69,8 @@ class ChatPage extends StatelessWidget {
                   }),
             ],
           ),
+
+
           body: Column(
             children: [
               Expanded(
@@ -153,31 +177,78 @@ class ChatPage extends StatelessWidget {
                 ),
               ),
 
+              SizedBox(height: 25,),
+
 
               //채팅 입력 바 공간
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.image),
-                      onPressed: _showBottomSheet,
-                    ),
-                    Expanded(
-                      child: TextField(
-                        controller: _controller,
-                        decoration: InputDecoration(
-                          hintText: 'Enter your message',
+              Container(
+                child: Padding(
+                  padding: const EdgeInsets.all(0.0),
+                  child: Row(
+                    children: [
+                      // 맨 왼쪽 버튼 변경 (플러스 기호)
+                      IconButton(
+                        icon: Icon(Icons.add), // 플러스 기호 아이콘
+                        onPressed: _showBottomSheet,
+                      ),
+
+                      SizedBox(width: 5,),
+
+                      // 메시지 입력창
+                      Expanded(
+                        flex: 4,
+                        child: TextField(
+                          controller: _controller,
+                          onSubmitted: (value) {
+                            _sendMessage();
+                          },
+                          decoration: InputDecoration(
+                            hintText: '메시지 입력',
+                            // 둥근 모서리 및 초록색 테두리 추가
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12), // 원하는 곡률 조절
+                              borderSide: BorderSide(
+                                width: 2, // 테두리 두께 조절
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder( // 활성화 시 테두리 설정
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Color(0xff4EBDBD), // 활성화 시 테두리 색상
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.send),
-                      onPressed: _sendMessage,
-                    ),
-                  ],
+
+                      SizedBox(width: 10,),
+
+                      //메시지 전송버튼
+                      Expanded(
+                          flex: 1,
+                        child: ElevatedButton(
+                          onPressed: _sendMessage,
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: Size.fromHeight(55),
+                            foregroundColor: Colors.white, backgroundColor: Color(0xFF4EBDBD), // 글자색은 하얀색
+                            padding: EdgeInsets.symmetric(horizontal: 0.01.sh, vertical: 0.01.sw), // 버튼 안의 패딩 설정
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0), // 모서리 둥글게
+                            ),
+                          ),
+                          child: Text(
+                            '전송', // 버튼에 표시할 텍스트
+                            style: TextStyle(fontSize: 20), // 텍스트 스타일 설정
+                          ),
+                        )
+                      ),
+
+                    ],
+                  ),
                 ),
               ),
+
+
             ],
           ),
         ),
@@ -281,8 +352,12 @@ class ChatPage extends StatelessWidget {
 }
 
 
-// 하단에서 올라오는 결과 필터 다이얼로그창
+// 하단에서 올라오는 추가 기능 다이얼로그창
 class BottomSheetContent extends StatelessWidget {
+  final VoidCallback imagePressed; // 이미지 클릭 이벤트
+  //final VoidCallback mapPressed;
+
+  const BottomSheetContent({super.key, required this.imagePressed});
 
   @override
   Widget build(BuildContext context) {
@@ -309,14 +384,75 @@ class BottomSheetContent extends StatelessWidget {
             ],
           ),
 
+
+          //아이템 버튼 공간
           SizedBox(height: 26),
 
-          //
+          // 아이템 버튼 공간
+          Wrap(
+            spacing: 24, // 버튼 간 간격
+            runSpacing: 16, // 행 간 간격
+            children: [
 
-          SizedBox(height: 16),
+              Column(
+
+                children: [
 
 
+                  //이미지 전송 버튼
+                  ElevatedButton(
+                    onPressed: () {
+                      imagePressed();
+                      print("이거 실행");
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xff4EBDBD),
+                      shape: CircleBorder(),
+                      padding: EdgeInsets.all(20),
+                    ),
+                    child: Icon(
+                      Icons.image,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
 
+                  SizedBox(height: 5,),
+
+                  Text('이미지 전송'),
+                ],
+
+              ),
+
+
+              Column(
+                children: [
+
+                  // 지도 버튼 -- 미구현시 삭제
+                  ElevatedButton(
+                    onPressed: () {
+                      // 버튼 클릭 시 처리 코드
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xff4EBDBD),
+                      shape: CircleBorder(),
+                      padding: EdgeInsets.all(20),
+                    ),
+                    child: Icon(
+                      Icons.map,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+
+                  SizedBox(height: 5,),
+
+                  Text('내 위치 전송'),
+                ],
+              ),
+
+            ],
+          ),
 
 
         ],
