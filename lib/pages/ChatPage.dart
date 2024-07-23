@@ -11,10 +11,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-//위젯 임포트
-import 'package:amtt/widgets/BtnNoBG.dart';
-import 'package:amtt/widgets/BtnYesBG.dart';
-
 class ChatPage extends StatelessWidget {
   final String chatRoomId;
   final TextEditingController _controller = TextEditingController();
@@ -73,6 +69,40 @@ class ChatPage extends StatelessWidget {
 
           body: Column(
             children: [
+
+              SizedBox(height: 10,),
+
+              //게시글 확인하러 가기 공간
+              Material(
+                color: Color(0xFFDCF2F2),
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  onTap: () => {
+                    
+                    //TODO : 여기에 게시글 확인하러 가는 코드 넣어야함
+                    
+                  },
+                  highlightColor: Colors.grey.withOpacity(0.1), //길게 누를 때 색상
+                  splashColor: Colors.grey.withOpacity(0.2), //탭 했을 때 잉크 효과 색상
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+                    child: Center(
+                      child: Text(
+                        '게시글 확인하러 가기',
+                        style: TextStyle(
+                          color: Color(0xFF4EBDBD), // 텍스트 색
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 15,),
+
+
               Expanded(
                 child: StreamBuilder(
                   stream: FirebaseFirestore.instance
