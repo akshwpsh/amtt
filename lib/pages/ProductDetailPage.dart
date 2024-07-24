@@ -101,7 +101,7 @@ class ProductDetailPage extends StatelessWidget {
           String university = data['University'];
           List<dynamic> imageUrls = data['imageUrls'];
           String category = data['category'];
-          String status = data['status'] ?? '판매 중'; 
+          String status = data['status'] ?? '판매중';
 
           return FutureBuilder<bool>(
             future: canEdit(user!.uid, postId),
@@ -134,35 +134,39 @@ class ProductDetailPage extends StatelessWidget {
                               if (isLogin != null)
                                 //찜버튼
                                 FavoriteButton(postId: postId),
-                              if(isAuthor)
+                              /*   
+                              if (isAuthor)
                                 DropdownButton<String>(
                                   value: status,
                                   icon: Icon(Icons.arrow_downward),
                                   iconSize: 24,
                                   elevation: 16,
-                                  style: TextStyle(color:Colors.black),
+                                  style: TextStyle(color: Colors.black),
                                   underline: Container(
                                     height: 2,
                                     color: Colors.black,
                                   ),
-                                  onChanged: (String? newValue){
-                                    if(newValue != null){
+                                  onChanged: (String? newValue) {
+                                    if (newValue != null) {
                                       updatePostStatus(postId, newValue);
                                     }
                                   },
-                                  items: <String>['판매 중','거래 중','판매 완료'].map<DropdownMenuItem<String>>((String value){
+                                  items: <String>['판매중', '거래중', '판매완료']
+                                      .map<DropdownMenuItem<String>>(
+                                          (String value) {
                                     return DropdownMenuItem<String>(
                                       value: value,
                                       child: Text(value),
                                     );
-                                    }).toList(),
-                                  )
-                                else
-                                  Text(
-                                    '$status',
+                                  }).toList(),
+                                )
+                              else
+                                Text(
+                                  '$status',
                                   style: TextStyle(
-                                    fontSize:16, color: Colors.black),
-                                  ),
+                                      fontSize: 16, color: Colors.black),
+                                ),
+                              */
                               PopupMenuButton<String>(
                                 color: Colors.white,
                                 icon: Icon(Icons.more_vert_rounded,
@@ -270,11 +274,22 @@ class ProductDetailPage extends StatelessWidget {
                                           fontSize: 17,
                                           fontWeight: FontWeight.w600)),
 
-
                                   Spacer(),
 
                                   // 판매상태 표시 드롭다운 위젯
-                                  CustomDropdown(),
+                                  if(isAuthor)
+                                    CustomDropdown(
+                                      status: status,
+                                      onChanged: (newValue){
+                                        updatePostStatus(postId, newValue);
+                                      },
+                                    )else
+                                      Text(
+                                        '$status',
+                                        style: TextStyle(
+                                          color:Colors.black
+                                        ),
+                                      ),
 
                                   Spacer(),
 
@@ -522,24 +537,33 @@ class _FavoriteButtonState extends State<FavoriteButton> {
   }
 }
 
-
 // 커스텀 드롭다운 버튼
 class CustomDropdown extends StatefulWidget {
-
   // TODO : 외부에서 값 넣어주려면 아래처럼 선언해서 selectedValue = widget.postID 이런식으로 사용하면됨
   //final String postId;
   //const CustomDropdown({Key? key, required this.postId}) : super(key: key);
+  final String status;
+  final ValueChanged<String> onChanged;
+
+  CustomDropdown({required this.status, required this.onChanged});
 
   @override
   _CustomDropdownState createState() => _CustomDropdownState();
 }
 
 class _CustomDropdownState extends State<CustomDropdown> {
-  String selectedValue = '판매중'; // 초기값 설정
+  late String selectedValue; // 초기값 설정
+
+  @override
+  void initState() {
+    super.initState();
+    selectedValue = widget.status;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonHideUnderline(  // 밑줄 제거
+    return DropdownButtonHideUnderline(
+      // 밑줄 제거
       child: DropdownButton<String>(
         value: selectedValue,
         dropdownColor: Colors.white, // 드롭다운 배경색
@@ -557,6 +581,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
         onChanged: (String? newValue) {
           setState(() {
             selectedValue = newValue!;
+            widget.onChanged(newValue);
           });
         },
       ),

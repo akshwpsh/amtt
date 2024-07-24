@@ -173,7 +173,7 @@ class _ProductListPageState extends State<ProductListPage> {
                       final data = doc.data() as Map<String, dynamic>;
                       final String postName = data['postName'] ?? 'No title';
                       final String category = data['category'] ?? '';
-                      final String status = data['status'] ?? '판매 중';
+                      final String status = data['status'] ?? '판매중';
 
                       final matchesSearchText = _searchText == null ||
                           _searchText!.isEmpty ||
@@ -208,7 +208,7 @@ class _ProductListPageState extends State<ProductListPage> {
                             .format(timestamp.toDate()); // 게시 날짜
                         final List<dynamic> imageUrls =
                             data['imageUrls'] ?? []; // 목록 이미지 리스트
-                        final String status = data['status'] ?? '판매 중';
+                        final String status = data['status'] ?? '판매중';
 
                         try {
                           return Container(

@@ -98,16 +98,13 @@ class ProductCard extends StatelessWidget {
                             color: Colors.grey,
                           ),
                         ),
+                        SizedBox(width: 12), 
 
                         Text(
                           '$status',
                           style: TextStyle(
                             fontSize:16,
-                            color: status == '판매 완료'
-                            ? Colors.red
-                            :status == '거래 중'
-                            ? Colors.orange
-                            :Colors.black,
+                            color: Colors.grey,
                           ),
                         ),
                         SizedBox(width: 12),
