@@ -5,13 +5,13 @@ import 'ChatRoomsPage.dart';
 import 'ProductListPage.dart';
 //import 'UserPage.dart';
 
-class NavigatorPage extends StatefulWidget {
+class NavigatePage extends StatefulWidget {
 
   @override
-  NavigatorState createState() => NavigatorState();
+  NavigateState createState() => NavigateState();
 }
 
-class NavigatorState extends State<NavigatorPage> {
+class NavigateState extends State<NavigatePage> {
 
 
   // 초기 네비게이션 바 인덱스
