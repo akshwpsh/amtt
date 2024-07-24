@@ -233,6 +233,12 @@ class ProductDetailPage extends StatelessWidget {
                                       style: TextStyle(
                                           fontSize: 17, fontWeight: FontWeight.w600)),
 
+
+                                  Spacer(),
+
+                                  // 판매상태 표시 드롭다운 위젯
+                                  CustomDropdown(),
+
                                   Spacer(),
 
                                   Text('$university'),
@@ -469,6 +475,48 @@ class _FavoriteButtonState extends State<FavoriteButton> {
       color: Color(0xFF4EBDBD),
       icon: Icon(
         isZZim ? Icons.favorite : Icons.favorite_border,
+      ),
+    );
+  }
+}
+
+
+// 커스텀 드롭다운 버튼
+class CustomDropdown extends StatefulWidget {
+
+  // TODO : 외부에서 값 넣어주려면 아래처럼 선언해서 selectedValue = widget.postID 이런식으로 사용하면됨
+  //final String postId;
+  //const CustomDropdown({Key? key, required this.postId}) : super(key: key);
+
+  @override
+  _CustomDropdownState createState() => _CustomDropdownState();
+}
+
+class _CustomDropdownState extends State<CustomDropdown> {
+  String selectedValue = '판매중'; // 초기값 설정
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonHideUnderline(  // 밑줄 제거
+      child: DropdownButton<String>(
+        value: selectedValue,
+        dropdownColor: Colors.white, // 드롭다운 배경색
+        style: TextStyle(color: Colors.black), // 드롭다운 내부 텍스트 색상
+        items: <String>['판매중', '예약중', '판매완료']
+            .map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(
+              value,
+              style: TextStyle(color: Colors.black), // 각 아이템의 텍스트 색상을 흰색으로 설정S
+            ),
+          );
+        }).toList(),
+        onChanged: (String? newValue) {
+          setState(() {
+            selectedValue = newValue!;
+          });
+        },
       ),
     );
   }
