@@ -165,6 +165,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        scrolledUnderElevation: 0, //스크롤 해도 색상 바뀌지 않게
         backgroundColor: Colors.white,
         title: Text('게시글 등록'),
       ),
@@ -188,9 +189,13 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                   TextField(
                     controller: _postNameController,
                     cursorColor: Color(0xff4EBDBD),
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: '게시글 제목',
-                      focusedBorder: UnderlineInputBorder(
+                      border: OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xffdbdbdb)), // 선택되지 않았을 때의 테두리 색상
+                      ),
+                      focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
                             color: Color(0xff4EBDBD)), // 포커스된 상태에서의 밑줄 색상 변경
                       ),
@@ -201,25 +206,77 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
 
                   TextField(
                       controller: _postDescriptionController,
-                      decoration: InputDecoration(
-                          labelText: '게시글 내용', alignLabelWithHint: true),
+                      decoration: const InputDecoration(
+                          labelText: '게시글 내용', alignLabelWithHint: true,
+                        border: OutlineInputBorder(),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xffdbdbdb)), // 선택되지 않았을 때의 테두리 색상
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Color(0xff4EBDBD)), // 포커스된 상태에서의 밑줄 색상 변경
+                        ),
+                      ),
                       maxLines: 10),
                   SizedBox(height: 0.05.sh),
                   TextField(
                     keyboardType: TextInputType.number,
                     controller: _productPriceController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
                       labelText: '가격',
                       suffixText: '원',
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xffdbdbdb)), // 선택되지 않았을 때의 테두리 색상
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Color(0xff4EBDBD)), // 포커스된 상태에서의 밑줄 색상 변경
+                      ),
                     ),
                   ),
                   //가격 필드와 이미지 등록 버튼 사이의 간격
                   SizedBox(height: 0.05.sh),
 
-                  ElevatedButton(
-                    onPressed: _selectCategory,
-                    child: Text(_selectedCategory ?? '카테고리 고르기'),
+                  Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text('카테고리 선택')
                   ),
+
+                  SizedBox(height: 5,),
+
+                  // 카테고리 선택 버튼
+                  Material(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    child: InkWell(
+                      highlightColor: Colors.grey.withOpacity(0.1), //길게 누를 때 색상
+                      splashColor: Colors.grey.withOpacity(0.2), //탭 했을 때 잉크 효과 색상
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: _selectCategory,
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Color(0xFFDBDBDB)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _selectedCategory ?? '카테고리 선택',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            Spacer(),
+                            Icon(Icons.category, color: Colors.grey),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+
                   SizedBox(height: 0.05.sh),
 
                   BtnNoBG(btnText: '이미지 등록', onPressed: _selectImage),

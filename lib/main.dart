@@ -1,13 +1,17 @@
 import 'package:amtt/Service/FirebaseService.dart';
 import 'package:amtt/Service/PushNotification.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
 import 'pages/MainPage.dart';
+import 'pages/NavigatePage.dart';
 import 'pages/ProductDetailPage.dart';
 import 'pages/ChatPage.dart';
+
+import 'pages/LoginPage.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -82,6 +86,9 @@ void main() async {
 
 
 class MyApp extends StatelessWidget {
+
+  User? currentUser = FirebaseAuth.instance.currentUser;
+
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -103,7 +110,7 @@ class MyApp extends StatelessWidget {
                 cursorColor: Color(0xff4EBDBD), // 커서 색상 설정선택 핸들 색상 설정
               ),
             ),
-            home: MainPage(),
+            home: currentUser == null ? LoginPage() : NavigatePage(),
             onGenerateRoute: (RouteSettings settings) {
               if (settings.name == '/post') {
                 final id = settings.arguments as String;

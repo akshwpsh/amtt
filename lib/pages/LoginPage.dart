@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'RegisterPage.dart';
 
-import 'NavigatorPage.dart';
+import 'NavigatePage.dart';
 import 'KeywordsPage.dart';
 import '../Service/FirebaseService.dart';
 
@@ -31,10 +31,6 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       //키보드 올라올때 사이즈 에러 방지
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text('Login'),
-      ),
       backgroundColor: Colors.white,
       body: Padding(
         //전체 패딩
@@ -110,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => NavigatorPage()),
+                    MaterialPageRoute(builder: (context) => NavigatePage()),
                   );
                 }),
             //구글로 로그인하기
@@ -132,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
       print('Login successful: $userCredential');
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => NavigatorPage()),
+        MaterialPageRoute(builder: (context) => NavigatePage()),
       );
       FirebaseService().saveMessageToken();
     } catch (e) {
@@ -161,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
         if (userDoc.exists) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => NavigatorPage()),
+            MaterialPageRoute(builder: (context) => NavigatePage()),
           );
         } else {
           Navigator.push(
