@@ -298,6 +298,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
             'imageUrls': imageUrls,
             'category': _selectedCategory,
             'timestamp': FieldValue.serverTimestamp(),
+            'status' : '판매 중',
           });
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text('게시물 등록 성공')));

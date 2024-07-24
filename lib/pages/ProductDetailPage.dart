@@ -11,7 +11,6 @@ import 'ChatPage.dart';
 //위젯 임포트
 import 'package:amtt/widgets/ImageSlider.dart'; //이미지 슬라이더
 
-
 class ProductDetailPage extends StatelessWidget {
   final String postId;
   late final String postUserId;
@@ -37,7 +36,7 @@ class ProductDetailPage extends StatelessWidget {
 
   Future<String> fetchUserAuth(String userId) async {
     DocumentSnapshot userDoc =
-    await FirebaseFirestore.instance.collection('users').doc(userId).get();
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
     return userDoc['auth'];
   }
 
@@ -72,6 +71,13 @@ class ProductDetailPage extends StatelessWidget {
     }
   }
 
+  void updatePostStatus(String postId, String status) async {
+    await FirebaseFirestore.instance
+        .collection('products')
+        .doc(postId)
+        .update({'status': status});
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
@@ -89,12 +95,13 @@ class ProductDetailPage extends StatelessWidget {
           String userName = data['userName'];
           Timestamp timestamp = data['timestamp'];
           String formattedDate =
-          DateFormat('yyyy-MM-dd').format(timestamp.toDate());
+              DateFormat('yyyy-MM-dd').format(timestamp.toDate());
           String price = data['productPrice'];
           String description = data['postDescription'];
           String university = data['University'];
           List<dynamic> imageUrls = data['imageUrls'];
           String category = data['category'];
+          String status = data['status'] ?? '판매 중'; 
 
           return FutureBuilder<bool>(
             future: canEdit(user!.uid, postId),
@@ -112,24 +119,54 @@ class ProductDetailPage extends StatelessWidget {
                       backgroundColor: Colors.white,
 
                       title: Container(
-                        child: Text('상세보기', style: TextStyle(fontWeight: FontWeight.bold),),
-
+                        child: Text(
+                          '상세보기',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
 
                       //앱바 아이콘 버튼들
                       actions: [
-
                         Padding(
                           padding: EdgeInsets.only(right: 0),
                           child: Row(
                             children: [
-
-                              if(isLogin != null)
-                              //찜버튼
+                              if (isLogin != null)
+                                //찜버튼
                                 FavoriteButton(postId: postId),
+                              if(isAuthor)
+                                DropdownButton<String>(
+                                  value: status,
+                                  icon: Icon(Icons.arrow_downward),
+                                  iconSize: 24,
+                                  elevation: 16,
+                                  style: TextStyle(color:Colors.black),
+                                  underline: Container(
+                                    height: 2,
+                                    color: Colors.black,
+                                  ),
+                                  onChanged: (String? newValue){
+                                    if(newValue != null){
+                                      updatePostStatus(postId, newValue);
+                                    }
+                                  },
+                                  items: <String>['판매 중','거래 중','판매 완료'].map<DropdownMenuItem<String>>((String value){
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                    }).toList(),
+                                  )
+                                else
+                                  Text(
+                                    '$status',
+                                  style: TextStyle(
+                                    fontSize:16, color: Colors.black),
+                                  ),
                               PopupMenuButton<String>(
                                 color: Colors.white,
-                                icon: Icon(Icons.more_vert_rounded, color: Color(0xff4EBDBD)),
+                                icon: Icon(Icons.more_vert_rounded,
+                                    color: Color(0xff4EBDBD)),
                                 onSelected: (String result) {
                                   switch (result) {
                                     case '공유하기':
@@ -180,9 +217,6 @@ class ProductDetailPage extends StatelessWidget {
                             ],
                           ),
                         ),
-
-
-
                       ],
                     ),
                     body: SingleChildScrollView(
@@ -191,11 +225,13 @@ class ProductDetailPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(height: 0.02.sh,),
+                            SizedBox(
+                              height: 0.02.sh,
+                            ),
 
                             // 이미지 공간
                             if (imageUrls.isNotEmpty)
-                            //이미지 슬라이더
+                              //이미지 슬라이더
                               ImageSliderWithIndicator(imageUrls: imageUrls),
 
                             SizedBox(height: 0.02.sh),
@@ -231,7 +267,8 @@ class ProductDetailPage extends StatelessWidget {
                                   //유저명
                                   Text('$userName',
                                       style: TextStyle(
-                                          fontSize: 17, fontWeight: FontWeight.w600)),
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w600)),
 
 
                                   Spacer(),
@@ -281,19 +318,17 @@ class ProductDetailPage extends StatelessWidget {
                             //게시글 내용
                             Text(
                               description,
-                              style:
-                              TextStyle(fontSize: 17, color: Color(0xff767676)),
+                              style: TextStyle(
+                                  fontSize: 17, color: Color(0xff767676)),
                             ),
 
                             SizedBox(height: 0.01.sh),
                             Text(
                               '카테고리 : $category',
-                              style:
-                              TextStyle(fontSize: 17, color: Color(0xff767676)),
+                              style: TextStyle(
+                                  fontSize: 17, color: Color(0xff767676)),
                             ),
                             SizedBox(height: 0.01.sh),
-
-
                           ],
                         ),
                       ),
@@ -316,11 +351,11 @@ class ProductDetailPage extends StatelessWidget {
                                 //가격 정보
                                 Text('가격 : $price 원',
                                     style: TextStyle(
-                                        fontSize: 20, fontWeight: FontWeight.bold)),
-
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold)),
 
                                 //작성자 본인이 아니면 채팅하기 버튼이 보이도록
-                                if(!isAuthor)
+                                if (!isAuthor)
                                   Container(
                                     width: 0.3.sw,
                                     height: 0.05.sh,
@@ -328,33 +363,40 @@ class ProductDetailPage extends StatelessWidget {
                                     child: BtnYesBG(
                                       btnText: "채팅하기",
                                       onPressed: () async {
-                                        if(postUserId == user!.uid){ // 본인 게시물인 경우
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(content: Text('본인 게시물입니다.')),
+                                        if (postUserId == user!.uid) {
+                                          // 본인 게시물인 경우
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text('본인 게시물입니다.')),
                                           );
                                           return;
                                         }
                                         // Check for an existing chat room
-                                        String? existingChatId = await FirebaseService()
-                                            .getExistingChatRoomId(postUserId, postId);
+                                        String? existingChatId =
+                                            await FirebaseService()
+                                                .getExistingChatRoomId(
+                                                    postUserId, postId);
 
                                         String chatId;
                                         if (existingChatId != null) {
                                           // Use the existing chat room
                                           chatId = existingChatId;
-                                          await FirebaseService().rejoinChatRoom(chatId);//채팅방 재참여
+                                          await FirebaseService()
+                                              .rejoinChatRoom(chatId); //채팅방 재참여
                                         } else {
                                           // No existing chat room found, create a new one
                                           chatId = await FirebaseService()
                                               .createChatRoom(
-                                              postUserId, postId, postName);
+                                                  postUserId, postId, postName);
                                         }
 
                                         // Navigate to the chat room
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => ChatPage(chatId),
+                                            builder: (context) =>
+                                                ChatPage(chatId),
                                           ),
                                         );
                                       },
