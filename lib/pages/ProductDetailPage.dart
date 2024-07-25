@@ -109,6 +109,7 @@ class ProductDetailPage extends StatelessWidget {
                 return Scaffold(
                     backgroundColor: Colors.white,
                     appBar: AppBar(
+                      scrolledUnderElevation: 0, //스크롤 해도 색상 바뀌지 않게
                       backgroundColor: Colors.white,
 
                       title: Container(

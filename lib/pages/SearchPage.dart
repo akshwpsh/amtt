@@ -26,7 +26,7 @@ class _SearchPageState extends State<SearchPage> {
   List<String> _selectedCategories = [];
   List<String> _categories = [];
 
-  RangeValues _selectedPriceRange = RangeValues(0, 1000000);
+  RangeValues _selectedPriceRange = RangeValues(0, 100000);
   @override
   void initState() {
     super.initState();
@@ -127,6 +127,7 @@ class _SearchPageState extends State<SearchPage> {
           resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
           appBar: AppBar(
+            scrolledUnderElevation: 0, //스크롤 해도 색상 바뀌지 않게
             backgroundColor: Colors.white,
             title: Container(
               height: 45,
@@ -442,6 +443,15 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
             itemBuilder: (context, index) {
               final category = _categories[index];
               final isSelected = _selectedCategories.contains(category);
+              // 카테고리명과 아이콘 매칭 -- 하드코딩 나중에 서버요청으로 변경
+              Map<String, IconData> categoryIcons = {
+                '취미': Icons.favorite,
+                '책': Icons.book,
+                '문구': Icons.edit,
+                '전자제품': Icons.devices,
+                '의류': Icons.checkroom_rounded,
+                '생활용품': Icons.home,
+              };
               return GestureDetector(
                 onTap: () {
                   setState(() {
@@ -465,8 +475,8 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
                       children: [
                         //그리드 아이템 내부 아이콘 ( 카테고리 아이콘 )
                         //TODO : 여기 각 카테고리 이름에 맞는 아이콘 나오도록 해야함
-                        Icon(Icons.category,
-                            size: 24,
+                        Icon(categoryIcons[category] ?? Icons.category,
+                            size: 30,
                             color: isSelected ? Colors.teal : Colors.grey),
                         SizedBox(height: 8),
                         // 그리드 아이템 내부 텍스트 ( 카테고리 이름 )
@@ -497,9 +507,11 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
 
           //가격선택 슬라이더 공간
           RangeSlider(
+            activeColor: Color(0xff4EBDBD),
+            inactiveColor: Color(0xffDBDBDB),
             values: _currentPriceRange,
             min: 0,
-            max: 1000000,
+            max: 100000,
             divisions: 100,
             labels: RangeLabels(
               _currentPriceRange.start.round().toString(),
@@ -524,7 +536,7 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
                     onPressed: () {
                       setState(() {
                         _selectedCategories.clear();
-                        _currentPriceRange = RangeValues(0, 1000000);
+                        _currentPriceRange = RangeValues(0, 100000);
                       });
                     }),
               ),

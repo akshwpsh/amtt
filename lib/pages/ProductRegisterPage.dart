@@ -137,6 +137,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: Text('카테고리 선택'),
           content: SingleChildScrollView(
             child: ListBody(
