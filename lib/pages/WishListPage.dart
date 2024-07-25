@@ -85,7 +85,7 @@ class _WishListPageState extends State<WishListPage> {
                 try{
 
                   return Container(
-                    margin: EdgeInsets.only(bottom: 13),
+                    margin: EdgeInsets.only(bottom: 0),
                     child: ProductCard(
                       title: postname,
                       price: price,

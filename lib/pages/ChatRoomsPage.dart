@@ -29,13 +29,19 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
       return Container(
         color: Colors.white,
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 0.06.sw, vertical: 10),
+          padding: EdgeInsets.all(0.04.sw),
           child: Scaffold(
             backgroundColor: Colors.white,
 
             appBar: AppBar(
+              scrolledUnderElevation: 0, //스크롤 해도 색상 바뀌지 않게
+              automaticallyImplyLeading: false, // 뒤로가기 버튼 비활성화
               backgroundColor: Colors.white,
-              title: Text('채팅 목록'),
+              titleSpacing: 0,
+              title: Text(
+                '채팅 목록',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
 
 

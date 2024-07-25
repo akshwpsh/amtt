@@ -24,6 +24,7 @@ class _ProductListPageState extends State<ProductListPage> {
   TextEditingController _searchController = TextEditingController();
   List<String> _categories = [];
 
+  // TODO : 여기 값범위 UI 적용하고 적절히 값 넣어야함
   RangeValues _selectedPriceRange = RangeValues(0, 10000000);
 
   @override
