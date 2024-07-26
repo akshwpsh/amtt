@@ -167,11 +167,14 @@ class _KeywordsPageState extends State<KeywordsPage> {
                   // 키워드 입력 창 (텍스트필드)
                   Expanded(
                     flex: 4,
-                    child: RoundedTextField(
-                      labelText: '키워드 입력',
-                      controller: _keywordController,
-                      obscureText: false,
+                    child: Container(
+                      height: 0.05.sh,
+                      child: RoundedTextField(
+                        labelText: '키워드 입력',
+                        controller: _keywordController,
+                        obscureText: false,
 
+                      ),
                     ),
                   ),
 
@@ -180,9 +183,12 @@ class _KeywordsPageState extends State<KeywordsPage> {
                   // 키워드 추가버튼
                   Expanded(
                     flex: 1,
-                    child: BtnYesBG(
-                      btnText: '추가',
-                      onPressed: () { _addKeyword(); },
+                    child: Container(
+                      height: 0.05.sh,
+                      child: BtnYesBG(
+                        btnText: '추가',
+                        onPressed: () { _addKeyword(); },
+                      ),
                     ),
                   ),
 
@@ -261,6 +267,7 @@ class CustomListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 65,
       margin: EdgeInsets.symmetric(vertical: 4), // 아이템 간 위아래 마진
       decoration: BoxDecoration(
         color: Color(0xFFF4F4F5),
