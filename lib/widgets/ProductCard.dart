@@ -7,6 +7,7 @@ class ProductCard extends StatelessWidget {
   final String imageUrl; //이미지 경로
   final String userName; //판매자 이름
   final String date; //게시 날짜
+  final String status; //게시글 판매 상태
 
   final VoidCallback? onTap;
 
@@ -17,25 +18,29 @@ class ProductCard extends StatelessWidget {
     required this.imageUrl,
     required this.userName,
     required this.date,
+    required this.status,
     this.onTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return InkWell( //카드 색상 효과 위한 위젯
+    return InkWell(
+      //카드 색상 효과 위한 위젯
       onTap: onTap, //클릭 이벤트
       highlightColor: Colors.grey.withOpacity(0.1), //길게 누를 때 색상
       splashColor: Colors.grey.withOpacity(0.2), //탭 했을 때 잉크 효과 색상
       child: Container(
         decoration: BoxDecoration(
           border: Border(
-            top: BorderSide( // 위 테두리
-            color: Color(0xffF7F8F8),
-            width: 1.0,
+            top: BorderSide(
+              // 위 테두리
+              color: Color(0xffF7F8F8),
+              width: 1.0,
             ),
-            bottom: BorderSide( // 아래 테두리
-            color: Color(0xffF7F8F8),
-            width: 1.0,
+            bottom: BorderSide(
+              // 아래 테두리
+              color: Color(0xffF7F8F8),
+              width: 1.0,
             ),
           ),
           borderRadius: BorderRadius.circular(0.0),
@@ -49,7 +54,6 @@ class ProductCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     //제목 텍스트
                     Text(
                       title,
@@ -75,7 +79,6 @@ class ProductCard extends StatelessWidget {
                     //추가 정보 공간
                     Row(
                       children: [
-
                         //게시 날짜
                         Text(
                           date,
@@ -95,7 +98,15 @@ class ProductCard extends StatelessWidget {
                             color: Colors.grey,
                           ),
                         ),
+                        SizedBox(width: 12), 
 
+                        Text(
+                          '$status',
+                          style: TextStyle(
+                            fontSize:16,
+                            color: Colors.grey,
+                          ),
+                        ),
                         SizedBox(width: 12),
 
                         //TODO : 이 아래는 실제 데이터 여부에 따라 표시되도록, 데이터 없으면 아에 안보이게 해야함
@@ -122,16 +133,14 @@ class ProductCard extends StatelessWidget {
                             color: Colors.grey,
                           ),
                         ),*/
-
                       ],
                     )
                   ],
                 ),
               ),
+              if (imageUrl.isNotEmpty && imageUrl != null)
 
-              if(imageUrl.isNotEmpty && imageUrl != null)
-
-              //이미지 공간
+                //이미지 공간
                 Container(
                     width: 100,
                     height: 100,
@@ -145,10 +154,7 @@ class ProductCard extends StatelessWidget {
                           fit: BoxFit.cover,
                         ),
                       ),
-                    )
-                )
-
-
+                    ))
             ],
           ),
         ),

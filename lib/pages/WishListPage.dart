@@ -80,6 +80,7 @@ class _WishListPageState extends State<WishListPage> {
                 final String formattedDate =
                 DateFormat('yyyy-MM-dd').format(timestamp.toDate());
                 final List<dynamic> imageUrls = data['imageUrls'] ?? [];
+                final String status = data['status'] ?? '';
 
                 try{
 
@@ -92,6 +93,7 @@ class _WishListPageState extends State<WishListPage> {
                       //이미지 경로가 없으면 비어있는 거 보냄
                       imageUrl: imageUrls.firstOrNull ?? '',
                       userName: userName,
+                      status: status,
                       onTap: () {
                         Navigator.push(context, MaterialPageRoute(
                             builder: (context) => ProductDetailPage(

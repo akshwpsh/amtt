@@ -258,6 +258,7 @@ class _SearchPageState extends State<SearchPage> {
                               final double price = double.tryParse(
                                       data['productPrice'].toString()) ??
                                   double.maxFinite;
+                              final String status = data['status'] ?? '';
 
                               final matchesSearchText = _searchText == null ||
                                   _searchText!.isEmpty ||
@@ -301,7 +302,7 @@ class _SearchPageState extends State<SearchPage> {
                                         .format(timestamp.toDate()); // 게시 날짜
                                 final List<dynamic> imageUrls =
                                     data['imageUrls'] ?? []; // 목록 이미지 리스트
-
+                                final String status = data['status'] ?? ''; //판매 상태
                                 try {
                                   return Container(
                                     margin: EdgeInsets.only(
@@ -313,6 +314,7 @@ class _SearchPageState extends State<SearchPage> {
                                       //이미지 경로가 없으면 비어있는 거 보냄
                                       imageUrl: imageUrls.firstOrNull ?? '',
                                       userName: userName,
+                                      status: status,
                                       onTap: () {
                                         Navigator.push(
                                             context,
