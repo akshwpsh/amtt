@@ -1,5 +1,6 @@
 import 'dart:io' as io;
 import 'dart:typed_data';
+import 'package:amtt/pages/ProductDetailPage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -77,8 +78,20 @@ class ChatPage extends StatelessWidget {
                 color: Color(0xFFDCF2F2),
                 borderRadius: BorderRadius.circular(12),
                 child: InkWell(
-                  onTap: () => {
-                    
+                  onTap: ()  async {
+
+                    // 게시글 아이디 가져와서 상품 게시글 페이지로 넘어가게 함
+                    final productID = await getProductID(chatRoomId);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                ProductDetailPage(
+                                    postId: productID,
+                                )
+                        )
+                    );
+
                     //TODO : 여기에 게시글 확인하러 가는 코드 넣어야함
                     
                   },
@@ -212,6 +225,7 @@ class ChatPage extends StatelessWidget {
 
               //채팅 입력 바 공간
               Container(
+                height: 0.06.sh,
                 child: Padding(
                   padding: const EdgeInsets.all(0.0),
                   child: Row(
@@ -254,8 +268,8 @@ class ChatPage extends StatelessWidget {
                       SizedBox(width: 10,),
 
                       //메시지 전송버튼
-                      Expanded(
-                          flex: 1,
+                      Container(
+                        width: 80,
                         child: ElevatedButton(
                           onPressed: _sendMessage,
                           style: ElevatedButton.styleFrom(
@@ -363,6 +377,21 @@ class ChatPage extends StatelessWidget {
     FirebaseService().notifyChat(otherUserId, chatRoomId, message);
   }
 
+  // 게시글 아이디 가져오는 메서드
+  Future<String> getProductID(String chatRoomId) async {
+    QuerySnapshot participantsSnapshot = await FirebaseFirestore.instance
+        .collection('chat_participants')
+        .where('room_id', isEqualTo: chatRoomId)
+        .get();
+
+    for (DocumentSnapshot participant in participantsSnapshot.docs) {
+      return participant.get('product_id');
+    }
+
+    return '';
+  }
+
+  // 상대방 유저 ID 가져오는 메서드
   Future<String> getOtherUserId(String chatRoomId) async {
     QuerySnapshot participantsSnapshot = await FirebaseFirestore.instance
         .collection('chat_participants')
