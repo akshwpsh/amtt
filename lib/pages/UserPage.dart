@@ -44,6 +44,7 @@ class _UserEditPageState extends State<UserPage> {
        context: context,
        builder: (BuildContext context) {
          return AlertDialog(
+           backgroundColor: Colors.white,
            title: Text('문의 전송 실패'),
            content: Column(
              mainAxisSize: MainAxisSize.min,
@@ -60,13 +61,13 @@ class _UserEditPageState extends State<UserPage> {
                  Clipboard.setData(ClipboardData(text: supportEmail));
                  Navigator.of(context).pop();
                },
-               child: Text('이메일 복사'),
+               child: Text('이메일 복사', style: TextStyle(color: Color(0xFF4EBDBD)),),
              ),
              TextButton(
                onPressed: () {
                  Navigator.of(context).pop();
                },
-               child: Text('확인'),
+               child: Text('확인', style: TextStyle(color: Color(0xFF4EBDBD)),),
              ),
            ],
          );

@@ -168,7 +168,7 @@ class _KeywordsPageState extends State<KeywordsPage> {
                   Expanded(
                     flex: 4,
                     child: Container(
-                      height: 0.05.sh,
+                      height: 0.06.sh,
                       child: RoundedTextField(
                         labelText: '키워드 입력',
                         controller: _keywordController,
@@ -184,7 +184,7 @@ class _KeywordsPageState extends State<KeywordsPage> {
                   Expanded(
                     flex: 1,
                     child: Container(
-                      height: 0.05.sh,
+                      height: 0.06.sh,
                       child: BtnYesBG(
                         btnText: '추가',
                         onPressed: () { _addKeyword(); },
