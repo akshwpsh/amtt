@@ -1,5 +1,6 @@
 import 'package:amtt/Service/FirebaseService.dart';
 import 'package:amtt/Service/PushNotification.dart';
+import 'package:amtt/pages/UnivSelectPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -110,7 +111,7 @@ class MyApp extends StatelessWidget {
                 cursorColor: Color(0xff4EBDBD), // 커서 색상 설정선택 핸들 색상 설정
               ),
             ),
-            home: currentUser == null ? LoginPage() : NavigatePage(),
+            home: UnivSelectPage(),
             onGenerateRoute: (RouteSettings settings) {
               if (settings.name == '/post') {
                 final id = settings.arguments as String;

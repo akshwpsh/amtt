@@ -439,7 +439,7 @@ class BottomSheetContent extends StatelessWidget {
                 '추가 기능',
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
-              SizedBox(width: 48), // To balance the back button on the left
+              SizedBox(width: 48),
             ],
           ),
 
