@@ -74,7 +74,7 @@ class _KeywordsPageState extends State<KeywordsPage> {
           elevation: 0,
           backgroundColor: Colors.transparent,
           child: Container(
-            height: 0.3.sh,
+            height: 250,
             width: 300,
             decoration: BoxDecoration(
               color: Colors.white,
@@ -84,25 +84,46 @@ class _KeywordsPageState extends State<KeywordsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
+
                   SizedBox(height: 20),
+
+                  //다이얼로그 제목 위치
                   Text(
                     "키워드 수정",
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
                   ),
+
                   SizedBox(height: 20),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: TextField(
-                      controller: _editController,
-                      decoration: InputDecoration(
-                        hintText: "텍스트를 입력하세요",
-                        border: OutlineInputBorder(),
+
+                  // 키워드 수정 텍스트필드 공간
+                  Container(
+                    height: 0.06.sh,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: TextField(
+                        controller: _editController,
+                        decoration: InputDecoration(
+                          hintText: "텍스트를 입력하세요",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12), // 원하는 곡률 조절
+                            borderSide: BorderSide(
+                              width: 2, // 테두리 두께 조절
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder( // 활성화 시 테두리 설정
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: Color(0xff4EBDBD), // 활성화 시 테두리 색상
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
 
                   SizedBox(height: 10,),
 
+                  // 다이얼로그 취소, 확인 버튼 공간
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                     child: Row(
@@ -110,21 +131,27 @@ class _KeywordsPageState extends State<KeywordsPage> {
                       children: [
 
                         Expanded(
-                          child: BtnNoBG(
-                            btnText: '취소',
-                            onPressed: () { Navigator.of(context).pop(); },
+                          child: Container(
+                            height: 0.06.sh,
+                            child: BtnNoBG(
+                              btnText: '취소',
+                              onPressed: () { Navigator.of(context).pop(); },
+                            ),
                           ),
                         ),
 
                         SizedBox(width: 10,),
 
                         Expanded(
-                          child: BtnYesBG(
-                            btnText: '확인',
-                            onPressed: () {
-                              _editKeyword(docId, _editController.text);
-                              Navigator.of(context).pop();
-                            },
+                          child: Container(
+                            height: 0.06.sh,
+                            child: BtnYesBG(
+                              btnText: '확인',
+                              onPressed: () {
+                                _editKeyword(docId, _editController.text);
+                                Navigator.of(context).pop();
+                              },
+                            ),
                           ),
                         ),
                       ],
