@@ -281,7 +281,7 @@ class _SearchPageState extends State<SearchPage> {
                             }).toList();
 
                             if (filteredDocs.isEmpty) {
-                              return Center(child: Text('검색하신 내용에 맞는 상품이없어용'));
+                              return Center(child: Text('검색어에 대한 결과가 없습니다.'));
                             }
                             return ListView.builder(
                               itemCount: filteredDocs.length,
@@ -311,7 +311,7 @@ class _SearchPageState extends State<SearchPage> {
                                     child: ProductCard(
                                       title: postname,
                                       price: price,
-                                      date: formattedDate,
+                                      date: timestamp,
                                       //이미지 경로가 없으면 비어있는 거 보냄
                                       imageUrl: imageUrls.firstOrNull ?? '',
                                       userName: userName,

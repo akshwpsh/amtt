@@ -89,7 +89,7 @@ class _WishListPageState extends State<WishListPage> {
                     child: ProductCard(
                       title: postname,
                       price: price,
-                      date: formattedDate,
+                      date: timestamp,
                       //이미지 경로가 없으면 비어있는 거 보냄
                       imageUrl: imageUrls.firstOrNull ?? '',
                       userName: userName,
