@@ -21,55 +21,9 @@ class _ProductListPageState extends State<ProductListPage> {
   String? _searchText = '';
   List<String> _selectedCategories = [];
 
-  TextEditingController _searchController = TextEditingController();
-  List<String> _categories = [];
-
-  RangeValues _selectedPriceRange = RangeValues(0, 10000000);
-
   @override
   void initState() {
     super.initState();
-    _fetchCategories();
-  }
-
-  Future<void> _fetchCategories() async {
-    try {
-      DocumentSnapshot categoryDoc =
-          await _firestore.collection('category').doc('categories').get();
-      Map<String, dynamic> data = categoryDoc.data() as Map<String, dynamic>;
-      List<String> categories = [];
-      data.forEach((key, value) {
-        categories.add(value);
-      });
-      setState(() {
-        _categories = categories;
-      });
-    } catch (e) {
-      print("Failed to fetch categories: $e");
-      // 오류가 발생하면 임시 카테고리로바꾸기
-      setState(() {
-        _categories = ['전자제품', '책', '문구', '생활용품', '의류', '취미'];
-      });
-    }
-  }
-
-  void _selectCategory() async {
-    final selectedCategories = await showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-         return BottomSheetContent(
-          categories: _categories, 
-          selectedCategories: _selectedCategories, 
-          selectedPriceRange: _selectedPriceRange,
-        );
-      },
-    );
-    if (selectedCategories != null) {
-      setState(() {
-        _selectedCategories = selectedCategories;
-      });
-    }
   }
 
   @override
@@ -216,7 +170,7 @@ class _ProductListPageState extends State<ProductListPage> {
                             child: ProductCard(
                               title: postname,
                               price: price,
-                              date: formattedDate,
+                              date: timestamp,
                               //이미지 경로가 없으면 비어있는 거 보냄
                               imageUrl: imageUrls.firstOrNull ?? '',
                               userName: userName,

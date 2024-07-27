@@ -44,6 +44,7 @@ class _UserEditPageState extends State<UserPage> {
        context: context,
        builder: (BuildContext context) {
          return AlertDialog(
+           backgroundColor: Colors.white,
            title: Text('문의 전송 실패'),
            content: Column(
              mainAxisSize: MainAxisSize.min,
@@ -60,13 +61,13 @@ class _UserEditPageState extends State<UserPage> {
                  Clipboard.setData(ClipboardData(text: supportEmail));
                  Navigator.of(context).pop();
                },
-               child: Text('이메일 복사'),
+               child: Text('이메일 복사', style: TextStyle(color: Color(0xFF4EBDBD)),),
              ),
              TextButton(
                onPressed: () {
                  Navigator.of(context).pop();
                },
-               child: Text('확인'),
+               child: Text('확인', style: TextStyle(color: Color(0xFF4EBDBD)),),
              ),
            ],
          );
@@ -107,251 +108,256 @@ class _UserEditPageState extends State<UserPage> {
     final email = _Nickname ?? "닉네임 정보 없음"; //닉네임
 
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        scrolledUnderElevation: 0, //스크롤 해도 색상 바뀌지 않게
-        title: Text('나의 정보'),
-        backgroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 0.06.sw),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              SizedBox(height: 0.02.sh),
+    return Container(
+      color: Colors.white,
+      child: Padding(
+        padding: EdgeInsets.all(0.04.sw),
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            scrolledUnderElevation: 0, //스크롤 해도 색상 바뀌지 않게
+            title: Text('나의 정보',
+              style: TextStyle(fontWeight: FontWeight.bold),),
+            titleSpacing: 0, //  앱바 제목 왼쪽 마진 없애기
+            backgroundColor: Colors.white,
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: 0.02.sh),
 
-              // 유저 프로필 공간
-              Material(
-                color: Color(0xffF7F8F8), // 여기에 원하는 배경색을 설정
-                borderRadius: BorderRadius.circular(12),
-                child: InkWell(
-                  onTap: () => {
-
-                    //계정 정보 수정 페이지로 넘어가기
-                    Navigator.push( context,
-                      MaterialPageRoute(builder: (context) => UserEditPage()),
-                    )
-                  }, //클릭 이벤트
-                  highlightColor: Colors.grey.withOpacity(0.1), //길게 누를 때 색상
-                  splashColor: Colors.grey.withOpacity(0.2), //탭 했을 때 잉크 효과 색상
+                // 유저 프로필 공간
+                Material(
+                  color: Color(0xffF7F8F8), // 여기에 원하는 배경색을 설정
                   borderRadius: BorderRadius.circular(12),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 25),
-                    child: Row(
-                      children: [
-                       // 프로필 이미지
-                        Material(
-                          shape: const CircleBorder(),
-                          color: Color(0xff7E7E7E), // 배경색 설정
-                          child: InkWell(
-                            customBorder: const CircleBorder(),
-                            child: Container(
-                              width: 60,
-                              height: 60,
-                              alignment: Alignment.center,
+                  child: InkWell(
+                    onTap: () => {
 
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: _profileImageUrl != null
-                                    ? DecorationImage(
-                                  image: NetworkImage(_profileImageUrl!),
-                                  fit: BoxFit.cover,
+                      //계정 정보 수정 페이지로 넘어가기
+                      Navigator.push( context,
+                        MaterialPageRoute(builder: (context) => UserEditPage()),
+                      )
+                    }, //클릭 이벤트
+                    highlightColor: Colors.grey.withOpacity(0.1), //길게 누를 때 색상
+                    splashColor: Colors.grey.withOpacity(0.2), //탭 했을 때 잉크 효과 색상
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 25),
+                      child: Row(
+                        children: [
+                          // 프로필 이미지
+                          Material(
+                            shape: const CircleBorder(),
+                            color: Color(0xff7E7E7E), // 배경색 설정
+                            child: InkWell(
+                              customBorder: const CircleBorder(),
+                              child: Container(
+                                width: 60,
+                                height: 60,
+                                alignment: Alignment.center,
+
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: _profileImageUrl != null
+                                      ? DecorationImage(
+                                    image: NetworkImage(_profileImageUrl!),
+                                    fit: BoxFit.cover,
+                                  )
+                                      : null,
+                                ),
+                                child: _profileImageUrl == null
+                                    ? Icon(
+                                  Icons.person,
+                                  size: 34,
+                                  color: Colors.white,
                                 )
                                     : null,
                               ),
-                              child: _profileImageUrl == null
-                                  ? Icon(
-                                Icons.person,
-                                size: 34,
-                                color: Colors.white,
-                              )
-                                  : null,
                             ),
                           ),
-                        ),
 
-                        SizedBox(width: 10),
+                          SizedBox(width: 10),
 
-                        // 사용자 정보 공간 (닉네임, 계정 이메일)
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // 사용자 닉네임 텍스트
-                              Text(
-                                nickname,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                          // 사용자 정보 공간 (닉네임, 계정 이메일)
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // 사용자 닉네임 텍스트
+                                Text(
+                                  nickname,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
 
-                              SizedBox(height: 4),
+                                SizedBox(height: 4),
 
-                              // 사용자 계정 이메일 텍스트
-                              Text(
-                                userEmail,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
+                                // 사용자 계정 이메일 텍스트
+                                Text(
+                                  userEmail,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
 
-                        // 화살표 아이콘
-                        Container(
-                          child: const Icon(
-                            Icons.chevron_right,
-                            color: Colors.grey,
-                            size: 30,
+                          // 화살표 아이콘
+                          Container(
+                            child: const Icon(
+                              Icons.chevron_right,
+                              color: Colors.grey,
+                              size: 30,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              SizedBox(height: 0.02.sh),
+                SizedBox(height: 0.02.sh),
 
-              //대학교 설정 탭 (대학교 이름, 변경 버튼)
-              Container(
-                child: Column(
-                  children: [
-                    //대학교 설정 탭 제목 텍스트
-                    UserTabTitle(text: '대학교 설정'),
+                //대학교 설정 탭 (대학교 이름, 변경 버튼)
+                Container(
+                  child: Column(
+                    children: [
+                      //대학교 설정 탭 제목 텍스트
+                      UserTabTitle(text: '대학교 설정'),
 
-                    SizedBox(height: 0.01.sh),
+                      SizedBox(height: 0.01.sh),
 
-                    Row(
-                      children: [
-                        //대학교 이름 텍스트
-                        const Text('목포대학교', style: TextStyle(color: Color(
-                            0xff596773), fontSize: 20)),
+                      Row(
+                        children: [
+                          //대학교 이름 텍스트
+                          const Text('목포대학교', style: TextStyle(color: Color(
+                              0xff596773), fontSize: 20)),
 
-                        Spacer(),
+                          Spacer(),
 
-                        // 대학교 설정 변경 버튼 공간
-                        CustomButton(
-                          text: '변경',
-                          onPressed: () {
-                            // 버튼이 클릭되었을 때 실행할 코드
-                          },
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              ),
-
-              SizedBox(height: 0.01.sh),
-
-              //디바이더
-              const Divider(
-                height: 20,
-                thickness: 2,
-                indent: 0,
-                endIndent: 0,
-                color: Color(0xffdbdbdb),
-              ),
-
-              //앱 관련 설정 탭 (알림 키워드 등록, 찜한 목록, 거래 기록)
-              Container(
-                child: Column(
-                  children: [
-
-                    //앱 관련 탭 제목 텍스트
-                    UserTabTitle(text: '앱 관련'),
-
-                    UsersdefaultTab(
-                        icon: Icons.markunread_sharp,
-                        text: '알림 키워드 관리',
-                        onTap: () => {
-
-                        //알림 키워드 관리 페이지로 넘어가기
-                        Navigator.push( context,
-                          MaterialPageRoute(builder: (context) => KeywordsPage()),
-                        )
-
-                    }
-                    ),
-
-                    UsersdefaultTab(
-                        icon: Icons.favorite,
-                        text: '찜한 목록 보기',
-                        onTap: () => {
-
-                          //찜한 목록 페이지로 넘어가기
-                          Navigator.push( context,
-                            MaterialPageRoute(builder: (context) => WishListPage()),
+                          // 대학교 설정 변경 버튼 공간
+                          CustomButton(
+                            text: '변경',
+                            onPressed: () {
+                              // 버튼이 클릭되었을 때 실행할 코드
+                            },
                           )
-                        }
-                    ),
-
-                    UsersdefaultTab(
-                        icon: Icons.manage_search,
-                        text: '거래 기록 보기',
-                        onTap: () => { print("거래 기록 버튼 클릭")}
-                    ),
-
-
-                  ],
+                        ],
+                      )
+                    ],
+                  ),
                 ),
-              ),
 
-              //디바이더
-              const Divider(
-                height: 20,
-                thickness: 2,
-                indent: 0,
-                endIndent: 0,
-                color: Color(0xffdbdbdb),
-              ),
+                SizedBox(height: 0.01.sh),
 
-              //기타 설정 탭 (전체 설정, 문의 하기, 로그 아웃)
-              Container(
-                child: Column(
-                  children: [
-
-                    //기타 설정 탭 제목 텍스트
-                    UserTabTitle(text: '기타'),
-
-                    UsersdefaultTab(
-                        icon: Icons.settings,
-                        text: '전체 설정',
-                        onTap: () => { print("전체 설정 클릭")}
-                    ),
-
-                    UsersdefaultTab(
-                        icon: Icons.call,
-                        text: '문의 하기',
-                        onTap: () async => {
-                           _sendEmail()
-                        }
-                    ),
-
-                    UsersdefaultTab(
-                        icon: Icons.logout_rounded,
-                        text: '로그 아웃',
-                        onTap: () => { print("로그 아웃 클릭")}
-                    ),
-
-                  ],
+                //디바이더
+                const Divider(
+                  height: 20,
+                  thickness: 2,
+                  indent: 0,
+                  endIndent: 0,
+                  color: Color(0xffdbdbdb),
                 ),
-              ),
 
-              //디바이더
-              const Divider(
-                height: 20,
-                thickness: 2,
-                indent: 0,
-                endIndent: 0,
-                color: Color(0xffdbdbdb),
-              ),
-            ],
+                //앱 관련 설정 탭 (알림 키워드 등록, 찜한 목록, 거래 기록)
+                Container(
+                  child: Column(
+                    children: [
+
+                      //앱 관련 탭 제목 텍스트
+                      UserTabTitle(text: '앱 관련'),
+
+                      UsersdefaultTab(
+                          icon: Icons.markunread_sharp,
+                          text: '알림 키워드 관리',
+                          onTap: () => {
+
+                            //알림 키워드 관리 페이지로 넘어가기
+                            Navigator.push( context,
+                              MaterialPageRoute(builder: (context) => KeywordsPage()),
+                            )
+
+                          }
+                      ),
+
+                      UsersdefaultTab(
+                          icon: Icons.favorite,
+                          text: '찜한 목록 보기',
+                          onTap: () => {
+
+                            //찜한 목록 페이지로 넘어가기
+                            Navigator.push( context,
+                              MaterialPageRoute(builder: (context) => WishListPage()),
+                            )
+                          }
+                      ),
+
+                      UsersdefaultTab(
+                          icon: Icons.manage_search,
+                          text: '내 게시글 보기',
+                          onTap: () => { print("거래 기록 버튼 클릭")}
+                      ),
+
+
+                    ],
+                  ),
+                ),
+
+                //디바이더
+                const Divider(
+                  height: 20,
+                  thickness: 2,
+                  indent: 0,
+                  endIndent: 0,
+                  color: Color(0xffdbdbdb),
+                ),
+
+                //기타 설정 탭 (전체 설정, 문의 하기, 로그 아웃)
+                Container(
+                  child: Column(
+                    children: [
+
+                      //기타 설정 탭 제목 텍스트
+                      UserTabTitle(text: '기타'),
+
+                      UsersdefaultTab(
+                          icon: Icons.settings,
+                          text: '전체 설정',
+                          onTap: () => { print("전체 설정 클릭")}
+                      ),
+
+                      UsersdefaultTab(
+                          icon: Icons.call,
+                          text: '문의 하기',
+                          onTap: () async => {
+                            _sendEmail()
+                          }
+                      ),
+
+                      UsersdefaultTab(
+                          icon: Icons.logout_rounded,
+                          text: '로그 아웃',
+                          onTap: () => { print("로그 아웃 클릭")}
+                      ),
+
+                    ],
+                  ),
+                ),
+
+                //디바이더
+                const Divider(
+                  height: 20,
+                  thickness: 2,
+                  indent: 0,
+                  endIndent: 0,
+                  color: Color(0xffdbdbdb),
+                ),
+              ],
+            ),
           ),
         ),
       ),

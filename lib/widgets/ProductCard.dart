@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/material.dart';
 
@@ -6,7 +7,7 @@ class ProductCard extends StatelessWidget {
   final String price; //가격
   final String imageUrl; //이미지 경로
   final String userName; //판매자 이름
-  final String date; //게시 날짜
+  final Timestamp date; //게시 날짜
   final String status; //게시글 판매 상태
 
   final VoidCallback? onTap;
@@ -21,6 +22,30 @@ class ProductCard extends StatelessWidget {
     required this.status,
     this.onTap,
   }) : super(key: key);
+
+
+  // 현재 시간과 지금 시간 비교해서 메시지 지난시간 양식 반환 메서드
+  String getRelativeTime(Timestamp messageTime) {
+
+    DateTime time = messageTime.toDate();
+
+    final now = DateTime.now();
+    final difference = now.difference(time);
+
+    if (difference.inDays > 365) {
+      return '${(difference.inDays / 365).floor()}년 전';
+    } else if (difference.inDays > 30) {
+      return '${(difference.inDays / 30).floor()}개월 전';
+    } else if (difference.inDays > 0) {
+      return '${difference.inDays}일 전';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}시간 전';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}분 전';
+    } else {
+      return '방금 전';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +106,7 @@ class ProductCard extends StatelessWidget {
                       children: [
                         //게시 날짜
                         Text(
-                          date,
+                          getRelativeTime(date),
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey,
@@ -100,13 +125,18 @@ class ProductCard extends StatelessWidget {
                         ),
                         SizedBox(width: 12), 
 
+                        // 판매 상태
                         Text(
                           '$status',
                           style: TextStyle(
                             fontSize:16,
                             color: Colors.grey,
                           ),
+                          softWrap: true,
+                          maxLines: null,
+                          overflow: TextOverflow.visible,
                         ),
+
                         SizedBox(width: 12),
 
                         //TODO : 이 아래는 실제 데이터 여부에 따라 표시되도록, 데이터 없으면 아에 안보이게 해야함
