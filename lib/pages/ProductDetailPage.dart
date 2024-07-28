@@ -18,7 +18,6 @@ class ProductDetailPage extends StatelessWidget {
   ProductDetailPage({required this.postId});
 
   //로그인 여부 확인
-  User? isLogin;
   User? user = FirebaseAuth.instance.currentUser;
 
   Future<Map<String, dynamic>> fetchPostDetails(String postId) async {
@@ -28,10 +27,11 @@ class ProductDetailPage extends StatelessWidget {
         .doc(postId)
         .get();
 
-    //로그인 여부 설정
-    isLogin = FirebaseAuth.instance.currentUser;
-
-    return doc.data() as Map<String, dynamic>;
+    if (doc.exists) {
+      return doc.data() as Map<String, dynamic>;
+    } else {
+      throw Exception("문서가 없습니다.");
+    }
   }
 
   Future<String> fetchUserAuth(String userId) async {
@@ -40,7 +40,10 @@ class ProductDetailPage extends StatelessWidget {
     return userDoc['auth'];
   }
 
-  Future<bool> canEdit(String userId, String postId) async {
+  Future<bool> canEdit(String? userId, String postId) async {
+    if (userId == null) {
+      return false;
+    }
     String auth = await fetchUserAuth(userId);
     if (auth == 'admin') {
       return true;
@@ -104,7 +107,7 @@ class ProductDetailPage extends StatelessWidget {
           String status = data['status'] ?? '판매중';
 
           return FutureBuilder<bool>(
-            future: canEdit(user!.uid, postId),
+            future: canEdit(user?.uid, postId),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return CircularProgressIndicator();
@@ -132,7 +135,7 @@ class ProductDetailPage extends StatelessWidget {
                           padding: EdgeInsets.only(right: 0),
                           child: Row(
                             children: [
-                              if (isLogin != null)
+                              if (user != null)
                                 //찜버튼
                                 FavoriteButton(postId: postId),
                               /*   
@@ -278,19 +281,18 @@ class ProductDetailPage extends StatelessWidget {
                                   Spacer(),
 
                                   // 판매상태 표시 드롭다운 위젯
-                                  if(isAuthor)
+                                  if (isAuthor)
                                     CustomDropdown(
                                       status: status,
-                                      onChanged: (newValue){
+                                      onChanged: (newValue) {
                                         updatePostStatus(postId, newValue);
                                       },
-                                    )else
-                                      Text(
-                                        '$status',
-                                        style: TextStyle(
-                                          color:Colors.black
-                                        ),
-                                      ),
+                                    )
+                                  else
+                                    Text(
+                                      '$status',
+                                      style: TextStyle(color: Colors.black),
+                                    ),
 
                                   Spacer(),
 
