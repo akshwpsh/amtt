@@ -2,6 +2,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'LoginPage.dart';
 
@@ -46,21 +47,16 @@ class _SearchPageState extends State<UnivSelectPage> {
     });
   }
 
-  void _showBottomSheet() {
+  // 하단 주변 대학 설정 바 올라오게 하는 메서드
+  Future<void> _showBottomSheet() async {
+    Position currentPosition = await _getCurrentLocation();
+    List<String> nearbyUniversities = _filterUniversitiesByDistance(currentPosition);
+
     showModalBottomSheet(
       context: context,
       builder: (context) {
         return BottomSheetContent(
-          universities: [
-            '서울대학교',
-            '연세대학교',
-            '고려대학교',
-            '한양대학교',
-            '서강대학교',
-            '성균관대학교',
-            '이화여자대학교',
-            '중앙대학교',
-          ],
+          universities: nearbyUniversities,
         );
       },
     );
@@ -71,18 +67,10 @@ class _SearchPageState extends State<UnivSelectPage> {
   void initState() {
     super.initState();
     fetchUniversities();
-    _controller.addListener(_updateButtonState);
-  }
-
-  @override
-  void dispose() {
-    _controller.removeListener(_updateButtonState);
-    _controller.dispose();
-    super.dispose();
   }
 
 
-
+  // 대학 리스트 가져오는 메서드
   Future<void> fetchUniversities() async {
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('university').get();
@@ -97,6 +85,65 @@ class _SearchPageState extends State<UnivSelectPage> {
       print('Error fetching universities: $e');
     }
   }
+
+
+  Future<Position> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // 위치 서비스가 활성화되어 있는지 확인
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+    // 위치 서비스가 활성화되어 있지 않으면 오류를 반환
+    if (!serviceEnabled) {
+      return Future.error('위치 서비스가 활성화 되어 있지 않음');
+    }
+
+    // 위치 권한을 확인합니다.
+    permission = await Geolocator.checkPermission();
+
+    // 권한이 거부된 경우 권한 요청
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      
+      // 권한 요청이 거부 시 에러
+      if (permission == LocationPermission.denied) {
+        return Future.error('위치 권한이 거부되었습니다.');
+      }
+    }
+
+    // 권한이 영구적으로 거부된 경우
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          '위치 권한이 영구적으로 거부되어 요청을 할 수 없습니다.');
+    }
+
+    // 장치 위치 가져오기(권한 허용상태)
+    return await Geolocator.getCurrentPosition();
+  }
+
+  // 현재 위치를 기준으로 대학교를 기준거리에 따라 필터링 하는 메서드
+  List<String> _filterUniversitiesByDistance(Position currentPosition) {
+    List<String> nearbyUniversities = [];
+
+    for (var university in universities) {
+
+      // 현재 위치와 대학 위치 사이의 거리를 미터 단위로 계산
+      double distanceInMeters = Geolocator.distanceBetween(
+        currentPosition.latitude,
+        currentPosition.longitude,
+        university.latitude,
+        university.longitude,
+      );
+      // 거리가 20km 이내인 경우 대학 이름을 리스트에 추가.
+      if (distanceInMeters <= 20000) { // TODO : 하드코딩된 값이라 추후 외부에서 수정할 수 있게
+        nearbyUniversities.add(university.name);
+      }
+    }
+    // 필터링된 대학 리스트를 반환
+    return nearbyUniversities;
+  }
+
 
 
 
@@ -230,14 +277,14 @@ class BottomSheetContent extends StatelessWidget {
                               style: TextStyle(fontSize: 16),
                             ),
                           ),
+
+
                           // 대학교 선택 버튼
                           Container(
                             width: 90,
-                            child: ElevatedButton(
-                              onPressed: () => print('${universities[index]} 선택됨'),
-                              child: Text('선택'),
-                            ),
+                            child: BtnYesBG(btnText: '선택', onPressed: () { print('${universities[index]} 선택됨'); },),
                           ),
+
                         ],
                       ),
                     ),
