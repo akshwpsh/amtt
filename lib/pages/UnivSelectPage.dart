@@ -7,6 +7,8 @@ import 'package:geolocator/geolocator.dart';
 import 'LoginPage.dart';
 import 'NavigatePage.dart';
 
+import 'LoginPage.dart';
+
 //위젯 임포트
 import 'package:amtt/widgets/RoundedTextField.dart';
 import 'package:amtt/widgets/BtnYesBG.dart';
@@ -175,6 +177,7 @@ class _SearchPageState extends State<UnivSelectPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
       color: Colors.white,
       child: Padding(
@@ -186,10 +189,13 @@ class _SearchPageState extends State<UnivSelectPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+
                 Text(
                   '대학장터에 \n오신것을 환영합니다!',
                   style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
                 ),
+
+
                 SizedBox(height: 16),
                 Text(
                   '이용을 위해 원하시는 대학교를 설정해주세요',
@@ -233,6 +239,7 @@ class _SearchPageState extends State<UnivSelectPage> {
                     child: Text('계정이 있으신가요?', style: TextStyle(color: Colors.black, fontSize: 16),),
                   ),
                 ),
+
               ],
             ),
           ),
