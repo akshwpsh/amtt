@@ -10,6 +10,7 @@ import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'KeywordsPage.dart';
 import 'WishListPage.dart';
 import 'UserEditPage.dart';
+import 'LoginPage.dart';
 
 class UserPage extends StatefulWidget {
   @override
@@ -17,70 +18,79 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserEditPageState extends State<UserPage> {
-   String? _profileImageUrl;
-   String? _Nickname;
-   String userEmail = FirebaseAuth.instance.currentUser!.email!;
-   Future<void> _sendEmail() async {
-     String supportEmail = "sophra1234@gmail.com";
-     final Email email = Email(
-       body: '보낸 사람: ${userEmail}\n 문의 내용을 입력해주세요.',
-       subject: '문의하기',
-       recipients: ['sophra1234@gmail.com'], // 수신자 이메일을 여기에 입력
-       isHTML: false, // 일반 텍스트로 전송
-     );
+  String? _profileImageUrl;
+  String? _Nickname;
+  String userEmail = FirebaseAuth.instance.currentUser!.email!;
+  Future<void> _sendEmail() async {
+    String supportEmail = "sophra1234@gmail.com";
+    final Email email = Email(
+      body: '보낸 사람: ${userEmail}\n 문의 내용을 입력해주세요.',
+      subject: '문의하기',
+      recipients: ['sophra1234@gmail.com'], // 수신자 이메일을 여기에 입력
+      isHTML: false, // 일반 텍스트로 전송
+    );
 
-     try {
-       await FlutterEmailSender.send(email);
-       ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(content: Text('문의가 전송되었습니다.')),
-       );
-     } catch (error) {
-       print(error);
-       _showErrorDialog(supportEmail);
-     }
-   }
-   void _showErrorDialog(String supportEmail) {
-     showDialog(
-       context: context,
-       builder: (BuildContext context) {
-         return AlertDialog(
-           backgroundColor: Colors.white,
-           title: Text('문의 전송 실패'),
-           content: Column(
-             mainAxisSize: MainAxisSize.min,
-             children: [
-               Text('문의 전송에 실패했습니다. 다음 이메일 주소로 문의해주세요.'),
-               SizedBox(height: 10),
-               Text('이메일: $supportEmail'),
-             ],
-           ),
-           actions: [
-             TextButton(
-               onPressed: () {
-                 // 이메일 주소를 클립보드에 복사
-                 Clipboard.setData(ClipboardData(text: supportEmail));
-                 Navigator.of(context).pop();
-               },
-               child: Text('이메일 복사', style: TextStyle(color: Color(0xFF4EBDBD)),),
-             ),
-             TextButton(
-               onPressed: () {
-                 Navigator.of(context).pop();
-               },
-               child: Text('확인', style: TextStyle(color: Color(0xFF4EBDBD)),),
-             ),
-           ],
-         );
-       },
-     );
-   }
+    try {
+      await FlutterEmailSender.send(email);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('문의가 전송되었습니다.')),
+      );
+    } catch (error) {
+      print(error);
+      _showErrorDialog(supportEmail);
+    }
+  }
+  
+
+  void _showErrorDialog(String supportEmail) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text('문의 전송 실패'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('문의 전송에 실패했습니다. 다음 이메일 주소로 문의해주세요.'),
+              SizedBox(height: 10),
+              Text('이메일: $supportEmail'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // 이메일 주소를 클립보드에 복사
+                Clipboard.setData(ClipboardData(text: supportEmail));
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                '이메일 복사',
+                style: TextStyle(color: Color(0xFF4EBDBD)),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                '확인',
+                style: TextStyle(color: Color(0xFF4EBDBD)),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     _loadUserData(); // 유저 데이터 가져오기
   }
 
-   // 유저 데이터 가져오기
+  // 유저 데이터 가져오기
   Future<void> _loadUserData() async {
     // 현재 로그인된 사용자의 정보를 가져옵니다.
     User? currentUser = FirebaseAuth.instance.currentUser;
@@ -95,18 +105,24 @@ class _UserEditPageState extends State<UserPage> {
       String? nickname = userData['nickName'];
       print(_profileImageUrl);
       setState(() {
-      _profileImageUrl = profileImageUrl;
-      _Nickname = nickname;
-    });
+        _profileImageUrl = profileImageUrl;
+        _Nickname = nickname;
+      });
     }
+  }
+  Future<void> _signOut() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()), // 로그인 페이지로 이동
+      (Route<dynamic> route) => false,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-
     final nickname = _Nickname ?? "닉네임 정보 없음"; //닉네임
     final email = _Nickname ?? "닉네임 정보 없음"; //닉네임
-
 
     return Container(
       color: Colors.white,
@@ -116,8 +132,10 @@ class _UserEditPageState extends State<UserPage> {
           backgroundColor: Colors.white,
           appBar: AppBar(
             scrolledUnderElevation: 0, //스크롤 해도 색상 바뀌지 않게
-            title: Text('나의 정보',
-              style: TextStyle(fontWeight: FontWeight.bold),),
+            title: Text(
+              '나의 정보',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             titleSpacing: 0, //  앱바 제목 왼쪽 마진 없애기
             backgroundColor: Colors.white,
           ),
@@ -132,9 +150,9 @@ class _UserEditPageState extends State<UserPage> {
                   borderRadius: BorderRadius.circular(12),
                   child: InkWell(
                     onTap: () => {
-
                       //계정 정보 수정 페이지로 넘어가기
-                      Navigator.push( context,
+                      Navigator.push(
+                        context,
                         MaterialPageRoute(builder: (context) => UserEditPage()),
                       )
                     }, //클릭 이벤트
@@ -142,7 +160,8 @@ class _UserEditPageState extends State<UserPage> {
                     splashColor: Colors.grey.withOpacity(0.2), //탭 했을 때 잉크 효과 색상
                     borderRadius: BorderRadius.circular(12),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 25),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 15, vertical: 25),
                       child: Row(
                         children: [
                           // 프로필 이미지
@@ -155,22 +174,22 @@ class _UserEditPageState extends State<UserPage> {
                                 width: 60,
                                 height: 60,
                                 alignment: Alignment.center,
-
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   image: _profileImageUrl != null
                                       ? DecorationImage(
-                                    image: NetworkImage(_profileImageUrl!),
-                                    fit: BoxFit.cover,
-                                  )
+                                          image:
+                                              NetworkImage(_profileImageUrl!),
+                                          fit: BoxFit.cover,
+                                        )
                                       : null,
                                 ),
                                 child: _profileImageUrl == null
                                     ? Icon(
-                                  Icons.person,
-                                  size: 34,
-                                  color: Colors.white,
-                                )
+                                        Icons.person,
+                                        size: 34,
+                                        color: Colors.white,
+                                      )
                                     : null,
                               ),
                             ),
@@ -234,8 +253,9 @@ class _UserEditPageState extends State<UserPage> {
                       Row(
                         children: [
                           //대학교 이름 텍스트
-                          const Text('목포대학교', style: TextStyle(color: Color(
-                              0xff596773), fontSize: 20)),
+                          const Text('목포대학교',
+                              style: TextStyle(
+                                  color: Color(0xff596773), fontSize: 20)),
 
                           Spacer(),
 
@@ -267,7 +287,6 @@ class _UserEditPageState extends State<UserPage> {
                 Container(
                   child: Column(
                     children: [
-
                       //앱 관련 탭 제목 텍스트
                       UserTabTitle(text: '앱 관련'),
 
@@ -275,34 +294,30 @@ class _UserEditPageState extends State<UserPage> {
                           icon: Icons.markunread_sharp,
                           text: '알림 키워드 관리',
                           onTap: () => {
-
-                            //알림 키워드 관리 페이지로 넘어가기
-                            Navigator.push( context,
-                              MaterialPageRoute(builder: (context) => KeywordsPage()),
-                            )
-
-                          }
-                      ),
+                                //알림 키워드 관리 페이지로 넘어가기
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => KeywordsPage()),
+                                )
+                              }),
 
                       UsersdefaultTab(
                           icon: Icons.favorite,
                           text: '찜한 목록 보기',
                           onTap: () => {
-
-                            //찜한 목록 페이지로 넘어가기
-                            Navigator.push( context,
-                              MaterialPageRoute(builder: (context) => WishListPage()),
-                            )
-                          }
-                      ),
+                                //찜한 목록 페이지로 넘어가기
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => WishListPage()),
+                                )
+                              }),
 
                       UsersdefaultTab(
                           icon: Icons.manage_search,
                           text: '내 게시글 보기',
-                          onTap: () => { print("거래 기록 버튼 클릭")}
-                      ),
-
-
+                          onTap: () => {print("거래 기록 버튼 클릭")}),
                     ],
                   ),
                 ),
@@ -320,30 +335,23 @@ class _UserEditPageState extends State<UserPage> {
                 Container(
                   child: Column(
                     children: [
-
                       //기타 설정 탭 제목 텍스트
                       UserTabTitle(text: '기타'),
 
                       UsersdefaultTab(
                           icon: Icons.settings,
                           text: '전체 설정',
-                          onTap: () => { print("전체 설정 클릭")}
-                      ),
+                          onTap: () => {print("전체 설정 클릭")}),
 
                       UsersdefaultTab(
                           icon: Icons.call,
                           text: '문의 하기',
-                          onTap: () async => {
-                            _sendEmail()
-                          }
-                      ),
+                          onTap: () async => {_sendEmail()}),
 
                       UsersdefaultTab(
                           icon: Icons.logout_rounded,
                           text: '로그 아웃',
-                          onTap: () => { print("로그 아웃 클릭")}
-                      ),
-
+                          onTap: () async => {_signOut()}),
                     ],
                   ),
                 ),
@@ -364,7 +372,6 @@ class _UserEditPageState extends State<UserPage> {
     );
   }
 }
-
 
 class UserTabTitle extends StatelessWidget {
   final String text;
@@ -393,7 +400,6 @@ class UserTabTitle extends StatelessWidget {
   }
 }
 
-
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
@@ -420,7 +426,6 @@ class CustomButton extends StatelessWidget {
           ),
         ),
       ),
-
       child: Text(
         text,
         style: TextStyle(
