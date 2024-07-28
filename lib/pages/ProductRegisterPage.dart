@@ -55,9 +55,11 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
       _loadProductData(widget.postId!);
     }
   }
-   Future<void> _fetchCategories() async {
+
+  Future<void> _fetchCategories() async {
     try {
-      DocumentSnapshot categoryDoc = await _firestore.collection('category').doc('categories').get();
+      DocumentSnapshot categoryDoc =
+          await _firestore.collection('category').doc('categories').get();
       Map<String, dynamic> data = categoryDoc.data() as Map<String, dynamic>;
       List<String> categories = [];
       data.forEach((key, value) {
@@ -194,7 +196,8 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                       labelText: '게시글 제목',
                       border: OutlineInputBorder(),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xffdbdbdb)), // 선택되지 않았을 때의 테두리 색상
+                        borderSide: BorderSide(
+                            color: Color(0xffdbdbdb)), // 선택되지 않았을 때의 테두리 색상
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
@@ -208,10 +211,12 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                   TextField(
                       controller: _postDescriptionController,
                       decoration: const InputDecoration(
-                          labelText: '게시글 내용', alignLabelWithHint: true,
+                        labelText: '게시글 내용',
+                        alignLabelWithHint: true,
                         border: OutlineInputBorder(),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xffdbdbdb)), // 선택되지 않았을 때의 테두리 색상
+                          borderSide: BorderSide(
+                              color: Color(0xffdbdbdb)), // 선택되지 않았을 때의 테두리 색상
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
@@ -228,7 +233,8 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                       labelText: '가격',
                       suffixText: '원',
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xffdbdbdb)), // 선택되지 않았을 때의 테두리 색상
+                        borderSide: BorderSide(
+                            color: Color(0xffdbdbdb)), // 선택되지 않았을 때의 테두리 색상
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
@@ -240,11 +246,11 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                   SizedBox(height: 0.05.sh),
 
                   Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text('카테고리 선택')
-                  ),
+                      alignment: Alignment.centerLeft, child: Text('카테고리 선택')),
 
-                  SizedBox(height: 5,),
+                  SizedBox(
+                    height: 5,
+                  ),
 
                   // 카테고리 선택 버튼
                   Material(
@@ -252,12 +258,14 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                     borderRadius: BorderRadius.circular(12),
                     child: InkWell(
                       highlightColor: Colors.grey.withOpacity(0.1), //길게 누를 때 색상
-                      splashColor: Colors.grey.withOpacity(0.2), //탭 했을 때 잉크 효과 색상
+                      splashColor:
+                          Colors.grey.withOpacity(0.2), //탭 했을 때 잉크 효과 색상
                       borderRadius: BorderRadius.circular(12),
                       onTap: _selectCategory,
                       child: Container(
                         width: double.infinity,
-                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Color(0xFFDBDBDB)),
@@ -276,7 +284,6 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                       ),
                     ),
                   ),
-
 
                   SizedBox(height: 0.05.sh),
 
@@ -331,6 +338,13 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
   }
 
   void _productRegister() async {
+    if (_postNameController.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('게시글 제목을 입력해주세요.')),
+        );
+      return;
+    }
+
     if (await isUserLogin()) {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
@@ -356,7 +370,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
             'imageUrls': imageUrls,
             'category': _selectedCategory,
             'timestamp': FieldValue.serverTimestamp(),
-            'status' : '판매중',
+            'status': '판매중',
           });
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text('게시물 등록 성공')));
