@@ -11,6 +11,7 @@ import 'KeywordsPage.dart';
 import 'WishListPage.dart';
 import 'UserEditPage.dart';
 import 'LoginPage.dart';
+import 'MyProductsPage.dart';
 
 class UserPage extends StatefulWidget {
   @override
@@ -317,7 +318,14 @@ class _UserEditPageState extends State<UserPage> {
                       UsersdefaultTab(
                           icon: Icons.manage_search,
                           text: '내 게시글 보기',
-                          onTap: () => {print("거래 기록 버튼 클릭")}),
+                          onTap: () => {
+                            print("거래 기록 버튼 클릭"),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MyProductsPage()),
+                            )
+                          }),
                     ],
                   ),
                 ),
