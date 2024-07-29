@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'ChatPage.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'LoginPage.dart';
+
 //위젯 임포트
 import 'package:amtt/widgets/ChatListCard.dart';
 
@@ -254,8 +256,23 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
             ),
 
             body: Center(
-              child: Text(
-                '로그인이 필요한 기능입니다'
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                      '로그인이 필요한 기능입니다'
+                  ),
+                  SizedBox(height: 10,),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      );
+                    },
+                    child: Text('로그인', style: TextStyle(color: Color(0xFF4EBDBD), fontSize: 18),),
+                  ),
+                ],
               ),
             ),
 

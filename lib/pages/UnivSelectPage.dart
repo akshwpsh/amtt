@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'LoginPage.dart';
+import 'NavigatePage.dart';
 
 //위젯 임포트
 import 'package:amtt/widgets/RoundedTextField.dart';
@@ -39,13 +40,11 @@ class UnivSelectPage extends StatefulWidget {
 class _SearchPageState extends State<UnivSelectPage> {
   final TextEditingController _controller = TextEditingController();
   bool _isButtonEnabled = false;
-  List<University> universities = [];
+  List<University> universities = []; // 가져온 모든 대학 리스트(이름,위도,경도)
+  List<String> univNames = []; // 대학 검색창을 위한 리스트
+  List<String> filteredUnivNames = [];
 
-  void _updateButtonState() {
-    setState(() {
-      _isButtonEnabled = _controller.text.isNotEmpty;
-    });
-  }
+
 
   // 하단 주변 대학 설정 바 올라오게 하는 메서드
   Future<void> _showBottomSheet() async {
@@ -57,6 +56,13 @@ class _SearchPageState extends State<UnivSelectPage> {
       builder: (context) {
         return BottomSheetContent(
           universities: nearbyUniversities,
+          onUniversitySelected: (String university) {
+            setState(() {
+              _controller.text = university;
+              filteredUnivNames.clear();
+            });
+            Navigator.pop(context);
+          },
         );
       },
     );
@@ -67,6 +73,7 @@ class _SearchPageState extends State<UnivSelectPage> {
   void initState() {
     super.initState();
     fetchUniversities();
+    _controller.addListener(_onSearchChanged);
   }
 
 
@@ -80,13 +87,14 @@ class _SearchPageState extends State<UnivSelectPage> {
 
       setState(() {
         universities = fetchedUniversities;
+        univNames = universities.map((university) => university.name).toList();
       });
     } catch (e) {
       print('Error fetching universities: $e');
     }
   }
 
-
+  // 현재 위치 가져오느 메서드
   Future<Position> _getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -148,8 +156,25 @@ class _SearchPageState extends State<UnivSelectPage> {
 
 
   @override
-  Widget build(BuildContext context) {
+  void dispose() {
+    _controller.removeListener(_onSearchChanged);
+    _controller.dispose();
+    super.dispose();
+  }
 
+  void _onSearchChanged() {
+    String searchTerm = _controller.text.toLowerCase();
+    setState(() {
+      filteredUnivNames = univNames
+          .where((univ) => univ.toLowerCase().contains(searchTerm))
+          .toList();
+    });
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
       child: Padding(
@@ -161,28 +186,28 @@ class _SearchPageState extends State<UnivSelectPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 Text(
                   '대학장터에 \n오신것을 환영합니다!',
                   style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
                 ),
-
                 SizedBox(height: 16),
-
                 Text(
                   '이용을 위해 원하시는 대학교를 설정해주세요',
                   style: TextStyle(fontSize: 16, color: Color(0xff767676)),
                 ),
-
                 SizedBox(height: 46),
 
-
-                // 대학 검색 텍스트필드 공간
-                RoundedTextField(labelText: '대학 검색',
-                    controller: _controller,
-                    obscureText: false
+                // 대학 검색 텍스트필드와 결과 리스트를 포함하는 위젯
+                SearchWidget(
+                  controller: _controller,
+                  filteredUnivNames: filteredUnivNames,
+                  onUniversitySelected: (String university) {
+                    setState(() {
+                      _controller.text = university;
+                      filteredUnivNames.clear();
+                    });
+                  },
                 ),
-
 
                 SizedBox(height: 16),
 
@@ -208,16 +233,37 @@ class _SearchPageState extends State<UnivSelectPage> {
                     child: Text('계정이 있으신가요?', style: TextStyle(color: Colors.black, fontSize: 16),),
                   ),
                 ),
-
               ],
             ),
           ),
 
-          //바닥에 등록 버튼 고정
           bottomNavigationBar: Container(
             child: Padding(
               padding: EdgeInsets.all(0.02.sw),
-              child: BtnYesBG(btnText: '다음', onPressed: () => print('hello'),),
+              child: BtnYesBG(
+                btnText: '다음',
+                onPressed: () {
+                  if (_controller.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('대학을 설정해주세요.')),
+                    );
+                  } else {
+                    String enteredUniversity = _controller.text.trim();
+                    if (univNames.contains(enteredUniversity)) {
+                      // 입력된 대학이 리스트에 있는 경우, 다음 페이지로 이동
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => NavigatePage()),
+                      );
+                    } else {
+                      // 입력된 대학이 리스트에 없는 경우
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('해당 대학은 등록되어 있지 않습니다.')),
+                      );
+                    }
+                  }
+                },
+              ),
             ),
           ),
 
@@ -230,8 +276,9 @@ class _SearchPageState extends State<UnivSelectPage> {
 // 하단에서 올라오는 주변 대학 리스트 다이얼로그창
 class BottomSheetContent extends StatelessWidget {
   final List<String> universities;
+  final Function(String) onUniversitySelected;
 
-  BottomSheetContent({required this.universities});
+  BottomSheetContent({required this.universities, required this.onUniversitySelected,});
 
   @override
   Widget build(BuildContext context) {
@@ -278,11 +325,10 @@ class BottomSheetContent extends StatelessWidget {
                             ),
                           ),
 
-
                           // 대학교 선택 버튼
                           Container(
                             width: 90,
-                            child: BtnYesBG(btnText: '선택', onPressed: () { print('${universities[index]} 선택됨'); },),
+                            child: BtnYesBG(btnText: '선택', onPressed: () { onUniversitySelected(universities[index]); },),
                           ),
 
                         ],
@@ -295,6 +341,61 @@ class BottomSheetContent extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+
+class SearchWidget extends StatelessWidget {
+  final TextEditingController controller;
+  final List<String> filteredUnivNames;
+  final Function(String) onUniversitySelected;
+
+  const SearchWidget({
+    Key? key,
+    required this.controller,
+    required this.filteredUnivNames,
+    required this.onUniversitySelected,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        RoundedTextField(
+          labelText: '대학 검색',
+          controller: controller,
+          obscureText: false,
+        ),
+        if (controller.text.isNotEmpty && filteredUnivNames.isNotEmpty)
+          Container(
+            margin: EdgeInsets.only(top: 8),
+            constraints: BoxConstraints(maxHeight: 200),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 1,
+                  blurRadius: 5,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: filteredUnivNames.length > 5 ? 5 : filteredUnivNames.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(filteredUnivNames[index]),
+                  onTap: () => onUniversitySelected(filteredUnivNames[index]),
+                );
+              },
+            ),
+          ),
+      ],
     );
   }
 }
