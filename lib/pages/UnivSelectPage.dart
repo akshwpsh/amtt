@@ -235,8 +235,25 @@ class _SearchPageState extends State<UnivSelectPage> {
 
 
   @override
-  Widget build(BuildContext context) {
+  void dispose() {
+    _controller.removeListener(_onSearchChanged);
+    _controller.dispose();
+    super.dispose();
+  }
 
+  void _onSearchChanged() {
+    String searchTerm = _controller.text.toLowerCase();
+    setState(() {
+      filteredUnivNames = univNames
+          .where((univ) => univ.toLowerCase().contains(searchTerm))
+          .toList();
+    });
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
       child: Padding(
@@ -248,7 +265,6 @@ class _SearchPageState extends State<UnivSelectPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 Text(
                   '대학장터에 \n오신것을 환영합니다!',
                   style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
@@ -298,7 +314,6 @@ class _SearchPageState extends State<UnivSelectPage> {
                     child: Text('계정이 있으신가요?', style: TextStyle(color: Colors.black, fontSize: 16),),
                   ),
                 ),
-
               ],
             ),
           ),
