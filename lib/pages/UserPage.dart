@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:amtt/widgets/UserDefaultTab.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'KeywordsPage.dart';
 import 'WishListPage.dart';
@@ -22,6 +23,8 @@ class _UserEditPageState extends State<UserPage> {
   String? _profileImageUrl;
   String? _Nickname;
   String userEmail = FirebaseAuth.instance.currentUser!.email!;
+  bool _notiEnabled = true;
+
   Future<void> _sendEmail() async {
     String supportEmail = "sophra1234@gmail.com";
     final Email email = Email(
@@ -41,7 +44,6 @@ class _UserEditPageState extends State<UserPage> {
       _showErrorDialog(supportEmail);
     }
   }
-  
 
   void _showErrorDialog(String supportEmail) {
     showDialog(
@@ -89,6 +91,7 @@ class _UserEditPageState extends State<UserPage> {
   void initState() {
     super.initState();
     _loadUserData(); // 유저 데이터 가져오기
+    _loadSetting(); //세팅값 가져오기(지금은 알림만)
   }
 
   // 유저 데이터 가져오기
@@ -111,6 +114,25 @@ class _UserEditPageState extends State<UserPage> {
       });
     }
   }
+
+  Future<void> _loadSetting() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _notiEnabled = prefs.getBool('notificationEnabled') ?? true;
+    });
+
+    print('불러온 알림설정상태: $_notiEnabled');
+  }
+
+  Future<void> _updateSetting(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notificationEnabled', value);
+    setState(() {
+      _notiEnabled = value;
+    });
+    print('갱신한 알림설정상태: $_notiEnabled');
+  }
+
   Future<void> _signOut() async {
     await FirebaseAuth.instance.signOut();
     Navigator.pushAndRemoveUntil(
@@ -319,13 +341,13 @@ class _UserEditPageState extends State<UserPage> {
                           icon: Icons.manage_search,
                           text: '내 게시글 보기',
                           onTap: () => {
-                            print("거래 기록 버튼 클릭"),
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => MyProductsPage()),
-                            )
-                          }),
+                                print("거래 기록 버튼 클릭"),
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => MyProductsPage()),
+                                )
+                              }),
                     ],
                   ),
                 ),
@@ -348,8 +370,15 @@ class _UserEditPageState extends State<UserPage> {
 
                       UsersdefaultTab(
                           icon: Icons.settings,
-                          text: '전체 설정',
-                          onTap: () => {print("전체 설정 클릭")}),
+                          text: '알림 설정',
+                          trailing: Switch(
+                            value: _notiEnabled,
+                            onChanged: (value) {
+                              _updateSetting(value);
+                            },
+                          ),
+                          onTap: () {},
+                          ),
 
                       UsersdefaultTab(
                           icon: Icons.call,
