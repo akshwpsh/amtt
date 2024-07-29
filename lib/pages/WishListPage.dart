@@ -65,7 +65,7 @@ class _WishListPageState extends State<WishListPage> {
               return Center(child: Text('Error: ${snapshot.error}'));
             }
             if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(child: Text('No products found.'));
+              return Center(child: Text('목록 없음'));
             }
 
             return ListView.builder(
