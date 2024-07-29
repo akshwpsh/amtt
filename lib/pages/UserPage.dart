@@ -100,6 +100,9 @@ class _UserEditPageState extends State<UserPage> {
     // 현재 로그인된 사용자의 정보를 가져옵니다.
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
+
+      userEmail = FirebaseAuth.instance.currentUser!.email!;
+
       // Firestore에서 사용자 데이터를 가져옵니다.
       DocumentSnapshot snapshot = await FirebaseFirestore.instance
           .collection('users')
@@ -108,10 +111,12 @@ class _UserEditPageState extends State<UserPage> {
       Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
       String? profileImageUrl = userData['imageUrl']; // 프로필 이미지 URL
       String? nickname = userData['nickName'];
-      print(_profileImageUrl);
+      String? University = userData['school'];
+
       setState(() {
         _profileImageUrl = profileImageUrl;
         _Nickname = nickname;
+        _university = University;
       });
     }
   }
@@ -147,6 +152,7 @@ class _UserEditPageState extends State<UserPage> {
   Widget build(BuildContext context) {
     final nickname = _Nickname ?? "닉네임 정보 없음"; //닉네임
     final email = _Nickname ?? "닉네임 정보 없음"; //닉네임
+    final university = _university ?? "대학 정보 없음"; //닉네임
 
     if(currentUser != null) {
 
@@ -279,7 +285,7 @@ class _UserEditPageState extends State<UserPage> {
                         Row(
                           children: [
                             //대학교 이름 텍스트
-                            const Text('목포대학교',
+                            Text(university,
                                 style: TextStyle(
                                     color: Color(0xff596773), fontSize: 20)),
 
@@ -467,7 +473,10 @@ class _UserEditPageState extends State<UserPage> {
               scrolledUnderElevation: 0,
               automaticallyImplyLeading: false, // 뒤로가기 버튼 비활성화
               backgroundColor: Colors.white,
-              title: Text('나의 정보'),
+              title: Text(
+                '나의 정보',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
 
             body: Center(

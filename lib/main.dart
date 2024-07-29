@@ -1,6 +1,7 @@
 import 'package:amtt/Service/FirebaseService.dart';
 import 'package:amtt/Service/PushNotification.dart';
 import 'package:amtt/pages/UnivSelectPage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -90,6 +91,7 @@ class MyApp extends StatelessWidget {
 
   User? currentUser = FirebaseAuth.instance.currentUser;
 
+
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -111,7 +113,22 @@ class MyApp extends StatelessWidget {
                 cursorColor: Color(0xff4EBDBD), // 커서 색상 설정선택 핸들 색상 설정
               ),
             ),
-            home: UnivSelectPage(),
+            home: currentUser == null
+                ? UnivSelectPage() // 로그인 페이지를 보여주는 경우
+                : FutureBuilder<String>(
+              future: getUserUniversity(currentUser!.uid),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator(); // 로딩 인디케이터
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (snapshot.hasData) {
+                  return NavigatePage(university: snapshot.data!);
+                } else {
+                  return Center(child: Text('No university found.'));
+                }
+              },
+            ),
             onGenerateRoute: (RouteSettings settings) {
               if (settings.name == '/post') {
                 final id = settings.arguments as String;
@@ -136,5 +153,14 @@ class MyApp extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<String> getUserUniversity(String uid) async {
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .get();
+    Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
+    return userData['school'] as String;
   }
 }

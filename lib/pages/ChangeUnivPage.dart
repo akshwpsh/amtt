@@ -73,6 +73,7 @@ class _SearchPageState extends State<ChangeUnivPage> {
   void initState() {
     super.initState();
     fetchUniversities();
+    _loadUserData();
     _controller.addListener(_onSearchChanged);
   }
 
@@ -172,6 +173,52 @@ class _SearchPageState extends State<ChangeUnivPage> {
   }
 
 
+  // 계정 정보 수정
+  void _updateUser() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+
+      Map<String, dynamic> updatedData = {
+        'school': _controller.text,
+      };
+
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .update(updatedData);
+
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('대학 정보가 변경되었습니다')));
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => NavigatePage(university: _controller.text)),
+      );
+      
+    }
+  }
+
+  // 유저 정보 로드
+  Future<void> _loadUserData() async {
+
+    // 현재 로그인된 사용자의 정보를 가져옵니다.
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+
+      // Firestore에서 사용자 데이터를 가져옵니다.
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .get();
+      Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
+
+      setState(() {
+        _controller.text = userData['school'];
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -181,6 +228,17 @@ class _SearchPageState extends State<ChangeUnivPage> {
         padding: EdgeInsets.all(0.04.sw),
         child: Scaffold(
           backgroundColor: Colors.white,
+
+          appBar: AppBar(
+            scrolledUnderElevation: 0,
+            backgroundColor: Colors.white,
+            title: Text(
+              '나의 정보',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+
+
           body: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -228,7 +286,7 @@ class _SearchPageState extends State<ChangeUnivPage> {
               child: Container(
                 height: 50,
                 child: BtnYesBG(
-                  btnText: '다음',
+                  btnText: '변경',
                   onPressed: () {
                     if (_controller.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -237,11 +295,8 @@ class _SearchPageState extends State<ChangeUnivPage> {
                     } else {
                       String enteredUniversity = _controller.text.trim();
                       if (univNames.contains(enteredUniversity)) {
-                        // 입력된 대학이 리스트에 있는 경우, 다음 페이지로 이동
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => NavigatePage(university: enteredUniversity)),
-                        );
+                        // 입력된 대학이 리스트에 있는 경우, 유저의 대학 정보를 변경
+                        _updateUser();
                       } else {
                         // 입력된 대학이 리스트에 없는 경우
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -316,7 +371,8 @@ class BottomSheetContent extends StatelessWidget {
                           // 대학교 선택 버튼
                           Container(
                             width: 90,
-                            child: BtnYesBG(btnText: '선택', onPressed: () { onUniversitySelected(universities[index]); },),
+                            child: BtnYesBG(btnText: '선택', 
+                              onPressed: () { onUniversitySelected(universities[index]); },),
                           ),
 
                         ],

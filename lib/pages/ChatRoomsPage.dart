@@ -252,7 +252,10 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
               scrolledUnderElevation: 0,
               automaticallyImplyLeading: false, // 뒤로가기 버튼 비활성화
               backgroundColor: Colors.white,
-              title: Text('채팅 목록'),
+              title: Text(
+                '채팅 목록',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
 
             body: Center(
