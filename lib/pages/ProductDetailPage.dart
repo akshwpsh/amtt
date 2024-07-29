@@ -381,6 +381,18 @@ class ProductDetailPage extends StatelessWidget {
                                     child: BtnYesBG(
                                       btnText: "채팅하기",
                                       onPressed: () async {
+
+                                        // 로그인 안되어 있으면 로그인 스낵바 띄움
+                                        if(user == null) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            SnackBar(
+                                                content: Text('로그인이 필요한 기능입니다')),
+                                          );
+                                          return;
+                                        }
+
+                                        // 로그인되어있고 나의 게시물일때
                                         if (postUserId == user!.uid) {
                                           // 본인 게시물인 경우
                                           ScaffoldMessenger.of(context)
@@ -390,7 +402,8 @@ class ProductDetailPage extends StatelessWidget {
                                           );
                                           return;
                                         }
-                                        // Check for an existing chat room
+                                        
+                                        // 존재하는 채팅방 찾기
                                         String? existingChatId =
                                             await FirebaseService()
                                                 .getExistingChatRoomId(
@@ -409,7 +422,7 @@ class ProductDetailPage extends StatelessWidget {
                                                   postUserId, postId, postName);
                                         }
 
-                                        // Navigate to the chat room
+                                        // 채팅방으로 이동
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(

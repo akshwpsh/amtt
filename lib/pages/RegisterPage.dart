@@ -412,17 +412,17 @@ class SignUpStep5 extends StatelessWidget {
           ),
           SizedBox(height: 20),
           TextField(
-            controller: schoolController,
+            controller: departmentController,
             decoration: InputDecoration(
-              labelText: '학교',
+              labelText: '학과',
               border: OutlineInputBorder(),
             ),
           ),
           SizedBox(height: 20),
           TextField(
-            controller: departmentController,
+            controller: schoolController,
             decoration: InputDecoration(
-              labelText: '학과',
+              labelText: '학교',
               border: OutlineInputBorder(),
             ),
           ),
