@@ -26,6 +26,7 @@ class _UserEditPageState extends State<UserPage> {
   bool _notiEnabled = true;
 
   Future<void> _sendEmail() async {
+    userEmail = FirebaseAuth.instance.currentUser!.email!;
     String supportEmail = "sophra1234@gmail.com";
     final Email email = Email(
       body: '보낸 사람: ${userEmail}\n 문의 내용을 입력해주세요.',
@@ -147,40 +148,30 @@ class _UserEditPageState extends State<UserPage> {
     final nickname = _Nickname ?? "닉네임 정보 없음"; //닉네임
     final email = _Nickname ?? "닉네임 정보 없음"; //닉네임
 
-    return Container(
-      color: Colors.white,
-      child: Padding(
-        padding: EdgeInsets.all(0.04.sw),
-        child: Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            scrolledUnderElevation: 0, //스크롤 해도 색상 바뀌지 않게
-            title: Text(
-              '나의 정보',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            titleSpacing: 0, //  앱바 제목 왼쪽 마진 없애기
+    if(currentUser != null) {
+      return Container(
+        color: Colors.white,
+        child: Padding(
+          padding: EdgeInsets.all(0.04.sw),
+          child: Scaffold(
             backgroundColor: Colors.white,
-          ),
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(height: 0.02.sh),
+            appBar: AppBar(
+              scrolledUnderElevation: 0, //스크롤 해도 색상 바뀌지 않게
+              title: Text(
+                '나의 정보',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              titleSpacing: 0, //  앱바 제목 왼쪽 마진 없애기
+              backgroundColor: Colors.white,
+            ),
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  SizedBox(height: 0.02.sh),
 
-                // 유저 프로필 공간
-                Material(
-                  color: Color(0xffF7F8F8), // 여기에 원하는 배경색을 설정
-                  borderRadius: BorderRadius.circular(12),
-                  child: InkWell(
-                    onTap: () => {
-                      //계정 정보 수정 페이지로 넘어가기
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => UserEditPage()),
-                      )
-                    }, //클릭 이벤트
-                    highlightColor: Colors.grey.withOpacity(0.1), //길게 누를 때 색상
-                    splashColor: Colors.grey.withOpacity(0.2), //탭 했을 때 잉크 효과 색상
+                  // 유저 프로필 공간
+                  Material(
+                    color: Color(0xffF7F8F8), // 여기에 원하는 배경색을 설정
                     borderRadius: BorderRadius.circular(12),
                     child: Padding(
                       padding:
@@ -216,86 +207,85 @@ class _UserEditPageState extends State<UserPage> {
                                     : null,
                               ),
                             ),
-                          ),
 
-                          SizedBox(width: 10),
+                            SizedBox(width: 10),
 
-                          // 사용자 정보 공간 (닉네임, 계정 이메일)
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // 사용자 닉네임 텍스트
-                                Text(
-                                  nickname,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                            // 사용자 정보 공간 (닉네임, 계정 이메일)
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // 사용자 닉네임 텍스트
+                                  Text(
+                                    nickname,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
 
-                                SizedBox(height: 4),
+                                  SizedBox(height: 4),
 
-                                // 사용자 계정 이메일 텍스트
-                                Text(
-                                  userEmail,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
+                                  // 사용자 계정 이메일 텍스트
+                                  Text(
+                                    userEmail!,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
 
-                          // 화살표 아이콘
-                          Container(
-                            child: const Icon(
-                              Icons.chevron_right,
-                              color: Colors.grey,
-                              size: 30,
+                            // 화살표 아이콘
+                            Container(
+                              child: const Icon(
+                                Icons.chevron_right,
+                                color: Colors.grey,
+                                size: 30,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                SizedBox(height: 0.02.sh),
+                  SizedBox(height: 0.02.sh),
 
-                //대학교 설정 탭 (대학교 이름, 변경 버튼)
-                Container(
-                  child: Column(
-                    children: [
-                      //대학교 설정 탭 제목 텍스트
-                      UserTabTitle(text: '대학교 설정'),
+                  //대학교 설정 탭 (대학교 이름, 변경 버튼)
+                  Container(
+                    child: Column(
+                      children: [
+                        //대학교 설정 탭 제목 텍스트
+                        UserTabTitle(text: '대학교 설정'),
 
-                      SizedBox(height: 0.01.sh),
+                        SizedBox(height: 0.01.sh),
 
-                      Row(
-                        children: [
-                          //대학교 이름 텍스트
-                          const Text('목포대학교',
-                              style: TextStyle(
-                                  color: Color(0xff596773), fontSize: 20)),
+                        Row(
+                          children: [
+                            //대학교 이름 텍스트
+                            const Text('목포대학교',
+                                style: TextStyle(
+                                    color: Color(0xff596773), fontSize: 20)),
 
-                          Spacer(),
+                            Spacer(),
 
-                          // 대학교 설정 변경 버튼 공간
-                          CustomButton(
-                            text: '변경',
-                            onPressed: () {
-                              // 버튼이 클릭되었을 때 실행할 코드
-                            },
-                          )
-                        ],
-                      )
-                    ],
+                            // 대학교 설정 변경 버튼 공간
+                            CustomButton(
+                              text: '변경',
+                              onPressed: () {
+                                // 버튼이 클릭되었을 때 실행할 코드
+                              },
+                            )
+                          ],
+                        )
+                      ],
+                    ),
                   ),
-                ),
 
-                SizedBox(height: 0.01.sh),
+                  SizedBox(height: 0.01.sh),
 
                 //디바이더
                 const Divider(
@@ -350,23 +340,25 @@ class _UserEditPageState extends State<UserPage> {
                               }),
                     ],
                   ),
-                ),
 
-                //디바이더
-                const Divider(
-                  height: 20,
-                  thickness: 2,
-                  indent: 0,
-                  endIndent: 0,
-                  color: Color(0xffdbdbdb),
-                ),
+                  //앱 관련 설정 탭 (알림 키워드 등록, 찜한 목록, 거래 기록)
+                  Container(
+                    child: Column(
+                      children: [
+                        //앱 관련 탭 제목 텍스트
+                        UserTabTitle(text: '앱 관련'),
 
-                //기타 설정 탭 (전체 설정, 문의 하기, 로그 아웃)
-                Container(
-                  child: Column(
-                    children: [
-                      //기타 설정 탭 제목 텍스트
-                      UserTabTitle(text: '기타'),
+                        UsersdefaultTab(
+                            icon: Icons.markunread_sharp,
+                            text: '알림 키워드 관리',
+                            onTap: () => {
+                              //알림 키워드 관리 페이지로 넘어가기
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => KeywordsPage()),
+                              )
+                            }),
 
                       UsersdefaultTab(
                           icon: Icons.settings,
@@ -380,33 +372,105 @@ class _UserEditPageState extends State<UserPage> {
                           onTap: () {},
                           ),
 
-                      UsersdefaultTab(
-                          icon: Icons.call,
-                          text: '문의 하기',
-                          onTap: () async => {_sendEmail()}),
-
-                      UsersdefaultTab(
-                          icon: Icons.logout_rounded,
-                          text: '로그 아웃',
-                          onTap: () async => {_signOut()}),
-                    ],
+                        UsersdefaultTab(
+                            icon: Icons.manage_search,
+                            text: '내 게시글 보기',
+                            onTap: () => {print("거래 기록 버튼 클릭")}),
+                      ],
+                    ),
                   ),
-                ),
 
-                //디바이더
-                const Divider(
-                  height: 20,
-                  thickness: 2,
-                  indent: 0,
-                  endIndent: 0,
-                  color: Color(0xffdbdbdb),
-                ),
-              ],
+                  //디바이더
+                  const Divider(
+                    height: 20,
+                    thickness: 2,
+                    indent: 0,
+                    endIndent: 0,
+                    color: Color(0xffdbdbdb),
+                  ),
+
+                  //기타 설정 탭 (전체 설정, 문의 하기, 로그 아웃)
+                  Container(
+                    child: Column(
+                      children: [
+                        //기타 설정 탭 제목 텍스트
+                        UserTabTitle(text: '기타'),
+
+                        UsersdefaultTab(
+                            icon: Icons.settings,
+                            text: '전체 설정',
+                            onTap: () => {print("전체 설정 클릭")}),
+
+                        UsersdefaultTab(
+                            icon: Icons.call,
+                            text: '문의 하기',
+                            onTap: () async => {_sendEmail()}),
+
+                        UsersdefaultTab(
+                            icon: Icons.logout_rounded,
+                            text: '로그 아웃',
+                            onTap: () async => {_signOut()}),
+                      ],
+                    ),
+                  ),
+
+                  //디바이더
+                  const Divider(
+                    height: 20,
+                    thickness: 2,
+                    indent: 0,
+                    endIndent: 0,
+                    color: Color(0xffdbdbdb),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    }
+    else {
+      return Container(
+        color: Colors.white,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 0.06.sw, vertical: 10),
+          child: Scaffold (
+
+            backgroundColor: Colors.white,
+
+            appBar: AppBar(
+              scrolledUnderElevation: 0,
+              automaticallyImplyLeading: false, // 뒤로가기 버튼 비활성화
+              backgroundColor: Colors.white,
+              title: Text('나의 정보'),
+            ),
+
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                      '로그인이 필요한 기능입니다'
+                  ),
+                  SizedBox(height: 10,),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      );
+                    },
+                    child: Text('로그인', style: TextStyle(color: Color(0xFF4EBDBD), fontSize: 18),),
+                  ),
+                ],
+              ),
+            ),
+
+          ),
+        ),
+
+      );
+    }
   }
 }
 
