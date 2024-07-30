@@ -23,7 +23,11 @@ class UserPage extends StatefulWidget {
 class _UserEditPageState extends State<UserPage> {
   String? _profileImageUrl;
   String? _Nickname;
-  String userEmail = FirebaseAuth.instance.currentUser!.email!;
+  String? userEmail;
+  String? _university;
+
+  User? currentUser = FirebaseAuth.instance.currentUser;
+
   bool _notiEnabled = true;
 
   Future<void> _sendEmail() async {
@@ -113,6 +117,7 @@ class _UserEditPageState extends State<UserPage> {
       String? nickname = userData['nickName'];
       String? University = userData['school'];
 
+      print(_profileImageUrl);
       setState(() {
         _profileImageUrl = profileImageUrl;
         _Nickname = nickname;
@@ -247,7 +252,7 @@ class _UserEditPageState extends State<UserPage> {
 
                                   // 사용자 계정 이메일 텍스트
                                   Text(
-                                    userEmail ?? '이메일 가져오기 오류',
+                                    userEmail!,
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.grey,
@@ -302,65 +307,21 @@ class _UserEditPageState extends State<UserPage> {
                                 );
                               },
                             )
-                          }),
-
-                      UsersdefaultTab(
-                          icon: Icons.favorite,
-                          text: '찜한 목록 보기',
-                          onTap: () => {
-                            //찜한 목록 페이지로 넘어가기
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => WishListPage()),
-                            )
-                          }),
-
-                      UsersdefaultTab(
-                          icon: Icons.manage_search,
-                          text: '내 게시글 보기',
-                          onTap: () => {
-                                print("거래 기록 버튼 클릭"),
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => MyProductsPage()),
-                                )
-                              }),
-                    ],
+                          ],
+                        )
+                      ],
+                    ),
                   ),
 
                   SizedBox(height: 0.01.sh),
 
-                //기타 설정 탭 (전체 설정, 문의 하기, 로그 아웃)
-                Container(
-                  child: Column(
-                    children: [
-                      //기타 설정 탭 제목 텍스트
-                      UserTabTitle(text: '기타'),
-
-                      UsersdefaultTab(
-                          icon: Icons.settings,
-                          text: '알림 설정',
-                          trailing: Switch(
-                            value: _notiEnabled,
-                            onChanged: (value) {
-                              _updateSetting(value);
-                            },
-                          ),
-                          onTap: () {},
-                          ),
-
-                      UsersdefaultTab(
-                          icon: Icons.call,
-                          text: '문의 하기',
-                          onTap: () async => {_sendEmail()}),
-
-                      UsersdefaultTab(
-                          icon: Icons.logout_rounded,
-                          text: '로그 아웃',
-                          onTap: () async => {_signOut()}),
-                    ],
+                  //디바이더
+                  const Divider(
+                    height: 20,
+                    thickness: 2,
+                    indent: 0,
+                    endIndent: 0,
+                    color: Color(0xffdbdbdb),
                   ),
 
                   //앱 관련 설정 탭 (알림 키워드 등록, 찜한 목록, 거래 기록)
@@ -426,9 +387,16 @@ class _UserEditPageState extends State<UserPage> {
                         UserTabTitle(text: '기타'),
 
                         UsersdefaultTab(
-                            icon: Icons.settings,
-                            text: '전체 설정',
-                            onTap: () => {print("전체 설정 클릭")}),
+                          icon: Icons.settings,
+                          text: '알림 설정',
+                          trailing: Switch(
+                            value: _notiEnabled,
+                            onChanged: (value) {
+                              _updateSetting(value);
+                            },
+                          ),
+                          onTap: () {},
+                        ),
 
                         UsersdefaultTab(
                             icon: Icons.call,
@@ -473,10 +441,7 @@ class _UserEditPageState extends State<UserPage> {
               scrolledUnderElevation: 0,
               automaticallyImplyLeading: false, // 뒤로가기 버튼 비활성화
               backgroundColor: Colors.white,
-              title: Text(
-                '나의 정보',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              title: Text('나의 정보'),
             ),
 
             body: Center(
@@ -504,6 +469,7 @@ class _UserEditPageState extends State<UserPage> {
         ),
 
       );
+
 
     }
   }
