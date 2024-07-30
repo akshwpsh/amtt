@@ -327,7 +327,7 @@ class _SearchPageState extends State<UnivSelectPage> {
                     ),
                   ),
 
-                  SizedBox(height: 0.45.sh),
+                  SizedBox(height: 200),
 
 
                   // 로그인 버튼
