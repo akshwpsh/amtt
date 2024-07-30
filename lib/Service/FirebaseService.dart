@@ -6,7 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:googleapis_auth/auth_io.dart' as auth;
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FirebaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -16,7 +16,8 @@ class FirebaseService {
     String uid = FirebaseAuth.instance.currentUser!.uid;
     if (uid.isNotEmpty && token != null) {
       // Firestore에서 동일한 uid와 token을 가진 문서가 있는지 확인
-      final querySnapshot = await _firestore.collection('MessageTokens')
+      final querySnapshot = await _firestore
+          .collection('MessageTokens')
           .where('uid', isEqualTo: uid)
           .where('token', isEqualTo: token)
           .get();
@@ -32,49 +33,62 @@ class FirebaseService {
   }
 
   Future<void> notifyUsersByTitle(String title, String productId) async {
+    final prefs = await SharedPreferences.getInstance();
+    bool _notiEnabled = prefs.getBool('notificationEnabled') ?? true;
+    if (!_notiEnabled) return;
+
     String currentUid = FirebaseAuth.instance.currentUser!.uid;
     // 1. 키워드 컬렉션에서 모든 문서를 가져온다.
-    QuerySnapshot keywordSnapshot = await _firestore.collection('keywords').get();
+    QuerySnapshot keywordSnapshot =
+        await _firestore.collection('keywords').get();
 
     // 2. 제목에 포함된 키워드를 찾는다.
     for (var doc in keywordSnapshot.docs) {
-
       String keyword = doc['keyword'];
       String uid = doc['uid'];
       // 3. 현재 로그인한 사용자는 제외
-      if ( uid != currentUid && title.contains(keyword)) {
+      if (uid != currentUid && title.contains(keyword)) {
         // 4. 해당 키워드를 가진 사용자의 메시지 토큰을 가져온다.
-        QuerySnapshot tokenSnapshot = await _firestore.collection('MessageTokens')
+        QuerySnapshot tokenSnapshot = await _firestore
+            .collection('MessageTokens')
             .where('uid', isEqualTo: uid)
             .get();
 
         // 5. 메시지 토큰을 사용하여 알림을 보낸다.
         for (var tokenDoc in tokenSnapshot.docs) {
           String token = tokenDoc['token'];
-          print ('send to $uid, $token');
-          await send(token, title, "키워드를 포함한 게시글이 등록됐습니다.", "keyword", productId);
+          print('send to $uid, $token');
+          await send(
+              token, title, "키워드를 포함한 게시글이 등록됐습니다.", "keyword", productId);
         }
       }
     }
   }
 
-  Future<void> notifyChat(String toUid,String messageId ,String message) async{
-    if(toUid.isNotEmpty){
-      QuerySnapshot tokenSnapshot = await _firestore.collection('MessageTokens')
+  Future<void> notifyChat(
+      String toUid, String messageId, String message) async {
+
+    final prefs = await SharedPreferences.getInstance();
+    bool _notiEnabled = prefs.getBool('notificationEnabled') ?? true;
+    if (!_notiEnabled) return;    
+    
+    if (toUid.isNotEmpty) {
+      QuerySnapshot tokenSnapshot = await _firestore
+          .collection('MessageTokens')
           .where('uid', isEqualTo: toUid)
           .get();
       for (var tokenDoc in tokenSnapshot.docs) {
         String token = tokenDoc['token'];
-        print ('send to $toUid, $token');
+        print('send to $toUid, $token');
         await send(token, "새로운 메시지가 도착했습니다.", message, "message", messageId);
       }
     }
   }
 
-
-  static Future<void> send(String token, String title, String body, String type, String id) async {
+  static Future<void> send(
+      String token, String title, String body, String type, String id) async {
     final jsonCredentials =
-    await rootBundle.loadString('assets/secret_key.json');
+        await rootBundle.loadString('assets/secret_key.json');
     final creds = auth.ServiceAccountCredentials.fromJson(jsonCredentials);
     final fcmurl = await FirebaseService().getFCMUrl();
     final client = await auth.clientViaServiceAccount(
@@ -85,7 +99,8 @@ class FirebaseService {
     final notificationData = {
       'message': {
         'token': token, //기기 토큰
-        'data': { //payload 데이터 구성
+        'data': {
+          //payload 데이터 구성
           'type': type,
           'id': id,
         },
@@ -105,8 +120,7 @@ class FirebaseService {
     );
 
     if (response.statusCode == 200) {
-     print(
-          'FCM notification sent with status code: ${response.statusCode}');
+      print('FCM notification sent with status code: ${response.statusCode}');
     } else {
       print(
           '${response.statusCode} , ${response.reasonPhrase} , ${response.body}');
@@ -125,18 +139,23 @@ class FirebaseService {
     return data['vapid_key'];
   }
 
-  Future<String> createChatRoom(String otherUserId, String productId, String roomName) async {
+  Future<String> createChatRoom(
+      String otherUserId, String productId, String roomName) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
 
     // 1. 채팅방 문서 생성
-    DocumentReference chatRoomRef = await FirebaseFirestore.instance.collection('chat_rooms').add({
+    DocumentReference chatRoomRef =
+        await FirebaseFirestore.instance.collection('chat_rooms').add({
       'name': roomName,
       'last_updated': FieldValue.serverTimestamp(),
       'product_id': productId,
     });
 
     // 2. 참여자 문서 생성
-    await FirebaseFirestore.instance.collection('chat_participants').doc('${chatRoomRef.id}-$userId').set({
+    await FirebaseFirestore.instance
+        .collection('chat_participants')
+        .doc('${chatRoomRef.id}-$userId')
+        .set({
       'product_id': productId,
       'room_id': chatRoomRef.id,
       'user_id': userId,
@@ -144,7 +163,10 @@ class FirebaseService {
       'left_at': null,
     });
 
-    await FirebaseFirestore.instance.collection('chat_participants').doc('${chatRoomRef.id}-$otherUserId').set({
+    await FirebaseFirestore.instance
+        .collection('chat_participants')
+        .doc('${chatRoomRef.id}-$otherUserId')
+        .set({
       'product_id': productId,
       'room_id': chatRoomRef.id,
       'user_id': otherUserId,
@@ -155,12 +177,12 @@ class FirebaseService {
     return chatRoomRef.id;
   }
 
-
   Future<void> leaveChatRoom(String chatRoomId) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
 
     // 1. 참여자 문서 업데이트
-    await FirebaseFirestore.instance.collection('chat_participants')
+    await FirebaseFirestore.instance
+        .collection('chat_participants')
         .doc('$chatRoomId-$userId')
         .update({
       'left_at': FieldValue.serverTimestamp(),
@@ -178,7 +200,8 @@ class FirebaseService {
 
     if (!participantDoc.exists || participantDoc['left_at'] != null) {
       // 2. 채팅방 참여
-      await FirebaseFirestore.instance.collection('chat_participants')
+      await FirebaseFirestore.instance
+          .collection('chat_participants')
           .doc('$chatRoomId-$userId')
           .set({
         'product_id': participantDoc['product_id'],
@@ -190,7 +213,8 @@ class FirebaseService {
     }
   }
 
-  Future<String?> getExistingChatRoomId(String otherUserId, String productId) async {
+  Future<String?> getExistingChatRoomId(
+      String otherUserId, String productId) async {
     String userId = FirebaseAuth.instance.currentUser!.uid;
 
     // 1. 사용자와 특정 제품에 대한 모든 채팅방 조회
@@ -204,7 +228,8 @@ class FirebaseService {
       String chatRoomId = userChatDoc['room_id'];
 
       // 2. 해당 채팅방에 다른 사용자가 참여하고 있는지 확인
-      QuerySnapshot otherUserChatRoomsSnapshot = await FirebaseFirestore.instance
+      QuerySnapshot otherUserChatRoomsSnapshot = await FirebaseFirestore
+          .instance
           .collection('chat_participants')
           .where('room_id', isEqualTo: chatRoomId)
           .where('user_id', isEqualTo: otherUserId)
@@ -220,16 +245,4 @@ class FirebaseService {
     print('No existing chat room found');
     return null;
   }
-
-
-
 }
-
-
-
-
-
-
-
-
-
