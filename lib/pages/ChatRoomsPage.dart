@@ -256,6 +256,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                 '채팅 목록',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
+              titleSpacing: 0,
             ),
 
             body: Center(

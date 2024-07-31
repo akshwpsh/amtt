@@ -390,6 +390,7 @@ class _UserEditPageState extends State<UserPage> {
                           icon: Icons.settings,
                           text: '알림 설정',
                           trailing: Switch(
+                            activeColor: Color(0xFF4EBDBD),
                             value: _notiEnabled,
                             onChanged: (value) {
                               _updateSetting(value);
@@ -441,7 +442,11 @@ class _UserEditPageState extends State<UserPage> {
               scrolledUnderElevation: 0,
               automaticallyImplyLeading: false, // 뒤로가기 버튼 비활성화
               backgroundColor: Colors.white,
-              title: Text('나의 정보'),
+              title: Text(
+                '나의 정보',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              titleSpacing: 0,
             ),
 
             body: Center(
