@@ -398,7 +398,7 @@ class ProductDetailPage extends StatelessWidget {
                                 ),
                                 child: BottomAppBar(
                                     color: Colors.white,
-                                    padding: EdgeInsets.symmetric(horizontal: 0.1.sw),
+                                    padding: EdgeInsets.symmetric(horizontal: 0),
                                     child: Container(
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
