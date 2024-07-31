@@ -69,7 +69,7 @@ class MainPage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ProductListPage()),
+                  MaterialPageRoute(builder: (context) => ProductListPage(university: '목포대학교',)),
                 );
               },
             ),

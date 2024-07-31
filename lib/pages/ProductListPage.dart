@@ -12,6 +12,10 @@ import 'SearchPage.dart';
 import 'package:amtt/widgets/ProductCard.dart';
 
 class ProductListPage extends StatefulWidget {
+  final String university;
+
+  ProductListPage({Key? key, required this.university}) : super(key: key);
+
   @override
   _ProductListPageState createState() => _ProductListPageState();
 }
@@ -28,6 +32,7 @@ class _ProductListPageState extends State<ProductListPage> {
 
   @override
   Widget build(BuildContext context) {
+    String university = widget.university;
     return Container(
       color: Colors.white,
       child: Padding(
@@ -40,7 +45,7 @@ class _ProductListPageState extends State<ProductListPage> {
             backgroundColor: Colors.white,
             // TODO : 여기 접속한 유저가 선택한 대학에 따라 설정되게 해야함
             title: Text(
-              '목포대학교',
+              university,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             titleSpacing: 0,
@@ -110,6 +115,7 @@ class _ProductListPageState extends State<ProductListPage> {
                 child: StreamBuilder<QuerySnapshot>(
                   stream: _firestore
                       .collection('products')
+                      .where('University', isEqualTo: widget.university)
                       .orderBy('timestamp', descending: true)
                       .snapshots(),
                   builder: (context, snapshot) {
@@ -120,8 +126,10 @@ class _ProductListPageState extends State<ProductListPage> {
                       return Center(child: Text('Error: ${snapshot.error}'));
                     }
                     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return Center(child: Text('No products found.'));
+                      return Center(child: Text('게시글 없음'));
                     }
+
+
 
                     final filteredDocs = snapshot.data!.docs.where((doc) {
                       final data = doc.data() as Map<String, dynamic>;

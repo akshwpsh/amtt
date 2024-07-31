@@ -6,6 +6,9 @@ import 'ProductListPage.dart';
 //import 'UserPage.dart';
 
 class NavigatePage extends StatefulWidget {
+  final String university;
+
+  NavigatePage({Key? key, required this.university}) : super(key: key);
 
   @override
   NavigateState createState() => NavigateState();
@@ -17,12 +20,8 @@ class NavigateState extends State<NavigatePage> {
   // 초기 네비게이션 바 인덱스
   int selectedIndex = 0;
 
-  // 네비게이션 바 페이지 위젯들 리스트
-  final List<Widget> NavPage = [
-    ProductListPage(),
-    ChatRoomsPage(),
-    UserPage(),
-  ];
+
+
 
   // 네비게이션 바 아이템 클릭시
   void OnNavTapped(int index) {
@@ -33,6 +32,17 @@ class NavigateState extends State<NavigatePage> {
 
   @override
   Widget build(BuildContext context) {
+
+    print("입력된 대학은");
+    print(widget.university);
+
+    // 네비게이션 바 페이지 위젯들 리스트
+    final List<Widget> NavPage = [
+      ProductListPage(university: widget.university),
+      ChatRoomsPage(),
+      UserPage(),
+    ];
+
     return Scaffold(
       body: NavPage.elementAt(selectedIndex),
       bottomNavigationBar: BottomNavigationBar(

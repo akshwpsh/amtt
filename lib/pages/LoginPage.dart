@@ -101,6 +101,7 @@ class _LoginPageState extends State<LoginPage> {
 
             SizedBox(height: 0.1.sh),
 
+            /*
             BtnNoBG(
                 btnText: '로그인 없이 계속하기',
                 onPressed: () {
@@ -108,7 +109,8 @@ class _LoginPageState extends State<LoginPage> {
                     context,
                     MaterialPageRoute(builder: (context) => NavigatePage()),
                   );
-                }),
+                }),*/
+
             //구글로 로그인하기
             BtnYesBG(btnText: '구글로 로그인', onPressed: _googleSignIn),
           ],
@@ -126,9 +128,21 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       print('Login successful: $userCredential');
+
+      // 로그인 성공시 로그인 유저 데이터를 uid 로 가져옴
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser?.uid)
+          .get();
+      Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
+
+      // 로그인 유저의 대학교를 가져옴
+      String UserUniversity = userData['school'];
+
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => NavigatePage()),
+        MaterialPageRoute(builder: (context) => NavigatePage(university: UserUniversity)),
       );
       FirebaseService().saveMessageToken();
     } catch (e) {
@@ -155,9 +169,16 @@ class _LoginPageState extends State<LoginPage> {
       if (user != null) {
         final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
         if (userDoc.exists) {
+
+          // 로그인 성공시 로그인 유저 데이터를 uid 로 가져옴
+          Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+
+          // 로그인 유저의 대학교를 가져옴
+          String UserUniversity = userData['school'];
+
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => NavigatePage()),
+            MaterialPageRoute(builder: (context) => NavigatePage(university: UserUniversity)),
           );
         } else {
           Navigator.push(
