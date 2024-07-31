@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -194,7 +195,7 @@ class _RegisterPageState extends State<RegisterPage> {
               padding: EdgeInsets.only(
                   bottom: MediaQuery.of(context).viewInsets.bottom),
               child: Padding(
-                  padding: EdgeInsets.all(0.1.sw),
+                  padding: EdgeInsets.symmetric(horizontal: 0.1.sw),
                   child: Container(
                       height: 0.15.sh,
                       child: Column(
@@ -387,6 +388,10 @@ class SignUpStep4 extends StatelessWidget {
           RoundedTextField(
             labelText: '전화번호',
             controller: phoneNumberController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [ //숫자만 받도록 제한
+              FilteringTextInputFormatter.digitsOnly
+            ],
             obscureText: false,
           ),
         ],
@@ -551,6 +556,10 @@ class _SignUpStep5State extends State<SignUpStep5> {
           RoundedTextField(
               labelText: '학번',
               controller: widget.studentIdController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [ //숫자만 받도록 제한
+                FilteringTextInputFormatter.digitsOnly
+              ],
               obscureText: false,
           ),
           SizedBox(height: 20),

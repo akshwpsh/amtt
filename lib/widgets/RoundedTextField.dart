@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class RoundedTextField extends StatelessWidget {
   final String labelText;
   final TextEditingController controller;
   final bool obscureText;
-  const RoundedTextField({Key? key, required this.labelText, required this.controller, required this.obscureText}) : super(key: key);
+  final List<TextInputFormatter>? inputFormatters;
+  final TextInputType? keyboardType;
+
+  const RoundedTextField({Key? key, required this.labelText, required this.controller,
+    required this.obscureText, this.inputFormatters, this.keyboardType,}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +32,7 @@ class RoundedTextField extends StatelessWidget {
             obscureText: obscureText,
             style: TextStyle(color: Color(0xff596773)),
             textAlignVertical: TextAlignVertical.center, // 수직 정렬 유지
+            keyboardType: keyboardType,
             decoration: InputDecoration(
               floatingLabelBehavior: FloatingLabelBehavior.never,
               labelText: labelText,
@@ -34,6 +40,7 @@ class RoundedTextField extends StatelessWidget {
               isCollapsed: true, // 내부 여백을 없애 텍스트가 중앙에 오도록 함
               contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0), // 수직 패딩 추가
             ),
+            inputFormatters: inputFormatters,
           ),
         ),
       ),

@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:flutter/material.dart';
@@ -228,6 +229,9 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                   TextField(
                     keyboardType: TextInputType.number,
                     controller: _productPriceController,
+                    inputFormatters: [ //숫자만 받도록 제한
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: '가격',
