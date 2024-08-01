@@ -61,12 +61,13 @@ class _ProductListPageState extends State<ProductListPage> {
                     Icons.search,
                     size: 30,
                   )),
+              /*
               IconButton(
                   onPressed: () => {print("알림버튼 클릭")},
                   icon: Icon(
                     Icons.notifications_none,
                     size: 30,
-                  )),
+                  )),*/
             ],
           ),
           body: Column(
