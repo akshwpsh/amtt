@@ -55,6 +55,7 @@ class _MyProductspageState extends State<MyProductsPage> {
         padding: EdgeInsets.all(0.04.sw),
         child: Scaffold(
           appBar: AppBar(
+            scrolledUnderElevation: 0, //스크롤 해도 색상 바뀌지 않게
             title: Text('내 게시글'),
             backgroundColor: Colors.white,
           ),
