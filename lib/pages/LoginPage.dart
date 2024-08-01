@@ -37,8 +37,7 @@ class _LoginPageState extends State<LoginPage> {
         padding: EdgeInsets.all(0.1.sw),
         child: Column(
           children: [
-            //TODO : AppBar 지울 때 0.1.sh 로 변경!
-            SizedBox(height: 0.02.sh),
+            SizedBox(height: 0.1.sh),
 
             TitleLogo(), //로고
 
@@ -147,6 +146,13 @@ class _LoginPageState extends State<LoginPage> {
       FirebaseService().saveMessageToken();
     } catch (e) {
       print('Login failed: $e');
+
+      // 로그인 실패시 스낵바
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("이메일 또는 비밀번호를 다시 한 번 확인해주세요"),
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),),
+      );
     }
   }
 

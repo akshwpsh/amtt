@@ -269,7 +269,7 @@ class ChatPage extends StatelessWidget {
 
                       //메시지 전송버튼
                       Container(
-                        width: 80,
+                        width: 0.1.sw,
                         child: ElevatedButton(
                           onPressed: _sendMessage,
                           style: ElevatedButton.styleFrom(
@@ -280,9 +280,10 @@ class ChatPage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12.0), // 모서리 둥글게
                             ),
                           ),
-                          child: Text(
-                            '전송', // 버튼에 표시할 텍스트
-                            style: TextStyle(fontSize: 20), // 텍스트 스타일 설정
+                          child: Icon(
+                            Icons.send,
+                            color: Colors.white,
+                            size: 24,
                           ),
                         )
                       ),
