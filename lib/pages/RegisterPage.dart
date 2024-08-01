@@ -545,51 +545,69 @@ class _SignUpStep5State extends State<SignUpStep5> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 0.0, right: 0.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('학번, 학교, 학과를 입력해주세요', style: TextStyle(fontSize: 18)),
-          SizedBox(height: 20),
-          RoundedTextField(
-            labelText: '학번',
-            controller: widget.studentIdController,
-            keyboardType: TextInputType.number,
-            inputFormatters: [ //숫자만 받도록 제한
-              FilteringTextInputFormatter.digitsOnly
-            ],
-            obscureText: false,
-          ),
-          SizedBox(height: 20),
-          RoundedTextField(
-            labelText: '학과',
-            controller: widget.departmentController,
-            obscureText: false,
-          ),
-          SizedBox(height: 20),
-          UniversitySearch(
-            controller: widget.schoolController, // schoolController 사용
-            filteredUnivNames: filteredUnivNames,
-            onUniversitySelected: (String university) {
-              setState(() {
-                widget.schoolController.text = university; // schoolController 텍스트 설정
-                filteredUnivNames.clear();
-              });
-            },
-          ),
-
-          SizedBox(height: 16),
-
-          // 주변대학 찾기 버튼
-          Center(
-            child: TextButton(
-              onPressed: _showBottomSheet,
-              child: Text('주변 대학 찾기', style: TextStyle(color: Colors.black, fontSize: 16),),
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.white, // Scaffold의 배경색을 흰색으로 설정
+      body: Container(
+        color: Colors.white,
+        child: SafeArea(
+          child: Container(
+            color: Colors.white,
+            child: SingleChildScrollView(
+              child: Container( // Container를 추가하여 전체 배경색 제어
+                color: Colors.white, // 내부 배경색을 흰색으로 설정
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: 20.0,
+                    right: 20.0,
+                    top: 20.0,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 20.0,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('학번, 학교, 학과를 입력해주세요', style: TextStyle(fontSize: 18)),
+                      SizedBox(height: 20),
+                      RoundedTextField(
+                        labelText: '학번',
+                        controller: widget.studentIdController,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        obscureText: false,
+                      ),
+                      SizedBox(height: 20),
+                      RoundedTextField(
+                        labelText: '학과',
+                        controller: widget.departmentController,
+                        obscureText: false,
+                      ),
+                      SizedBox(height: 20),
+                      UniversitySearch(
+                        controller: widget.schoolController,
+                        filteredUnivNames: filteredUnivNames,
+                        onUniversitySelected: (String university) {
+                          setState(() {
+                            widget.schoolController.text = university;
+                            filteredUnivNames.clear();
+                          });
+                        },
+                      ),
+                      SizedBox(height: 16),
+                      Center(
+                        child: TextButton(
+                          onPressed: _showBottomSheet,
+                          child: Text('주변 대학 찾기', style: TextStyle(color: Colors.black, fontSize: 16),),
+                        ),
+                      ),
+                      SizedBox(height: 200), // 추가 여백
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
