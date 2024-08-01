@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:flutter/material.dart';
@@ -34,7 +35,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _postNameController = TextEditingController();
   final TextEditingController _postDescriptionController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController _productPriceController = TextEditingController();
   List<XFile?> _selectedImages = [];
   List<String?> _imageUrls = [];
@@ -59,7 +60,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
   Future<void> _fetchCategories() async {
     try {
       DocumentSnapshot categoryDoc =
-          await _firestore.collection('category').doc('categories').get();
+      await _firestore.collection('category').doc('categories').get();
       Map<String, dynamic> data = categoryDoc.data() as Map<String, dynamic>;
       List<String> categories = [];
       data.forEach((key, value) {
@@ -82,7 +83,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         DocumentSnapshot userData =
-            await _firestore.collection('users').doc(user.uid).get();
+        await _firestore.collection('users').doc(user.uid).get();
         setState(() {
           userName = userData['name'];
           userUniversity = userData['school'];
@@ -93,7 +94,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
 
   Future<void> _loadProductData(String postId) async {
     DocumentSnapshot productData =
-        await _firestore.collection('products').doc(postId).get();
+    await _firestore.collection('products').doc(postId).get();
     setState(() {
       _postNameController.text = productData['postName'];
       _postDescriptionController.text = productData['postDescription'];
@@ -118,7 +119,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
     for (var image in _selectedImages) {
       if (image != null) {
         final storageRef =
-            FirebaseStorage.instance.ref('product_images/${image.name}');
+        FirebaseStorage.instance.ref('product_images/${image.name}');
         if (kIsWeb) {
           // Web 환경에서 Uint8List로 변환하여 업로드
           Uint8List imageBytes = await image.readAsBytes();
@@ -178,7 +179,7 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
             labelStyle: TextStyle(color: Colors.black), // 라벨 텍스트 색상 설정
             focusedBorder: UnderlineInputBorder(
               borderSide:
-                  BorderSide(color: Color(0xff4EBDBD)), // 포커스된 상태에서의 밑줄 색상
+              BorderSide(color: Color(0xff4EBDBD)), // 포커스된 상태에서의 밑줄 색상
             ),
           ),
         ),
@@ -228,6 +229,9 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                   TextField(
                     keyboardType: TextInputType.number,
                     controller: _productPriceController,
+                    inputFormatters: [ //숫자만 받도록 제한
+                      FilteringTextInputFormatter.digitsOnly
+                    ],
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: '가격',
@@ -259,13 +263,13 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                     child: InkWell(
                       highlightColor: Colors.grey.withOpacity(0.1), //길게 누를 때 색상
                       splashColor:
-                          Colors.grey.withOpacity(0.2), //탭 했을 때 잉크 효과 색상
+                      Colors.grey.withOpacity(0.2), //탭 했을 때 잉크 효과 색상
                       borderRadius: BorderRadius.circular(12),
                       onTap: _selectCategory,
                       child: Container(
                         width: double.infinity,
                         padding:
-                            EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Color(0xFFDBDBDB)),
@@ -298,25 +302,25 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
                             .asMap()
                             .entries
                             .map((entry) => Padding(
-                                  padding: EdgeInsets.only(right: 10.0),
-                                  child: ClipRRect(
-                                    borderRadius:
-                                        BorderRadius.circular(0.03.sw),
-                                    child: (kIsWeb)
-                                        ? Image.network(
-                                            _imageUrls[entry.key]!,
-                                            height: 0.2.sw,
-                                            width: 0.2.sw,
-                                            fit: BoxFit.cover,
-                                          )
-                                        : Image.file(
-                                            File(entry.value!.path),
-                                            height: 0.2.sw,
-                                            width: 0.2.sw,
-                                            fit: BoxFit.cover,
-                                          ),
-                                  ),
-                                ))
+                          padding: EdgeInsets.only(right: 10.0),
+                          child: ClipRRect(
+                            borderRadius:
+                            BorderRadius.circular(0.03.sw),
+                            child: (kIsWeb)
+                                ? Image.network(
+                              _imageUrls[entry.key]!,
+                              height: 0.2.sw,
+                              width: 0.2.sw,
+                              fit: BoxFit.cover,
+                            )
+                                : Image.file(
+                              File(entry.value!.path),
+                              height: 0.2.sw,
+                              width: 0.2.sw,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ))
                             .toList(),
                       ),
                     ),
@@ -339,9 +343,9 @@ class _ProductRegisterState extends State<ProductRegisterPage> {
 
   void _productRegister() async {
     if (_postNameController.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('게시글 제목을 입력해주세요.')),
-        );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('게시글 제목을 입력해주세요.')),
+      );
       return;
     }
 

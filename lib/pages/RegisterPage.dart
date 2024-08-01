@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -30,7 +31,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  TextEditingController();
   final TextEditingController _nickNameController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
@@ -79,10 +80,10 @@ class _RegisterPageState extends State<RegisterPage> {
         SnackBar(content: Text('로그아웃되었습니다. 추가 사용자 정보 입력이 필요합니다.')),
       );
       // 로그인 페이지로 리디렉션
-       Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                );
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
     } catch (e) {
       print('Logout error: $e');
     }
@@ -129,7 +130,7 @@ class _RegisterPageState extends State<RegisterPage> {
         }
       } else {
         UserCredential userCredential =
-            await _auth.createUserWithEmailAndPassword(
+        await _auth.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
@@ -174,7 +175,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        //키보드 올라올때 사이즈 에러 방지
+      //키보드 올라올때 사이즈 에러 방지
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -182,9 +183,9 @@ class _RegisterPageState extends State<RegisterPage> {
           title: Text('회원가입'),
           leading: _currentPage > 0
               ? IconButton(
-                  icon: Icon(Icons.arrow_back),
-                  onPressed: _previousPage,
-                )
+            icon: Icon(Icons.arrow_back),
+            onPressed: _previousPage,
+          )
               : null,
         ),
         bottomSheet: Container(
@@ -194,7 +195,7 @@ class _RegisterPageState extends State<RegisterPage> {
               padding: EdgeInsets.only(
                   bottom: MediaQuery.of(context).viewInsets.bottom),
               child: Padding(
-                  padding: EdgeInsets.all(0.1.sw),
+                  padding: EdgeInsets.symmetric(horizontal: 0.1.sw),
                   child: Container(
                       height: 0.15.sh,
                       child: Column(
@@ -215,9 +216,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
                           BtnYesBG(
                               btnText:
-                                  _currentPage < (widget.isGoogleSignUp ? 2 : 4)
-                                      ? '다음'
-                                      : '등록',
+                              _currentPage < (widget.isGoogleSignUp ? 2 : 4)
+                                  ? '다음'
+                                  : '등록',
                               onPressed: _nextPage),
                         ],
                       ))),
@@ -246,15 +247,15 @@ class _RegisterPageState extends State<RegisterPage> {
                           SignUpStep2(
                               passwordController: _passwordController,
                               confirmPasswordController:
-                                  _confirmPasswordController),
+                              _confirmPasswordController),
                         SignUpStep3(nickNameController: _nickNameController),
                         SignUpStep4(
                             nameController: _nameController,
                             phoneNumberController: _phoneNumberController),
                         SignUpStep5(
-                            studentIdController: _studentIdController,
-                            schoolController: _schoolController,
-                            departmentController: _departmentController,),
+                          studentIdController: _studentIdController,
+                          schoolController: _schoolController,
+                          departmentController: _departmentController,),
                       ],
                     ),
                   )),
@@ -306,7 +307,7 @@ class SignUpStep2 extends StatelessWidget {
 
   SignUpStep2(
       {required this.passwordController,
-      required this.confirmPasswordController});
+        required this.confirmPasswordController});
 
   @override
   Widget build(BuildContext context) {
@@ -387,6 +388,10 @@ class SignUpStep4 extends StatelessWidget {
           RoundedTextField(
             labelText: '전화번호',
             controller: phoneNumberController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [ //숫자만 받도록 제한
+              FilteringTextInputFormatter.digitsOnly
+            ],
             obscureText: false,
           ),
         ],
@@ -549,9 +554,13 @@ class _SignUpStep5State extends State<SignUpStep5> {
           Text('학번, 학교, 학과를 입력해주세요', style: TextStyle(fontSize: 18)),
           SizedBox(height: 20),
           RoundedTextField(
-              labelText: '학번',
-              controller: widget.studentIdController,
-              obscureText: false,
+            labelText: '학번',
+            controller: widget.studentIdController,
+            keyboardType: TextInputType.number,
+            inputFormatters: [ //숫자만 받도록 제한
+              FilteringTextInputFormatter.digitsOnly
+            ],
+            obscureText: false,
           ),
           SizedBox(height: 20),
           RoundedTextField(
