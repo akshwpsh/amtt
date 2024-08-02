@@ -24,6 +24,10 @@ jobs:
       - name: 의존성 설치
         run: flutter pub get
 
+      - name: Firebase CLI 설치
+        run: |
+          curl -sL https://firebase.tools | bash
+
       - name: Firebase 환경 변수 설정
         run: |
           echo "FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" >> $GITHUB_ENV
