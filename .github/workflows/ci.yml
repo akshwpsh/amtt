@@ -2,40 +2,36 @@ name: Flutter CI/CD
 
 on:
   push:
-    branches:
-      - main  # main 브랜치에 푸시할 때마다 실행
+    branches: [ main ]
   pull_request:
-    branches:
-      - main  # main 브랜치에 PR이 생성될 때마다 실행
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: Set up JDK
-        uses: actions/setup-java@v2
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          java-version: '17'  # 필요한 Java 버전 지정
+          flutter-version: '3.x'
+          channel: 'stable'
 
-      - name: Install Flutter
-        run: |
-          git clone https://github.com/flutter/flutter.git -b stable
-          echo "$GITHUB_WORKSPACE/flutter/bin" >> $GITHUB_PATH
-
-      - name: Run Flutter pub get
+      - name: Get dependencies
         run: flutter pub get
 
-      - name: Run Flutter build
-        run: flutter build apk --release  # 안드로이드 APK 빌드
-        # flutter build ios --release # iOS 빌드를 원하면 주석 해제
-
-      - name: Deploy to Firebase
+      - name: Decode google-services.json
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}  # Firebase 토큰을 GitHub Secrets에 저장
-        run: |
-          flutter pub global activate firebase_cli
-          flutter pub global run firebase_cli deploy --non-interactive
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: echo $GOOGLE_SERVICES_JSON > android/app/google-services.json
+
+      - name: Build APK
+        run: flutter build apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
