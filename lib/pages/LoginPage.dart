@@ -32,88 +32,90 @@ class _LoginPageState extends State<LoginPage> {
       //키보드 올라올때 사이즈 에러 방지
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
-      body: Padding(
-        //전체 패딩
-        padding: EdgeInsets.all(0.1.sw),
-        child: Column(
-          children: [
-            //TODO : AppBar 지울 때 0.1.sh 로 변경!
-            SizedBox(height: 0.02.sh),
+      body: SingleChildScrollView(
+        child: Padding(
+          //전체 패딩
+          padding: EdgeInsets.all(0.1.sw),
+          child: Column(
+            children: [
+              //TODO : AppBar 지울 때 0.1.sh 로 변경!
+              SizedBox(height: 0.1.sh),
 
-            TitleLogo(), //로고
+              TitleLogo(), //로고
 
-            SizedBox(height: 0.1.sh), // 로고와 텍스트필드 사이의 간격 추가
+              SizedBox(height: 0.1.sh), // 로고와 텍스트필드 사이의 간격 추가
 
-            Container(
-              width: 0.8.sw,
-              child: Column(
-                children: [
-                  //이메일 입력
-                  RoundedTextField(
-                      labelText: '이메일',
-                      controller: _emailController,
-                      obscureText: false),
+              Container(
+                width: 0.8.sw,
+                child: Column(
+                  children: [
+                    //이메일 입력
+                    RoundedTextField(
+                        labelText: '이메일',
+                        controller: _emailController,
+                        obscureText: false),
 
-                  SizedBox(height: 0.01.sh), // 로고와 텍스트필드 사이의 간격 추가
+                    SizedBox(height: 0.01.sh), // 로고와 텍스트필드 사이의 간격 추가
 
-                  //비밀번호 입력
-                  RoundedTextField(
-                      labelText: '비밀번호',
-                      controller: _passwordController,
-                      obscureText: true),
+                    //비밀번호 입력
+                    RoundedTextField(
+                        labelText: '비밀번호',
+                        controller: _passwordController,
+                        obscureText: true),
 
-                  SizedBox(height: 0.02.sh),
+                    SizedBox(height: 0.02.sh),
 
-                  //로그인 버튼
-                  BtnYesBG(btnText: '로그인', onPressed: _login),
-                ],
+                    //로그인 버튼
+                    BtnYesBG(btnText: '로그인', onPressed: _login),
+                  ],
+                ),
               ),
-            ),
 
-            SizedBox(height: 0.02.sh),
+              SizedBox(height: 0.02.sh),
 
-            //이이디/비밀번호 찾기 버튼
-            TextButton(
-              onPressed: () {
-                print('아이디/비밀번호 찾기 버튼 클릭');
-              },
-              child: Text('아이디 / 비밀번호 찾기',
-                  style: TextStyle(
-                      color: Color(0xFF767676), fontWeight: FontWeight.normal),
-                  textAlign: TextAlign.center),
-            ),
+              //이이디/비밀번호 찾기 버튼
+              TextButton(
+                onPressed: () {
+                  print('아이디/비밀번호 찾기 버튼 클릭');
+                },
+                child: Text('아이디 / 비밀번호 찾기',
+                    style: TextStyle(
+                        color: Color(0xFF767676), fontWeight: FontWeight.normal),
+                    textAlign: TextAlign.center),
+              ),
 
-            SizedBox(height: 0.01.sh),
+              SizedBox(height: 0.01.sh),
 
-            //회원가입 버튼
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RegisterPage(isGoogleSignUp : false)),
-                );
-              },
-              child: Text('회원가입',
-                  style: TextStyle(
-                      color: Color(0xFF2f2f2f), fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center),
-            ),
-
-            SizedBox(height: 0.1.sh),
-
-            /*
-            BtnNoBG(
-                btnText: '로그인 없이 계속하기',
+              //회원가입 버튼
+              TextButton(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => NavigatePage()),
+                    MaterialPageRoute(builder: (context) => RegisterPage(isGoogleSignUp : false)),
                   );
-                }),*/
+                },
+                child: Text('회원가입',
+                    style: TextStyle(
+                        color: Color(0xFF2f2f2f), fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center),
+              ),
 
-            //구글로 로그인하기
-            BtnYesBG(btnText: '구글로 로그인', onPressed: _googleSignIn),
-          ],
+              SizedBox(height: 0.1.sh),
+
+              /*
+              BtnNoBG(
+                  btnText: '로그인 없이 계속하기',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => NavigatePage()),
+                    );
+                  }),*/
+
+              //구글로 로그인하기
+              BtnNoBG(btnText: '구글로 로그인', onPressed: _googleSignIn),
+            ],
+          ),
         ),
       ),
     );
@@ -147,6 +149,12 @@ class _LoginPageState extends State<LoginPage> {
       FirebaseService().saveMessageToken();
     } catch (e) {
       print('Login failed: $e');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("이메일 또는 비밀번호를 다시 한 번 확인해주세요"),
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),),
+      );
     }
   }
 

@@ -234,7 +234,7 @@ class _SearchPageState extends State<ChangeUnivPage> {
             scrolledUnderElevation: 0,
             backgroundColor: Colors.white,
             title: Text(
-              '나의 정보',
+              '대학 변경',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
