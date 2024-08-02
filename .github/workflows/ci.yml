@@ -1,51 +1,41 @@
-name: Flutter CI
+name: Flutter CI/CD
 
 on:
   push:
     branches:
-      - main
+      - main  # main 브랜치에 푸시할 때마다 실행
   pull_request:
     branches:
-      - main
+      - main  # main 브랜치에 PR이 생성될 때마다 실행
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 체크아웃 소스 코드
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Flutter 설치
-        uses: subosito/flutter-action@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v2
         with:
-          flutter-version: '3.22.2'
+          java-version: '17'  # 필요한 Java 버전 지정
 
-      - name: 의존성 설치
+      - name: Install Flutter
+        run: |
+          git clone https://github.com/flutter/flutter.git -b stable
+          echo "$GITHUB_WORKSPACE/flutter/bin" >> $GITHUB_PATH
+
+      - name: Run Flutter pub get
         run: flutter pub get
 
-      - name: Firebase CLI 설치
+      - name: Run Flutter build
+        run: flutter build apk --release  # 안드로이드 APK 빌드
+        # flutter build ios --release # iOS 빌드를 원하면 주석 해제
+
+      - name: Deploy to Firebase
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}  # Firebase 토큰을 GitHub Secrets에 저장
         run: |
-          curl -sL https://firebase.tools | bash
-
-      - name: Firebase 환경 변수 설정
-        run: |
-          echo "FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" >> $GITHUB_ENV
-          echo "FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}" >> $GITHUB_ENV
-
-      - name: Firebase CLI 설치
-        run: |
-          dart pub global activate flutterfire_cli
-
-      - name: Firebase 설정 파일 생성
-        run: |
-          flutterfire configure --project $FIREBASE_PROJECT_ID
-
-      - name: 빌드
-        run: flutter build apk --release
-
-      - name: 아티팩트 업로드
-        uses: actions/upload-artifact@v2
-        with:
-          name: apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          flutter pub global activate firebase_cli
+          flutter pub global run firebase_cli deploy --non-interactive
