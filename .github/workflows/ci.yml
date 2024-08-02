@@ -33,6 +33,10 @@ jobs:
           echo "FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" >> $GITHUB_ENV
           echo "FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}" >> $GITHUB_ENV
 
+      - name: Firebase CLI 설치
+        run: |
+          dart pub global activate flutterfire_cli
+
       - name: Firebase 설정 파일 생성
         run: |
           flutterfire configure --project $FIREBASE_PROJECT_ID
