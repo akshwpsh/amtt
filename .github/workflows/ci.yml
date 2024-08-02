@@ -1,0 +1,39 @@
+name: Flutter CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 체크아웃 소스 코드
+        uses: actions/checkout@v2
+
+      - name: Flutter 설치
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.2'
+
+      - name: 의존성 설치
+        run: flutter pub get
+
+      - name: Firebase 환경 변수 설정
+        run: |
+          echo "FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" >> $GITHUB_ENV
+          echo "FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}" >> $GITHUB_ENV
+
+      - name: 빌드
+        run: flutter build apk --release
+
+      - name: 아티팩트 업로드
+        uses: actions/upload-artifact@v2
+        with:
+          name: apk
+          path: build/app/outputs/flutter-apk/app-release.apk
